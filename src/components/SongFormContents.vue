@@ -6,6 +6,12 @@
     <v-card-text>
       <v-container>
         <v-row>
+          <v-col cols="12" sm="6">
+            <v-file-input accept="audio/*" label="楽曲を選択" @change="inputAudioFile" v-if="show" small-chips prepend-icon="mdi-file-music-outline"></v-file-input>
+          </v-col>
+          <v-col cols="12" sm="6">
+            <v-file-input accept="image/*" label="画像を選択" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline"></v-file-input>
+          </v-col>
           <v-col cols="12">
             <v-text-field
               label="曲名" v-model="music.title"
@@ -15,12 +21,6 @@
             <v-text-field
               label="アーティスト名" v-model="music.artist"
             ></v-text-field>
-          </v-col>
-          <v-col cols="12" sm="6">
-            <v-file-input accept="audio/*" label="楽曲を選択" @change="inputAudioFile" v-if="show" small-chips prepend-icon="mdi-file-music-outline"></v-file-input>
-          </v-col>
-          <v-col cols="12" sm="6">
-            <v-file-input accept="image/*" label="画像を選択" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline"></v-file-input>
           </v-col>
         </v-row>
       </v-container>
@@ -48,6 +48,7 @@
 <script>
 import firebase from 'firebase'
 import "firebase/storage"
+import axios from 'axios'
 import { mapActions } from 'vuex'
 import { mapGetters } from 'vuex'
   export default {
@@ -63,8 +64,24 @@ import { mapGetters } from 'vuex'
       inputImageFile (event) {
         this.file_image = event
       },
-      inputAudioFile (event) {
+      async inputAudioFile (event) {
         this.file_audio = event
+        const res_signed_url = await axios.get('https://1rmi1fy2z8.execute-api.ap-northeast-1.amazonaws.com/createPresignedUrl')
+        const pre_signed_url = (JSON.parse(res_signed_url.data.body)).put_url
+        const uuid = (JSON.parse(res_signed_url.data.body)).uuid
+        await axios.put(
+          pre_signed_url,
+          event,
+          {
+            headers: {
+              'Content-Type': event.type
+            }
+          }
+        )
+        const res_audio_info = await axios.post('https://ij6adayafg.execute-api.ap-northeast-1.amazonaws.com/getAudioInfo', { uuid: uuid })
+        const audio_info = JSON.parse(res_audio_info.data.body)
+        this.$set(this.music, 'title', audio_info.title)
+        this.$set(this.music, 'artist', audio_info.artist)
       },
       async fileUpload () {
         if (!this.music.title || !this.music.artist) {
