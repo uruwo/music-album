@@ -10,7 +10,7 @@
             <v-file-input accept="audio/*" label="楽曲を選択" @change="inputAudioFile" v-if="show" small-chips prepend-icon="mdi-file-music-outline"></v-file-input>
           </v-col>
           <v-col cols="12" sm="6">
-            <v-file-input accept="image/*" label="画像を選択" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline"></v-file-input>
+            <v-file-input accept="image/*" label="画像を選択" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline" v-model="file_image"></v-file-input>
           </v-col>
           <v-col cols="12">
             <v-text-field
@@ -55,7 +55,7 @@ import { mapGetters } from 'vuex'
     data () {
       return {
         music: {},
-        file_image: '',
+        file_image: null,
         file_audio: '',
         show: true,
       }
@@ -82,11 +82,16 @@ import { mapGetters } from 'vuex'
         const audio_info = JSON.parse(res_audio_info.data.body)
         this.$set(this.music, 'title', audio_info.title)
         this.$set(this.music, 'artist', audio_info.artist)
+        const image_url = 'https://audio-tmp-bucket.s3.ap-northeast-1.amazonaws.com/image/' + audio_info.image_name
+        fetch(image_url).then(response => response.blob()).then(blob => new File([blob], audio_info.image_name)).then(file => this.file_image = file)
       },
       async fileUpload () {
         if (!this.music.title || !this.music.artist) {
           alert('曲名・アーティスト名を入力してください。')
           return
+        }
+        if (this.file_image === null) {
+          this.file_image = ''
         }
         this.switchDialog()
         this.$set(this.music, 'user_id', this.uid)

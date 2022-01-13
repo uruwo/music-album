@@ -68,10 +68,10 @@ import { mapGetters } from 'vuex'
     },
     created () {
       this.music = this.$store.state.music_tmp
-      const image_url = this.music.image_url.match(/images%2F(.+)\?/)[1]
-      const audio_url = this.music.audio_url.match(/audios%2F(.+)\?/)[1]
-      fetch(this.music.file_image).then(response => response.blob()).then(blob => new File([blob], image_url)).then(file => this.file_image = file)
-      fetch(this.music.file_audio).then(response => response.blob()).then(blob => new File([blob], audio_url)).then(file => this.file_audio = file)
+      const image_name = this.music.image_url.match(/images%2F(.+)\?/)[1]
+      const audio_name = this.music.audio_url.match(/audios%2F(.+)\?/)[1]
+      fetch(this.file_image).then(response => response.blob()).then(blob => new File([blob], image_name)).then(file => this.file_image = file)
+      fetch(this.file_audio).then(response => response.blob()).then(blob => new File([blob], audio_name)).then(file => this.file_audio = file)
     },
     computed: {
       ...mapGetters(['uid'])
