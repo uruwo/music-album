@@ -42,6 +42,9 @@
         作成
       </v-btn>
     </v-card-actions>
+    <v-overlay :value="overlay" :absolute="true">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </v-card>
 </template>
 
@@ -58,6 +61,7 @@ import { mapGetters } from 'vuex'
         file_image: null,
         file_audio: '',
         show: true,
+        overlay: false,
       }
     },
     methods: {
@@ -65,6 +69,7 @@ import { mapGetters } from 'vuex'
         this.file_image = event
       },
       async inputAudioFile (event) {
+        this.overlay = true
         this.file_audio = event
         const res_signed_url = await axios.get('https://1rmi1fy2z8.execute-api.ap-northeast-1.amazonaws.com/createPresignedUrl')
         const pre_signed_url = (JSON.parse(res_signed_url.data.body)).put_url
@@ -129,6 +134,11 @@ import { mapGetters } from 'vuex'
     },
     computed: {
       ...mapGetters(['uid'])
+    },
+    watch: {
+      file_image () {
+        this.overlay = false
+      }
     }
   }
 </script>
