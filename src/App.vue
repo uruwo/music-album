@@ -49,7 +49,9 @@ export default {
         this.fetchAlbum()
         this.fetchProfile()
         this.fetchAllAlbum()
-        if ( this.$router.currentRoute.name === 'Login') this.$router.push({name: 'Home'})
+        if ( this.$router.currentRoute.name === 'Login') {
+          this.$router.push({name: 'Home'})
+        }
       } else {
         this.deleteLoginUser()
         this.$router.push({name: 'Login'})

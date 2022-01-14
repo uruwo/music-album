@@ -7,7 +7,7 @@
       </v-flex>
 
       <v-flex xs12 mt-5>
-        <v-btn color='info' @click="login">Googleアカウントでログイン</v-btn>
+        <v-btn color='info' @click="login(); load()">Googleアカウントでログイン</v-btn>
       </v-flex>
     </v-layout>
   </v-container>
@@ -17,6 +17,9 @@
 import { mapActions } from 'vuex'
   export default {
     methods: {
+      load () {
+        this.$router.push({name: 'Loading'})
+      },
       ...mapActions(['login'])
     }
   }

@@ -5,6 +5,7 @@ import Login from '../views/Login.vue'
 import Profile from '../views/Profile.vue'
 import Comments from '../views/Comments.vue'
 import OtherProfile from '../views/OtherProfile.vue'
+import Loading from '../views/Loading.vue'
 
 Vue.use(VueRouter)
 
@@ -13,6 +14,11 @@ const routes = [
     path: '/',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/loading',
+    name: 'Loading',
+    component: Loading
   },
   {
     path: '/home',
