@@ -25,8 +25,9 @@ def lambda_handler(event, context):
   cover_img = Image.open(BytesIO(apic[0]))
   cover_img.save('/tmp/image_tmp.jpg')
 
-  key_image = 'image/' + str(uuid.uuid4()) + '.jpg'
-  bucket.upload_file('/tmp/image_tmp.jpg', key_image)
+  image_name = str(uuid.uuid4()) + '.jpg'
+  key_image = 'image/' + image_name
+  bucket.upload_file('/tmp/image_tmp.jpg', key_image, ExtraArgs={'ContentType': 'image/jpg'})
 
   os.remove('/tmp/audio_tmp.m4a')
   os.remove('/tmp/image_tmp.jpg')
@@ -41,6 +42,6 @@ def lambda_handler(event, context):
     'body': json.dumps({
       "artist": artist,
       "title": title,
-      "key_image": key_image
-    })
+      "image_name": image_name
+    }, ensure_ascii=False)
   }
