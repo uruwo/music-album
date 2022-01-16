@@ -10,14 +10,11 @@
         class="mt-16"
         >
         <template v-slot:append>
-        <v-icon color="grey darken-1">mdi-magnify</v-icon>
+        <v-btn icon plain :ripple="false">
+          <v-icon color="grey darken-1">mdi-magnify</v-icon>
+        </v-btn>
         </template>
         </v-text-field>
-      </v-col>
-      <v-col class="mt-16" v-show="false">
-        <div align="center" class="mt-4">
-          <v-btn>比較・鑑賞</v-btn>
-        </div>
       </v-col>
     </v-row>
     <v-row>

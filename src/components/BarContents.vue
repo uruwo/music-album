@@ -153,6 +153,7 @@ export default {
     white-space: normal;
   }
   .slider {
-    width: 100px;
+    min-width: 100px;
+    max-width: 200px;
   }
 </style>
