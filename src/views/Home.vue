@@ -4,13 +4,12 @@
       <v-col cols=8>
         <v-text-field
         v-model="keyword"
-        @change="putFilteredAlbum(filteredAlbum)"
         label="曲名・アーティスト名"
         type="text"
         class="mt-16"
         >
         <template v-slot:append>
-        <v-btn icon plain :ripple="false">
+        <v-btn icon plain :ripple="false" @click="filterAlbum">
           <v-icon color="grey darken-1">mdi-magnify</v-icon>
         </v-btn>
         </template>
@@ -71,15 +70,25 @@ export default {
       create: 'song-images/create-song.jpg',
       hoverFlag: false,
       album: [],
+      filteredAlbum: [],
       audio: new Audio(),
     }
   },
   created () {
     this.album = this.$store.state.album
+    this.filteredAlbum = this.album
     this.putFilteredAlbum(this.album)
   },
-  computed: {
-    filteredAlbum: function () {
+  watch: {
+    keyword: function (newVal) {
+      if (!newVal) {
+        this.filteredAlbum = this.album
+        this.putFilteredAlbum(this.filteredAlbum)
+      }
+    }
+  },
+  methods: {
+    filterAlbum () {
       const album = []
       for (const i in this.album) {
         let music = this.album[i]
@@ -88,10 +97,9 @@ export default {
             album.push(music)
         }
       }
-      return album
-    }
-  },
-  methods: {
+      this.filteredAlbum = album
+      this.putFilteredAlbum(this.filteredAlbum)
+    },
     mouseHover (index) {
       setTimeout(() => {
         this.hoverFlag = true
