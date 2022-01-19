@@ -188,7 +188,7 @@ export default {
     async fileUpload (event) {
       this.$set(this.profile, 'user_id', this.uid)
       let file = event.target.files[0]
-      const storageImage = firebase.storage().ref("profile_images/" + file.name)
+      const storageImage = firebase.storage().ref(`users/${this.uid}/profile_images/` + file.name)
       const that = this
       await storageImage.getDownloadURL().then(onResolve, onReject)
       function onResolve(url) {
