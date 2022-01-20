@@ -21,12 +21,12 @@
         <v-list-item-avatar tile size="45" class="ma-0 mx-4 d-none d-sm-flex">
           <v-img :src="music.image_url"></v-img>
         </v-list-item-avatar>
-        <v-list-item-content>
+        <v-list-item-content :class="{ 'title-container': $vuetify.breakpoint.xs }">
           <v-list-item-title>{{ music.title }}</v-list-item-title>
           <v-list-item-subtitle>{{ music.artist }}</v-list-item-subtitle>
         </v-list-item-content>
         <v-spacer class="d-none d-sm-flex"></v-spacer>
-        <v-list-item-icon :class="{ 'mr-8': $vuetify.breakpoint.smAndUp }">
+        <v-list-item-icon :class="{ 'mr-8': $vuetify.breakpoint.mdAndUp }">
           <v-btn icon @click="setMusicActive(music); switchCommentState()">
             <v-icon>mdi-message-text</v-icon>
           </v-btn>
@@ -153,7 +153,10 @@ export default {
     white-space: normal;
   }
   .slider {
-    min-width: 100px;
-    max-width: 200px;
+    min-width: 120px;
+    max-width: 120px;
+  }
+  .title-container {
+    width: 253px;
   }
 </style>
