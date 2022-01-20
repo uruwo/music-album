@@ -86,6 +86,7 @@ import { mapGetters } from 'vuex'
       deleteConfirm (id) {
         if (confirm('この楽曲を削除してよろしいですか?')) {
           this.deleteMusic({id})
+          this.deleteCommentInAll({id})
           this.switchDialogUpdate()
         }
       },
@@ -120,7 +121,7 @@ import { mapGetters } from 'vuex'
           this.show = true
         })
       },
-      ...mapActions(['switchDialogUpdate','updateMusic','deleteMusic'])
+      ...mapActions(['switchDialogUpdate','updateMusic','deleteMusic', 'deleteCommentInAll'])
     }
   }
 </script>

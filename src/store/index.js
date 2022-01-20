@@ -149,6 +149,7 @@ export default new Vuex.Store({
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).add(music).then(doc => {
         commit('addMusic', { id: doc.id, music })
+        commit('addAllMusic', { id: doc.id, music})
         })
       }
     },
