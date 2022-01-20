@@ -1,7 +1,7 @@
 <template>
   <v-app-bar app color="#121212" flat>
     <v-avatar size="30">
-      <img :src="photoURL">
+      <img :src="photoURL ? photoURL : 'default_user_icon.png'">
     </v-avatar>
     <v-toolbar-title>
       Music Album
