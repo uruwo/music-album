@@ -101,6 +101,12 @@
                     <v-btn icon @click="play(music)" v-if="music.audio_url && music.audio_url.match(/audios%2F(.+)\?/)[1] !== 'undefined'">
                       <v-icon large>mdi-play-circle-outline</v-icon>
                     </v-btn>
+                    <v-btn icon @click="like(music)" v-else-if="!music.audio_url && !favorite_comment.includes(music.id)">
+                      <v-icon>mdi-thumb-up-outline</v-icon>
+                    </v-btn>
+                    <v-btn icon v-else>
+                      <v-icon>mdi-thumb-up</v-icon>
+                    </v-btn>
                   </v-card-title>
                 </div>
               </div>
@@ -133,6 +139,7 @@ export default {
       album: [],
       all_album: [],
       all_profile: [],
+      favorite_comment: [],
       profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
       keyword: '',
     }
@@ -145,13 +152,17 @@ export default {
     this.all_album = this.$store.state.all_album
     this.all_profile = this.$store.state.all_profile
     this.putFilteredAlbum(this.filteredAlbum.filter(music => music.user_id === this.uid))
+    this.favorite_comment = this.$store.state.favorite_comment
   },
   methods: {
     play (music) {
       this.switchBarContent(music)
       this.switchPlayerBar()
     },
-    ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum'])
+    like (music) {
+      this.addLike({music_id: music.id, creater_id: music.user_id})
+    },
+    ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike'])
   },
   computed: {
     artists: function () {

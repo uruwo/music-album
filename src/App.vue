@@ -49,6 +49,7 @@ export default {
         this.fetchAlbum()
         this.fetchProfile()
         this.fetchAllAlbum()
+        this.fetchFavoriteComments()
         if ( this.$router.currentRoute.name === 'Login') {
           this.$router.push({name: 'Home'})
         }
@@ -59,7 +60,7 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['setLoginUser','deleteLoginUser','fetchAlbum','fetchProfile', 'fetchAllAlbum'])
+    ...mapActions(['setLoginUser','deleteLoginUser','fetchAlbum','fetchProfile', 'fetchAllAlbum', 'fetchFavoriteComments'])
   },
   computed: {
     ...mapGetters(['userName', 'photoURL'])

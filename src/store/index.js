@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import firebase from 'firebase'
+import axios from 'axios'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -24,7 +25,8 @@ export default new Vuex.Store({
     filtered_album: [],
     profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
     all_profile: [],
-    profile_key: 0
+    profile_key: 0,
+    favorite_comment: [],
   },
   mutations: {
     setLoginUser (state, user) {
@@ -98,6 +100,9 @@ export default new Vuex.Store({
       const index = state.album.findIndex( music => music.id === id)
       delete state.album[index].comment
     },
+    addLike (state, music_id) {
+      state.favorite_comment.push(music_id)
+    },
     setMusicTemp (state, music) {
       state.music_tmp = music
     },
@@ -159,6 +164,17 @@ export default new Vuex.Store({
           commit('addProfile', { id: doc.id, profile })
         })
       }
+    },
+    addLike ({ getters, commit }, {music_id, creater_id}) {
+      axios.post('https://6d674idng5.execute-api.ap-northeast-1.amazonaws.com/addLike', { fan_id: getters.uid, music_id: music_id, creater_id: creater_id })
+      commit('addLike', music_id)
+    },
+    fetchFavoriteComments ({ getters, commit }) {
+      axios.post('https://sb21nix868.execute-api.ap-northeast-1.amazonaws.com/favoriteComment', { user_id: getters.uid }).then(
+        response => {
+          JSON.parse(response.data.body).forEach(item => commit('addLike', item.music_id))
+        }
+      )
     },
     addProfileInAll ({ commit }, profile) {
       commit('addProfileInAll', profile)
