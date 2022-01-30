@@ -103,6 +103,10 @@ export default new Vuex.Store({
     addLike (state, music_id) {
       state.favorite_comment.push(music_id)
     },
+    deleteLike (state, music_id) {
+      const index = state.favorite_comment.findIndex(id => id === music_id)
+      state.favorite_comment.splice(index, 1)
+    },
     setMusicTemp (state, music) {
       state.music_tmp = music
     },
@@ -166,11 +170,15 @@ export default new Vuex.Store({
       }
     },
     addLike ({ getters, commit }, {music_id, creater_id}) {
-      axios.post('https://6d674idng5.execute-api.ap-northeast-1.amazonaws.com/addLike', { fan_id: getters.uid, music_id: music_id, creater_id: creater_id })
+      axios.post('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment', { fan_id: getters.uid, music_id: music_id, creater_id: creater_id })
       commit('addLike', music_id)
     },
+    deleteLike ({ getters, commit }, music_id) {
+      axios.delete('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment', {data: { user_id: getters.uid, music_id: music_id }})
+      commit('deleteLike', music_id)
+    },
     fetchFavoriteComments ({ getters, commit }) {
-      axios.post('https://sb21nix868.execute-api.ap-northeast-1.amazonaws.com/favoriteComment', { user_id: getters.uid }).then(
+      axios.get('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment', {params: { user_id: getters.uid }}).then(
         response => {
           JSON.parse(response.data.body).forEach(item => commit('addLike', item.music_id))
         }

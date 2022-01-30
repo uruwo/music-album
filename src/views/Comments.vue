@@ -101,10 +101,10 @@
                     <v-btn icon @click="play(music)" v-if="music.audio_url && music.audio_url.match(/audios%2F(.+)\?/)[1] !== 'undefined'">
                       <v-icon large>mdi-play-circle-outline</v-icon>
                     </v-btn>
-                    <v-btn icon @click="like(music)" v-else-if="!music.audio_url && !favorite_comment.includes(music.id)">
+                    <v-btn icon @click="addLike({music_id: music.id, creater_id: music.user_id})" v-else-if="!music.audio_url && !favorite_comment.includes(music.id)">
                       <v-icon>mdi-thumb-up-outline</v-icon>
                     </v-btn>
-                    <v-btn icon v-else>
+                    <v-btn icon v-else @click="deleteLike(music.id)">
                       <v-icon>mdi-thumb-up</v-icon>
                     </v-btn>
                   </v-card-title>
@@ -159,10 +159,7 @@ export default {
       this.switchBarContent(music)
       this.switchPlayerBar()
     },
-    like (music) {
-      this.addLike({music_id: music.id, creater_id: music.user_id})
-    },
-    ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike'])
+    ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike'])
   },
   computed: {
     artists: function () {
