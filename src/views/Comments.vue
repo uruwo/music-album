@@ -105,7 +105,7 @@
                       <v-icon>mdi-thumb-up-outline</v-icon>
                     </v-btn>
                     <v-btn icon v-else @click="deleteLike(music.id)">
-                      <v-icon>mdi-thumb-up</v-icon>
+                      <v-icon color="cyan accent-4">mdi-thumb-up</v-icon>
                     </v-btn>
                   </v-card-title>
                 </div>

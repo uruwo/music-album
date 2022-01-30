@@ -27,6 +27,7 @@ export default new Vuex.Store({
     all_profile: [],
     profile_key: 0,
     favorite_comment: [],
+    liked_comments: []
   },
   mutations: {
     setLoginUser (state, user) {
@@ -107,6 +108,9 @@ export default new Vuex.Store({
       const index = state.favorite_comment.findIndex(id => id === music_id)
       state.favorite_comment.splice(index, 1)
     },
+    addLikedComment (state, music_id) {
+      state.liked_comments.push(music_id)
+    },
     setMusicTemp (state, music) {
       state.music_tmp = music
     },
@@ -181,6 +185,14 @@ export default new Vuex.Store({
       axios.get('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment', {params: { user_id: getters.uid }}).then(
         response => {
           JSON.parse(response.data.body).forEach(item => commit('addLike', item.music_id))
+        }
+      )
+    },
+    fetchLikedComments ({ getters, commit }) {
+      axios.get('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment/own-comment', {params: {
+      user_id: getters.uid}}).then(
+        response => {
+          JSON.parse(response.data.body).forEach(item => commit('addLikedComment', item.music_id))
         }
       )
     },

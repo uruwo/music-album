@@ -116,10 +116,18 @@
                   background-color="#1E1E1E"
                   v-model="music.comment"
                   loading="false"
+                  hide-details=""
                   @blur="updateComment(index)"
                 >
                 </v-textarea>
               </v-card-text>
+              <div class="flex mr-11 mt-1 pb-1">
+                <v-spacer></v-spacer>
+                <div>
+                  <v-icon small class="pb-1">mdi-thumb-up</v-icon>
+                  {{ likes(music.id) }}
+                </div>
+              </div>
             </v-card>
           </div>
         </div>
@@ -141,10 +149,12 @@ export default {
       profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
       edit: false,
       keyword: '',
+      liked_comments: []
     }
   },
   created () {
     this.album = this.$store.state.album
+    this.liked_comments = this.$store.state.liked_comments
     this.putFilteredAlbum(this.filteredAlbum)
   },
   directives: {
@@ -211,6 +221,11 @@ export default {
     ...mapActions(['addProfile','updateProfile', 'switchDialogProfile','putFilteredAlbum','updateMusic','switchBarContent', 'switchPlayerBar', 'updateMusicInAll', 'addProfileInAll', 'updateProfileInAll'])
   },
   computed: {
+    likes: function () {
+      return function(id) {
+        return this.liked_comments.filter(comment => comment === id).length
+      }
+    },
     artists: function () {
       return (this.album.filter((music, index, self) => self.findIndex(e => e.artist === music.artist) === index)).length
     },
