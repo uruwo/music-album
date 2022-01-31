@@ -7,6 +7,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     album: [],
+    commented_album: [],
     all_album: [],
     login_user: null,
     drawer: false,
@@ -54,6 +55,20 @@ export default new Vuex.Store({
     addMusic (state, {id, music}) {
       music.id = id
       state.album.unshift(music)
+      if ('comment' in music) {
+        state.commented_album.unshift(music)
+        state.commented_album.sort((a,b) => {
+          let titleA = a.title.toUpperCase()
+          let titleB = b.title.toUpperCase()
+          if (titleA < titleB) {
+            return -1
+          }
+          if (titleA > titleB) {
+            return 1
+          }
+          return 0
+        })
+      }
     },
     addAllMusic (state, {id, music}) {
       music.id = id
@@ -82,6 +97,14 @@ export default new Vuex.Store({
       const index = state.album.findIndex( music => music.id === id)
       state.album[index] = music
     },
+    updateCommentedMusic (state, {id, music}) {
+      const index = state.commented_album.findIndex(music => music.id === id)
+      if (index === -1) {
+        state.commented_album.unshift(music)
+      } else {
+        state.commented_album[index] = music
+      }
+    },
     updateMusicInAll (state, {id, music}) {
       const index = state.all_album.findIndex(music => music.id === id)
       state.all_album[index] = music
@@ -93,6 +116,12 @@ export default new Vuex.Store({
       const index = state.album.findIndex( music => music.id === id)
       state.album.splice(index, 1)
     },
+    deleteCommentedMusic (state, {id}) {
+      const index = state.commented_album.findIndex(music => music.id === id)
+      if (index !== -1) {
+        state.commented_album.splice(index, 1)
+      }
+    },
     deleteCommentInAll (state, {id}) {
       const index = state.all_album.findIndex(music => music.id === id)
       delete state.all_album[index].comment
@@ -100,6 +129,12 @@ export default new Vuex.Store({
     deleteComment (state, {id}) {
       const index = state.album.findIndex( music => music.id === id)
       delete state.album[index].comment
+    },
+    deleteCommentView (state, {id}) {
+      const index = state.commented_album.findIndex( music => music.id === id)
+      if (index !== -1) {
+        state.commented_album.splice(index, 1)
+      }
     },
     addLike (state, music_id) {
       state.favorite_comment.push(music_id)
@@ -224,6 +259,7 @@ export default new Vuex.Store({
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update(music).then(() => {
         commit('updateMusic', { id, music })
+        commit('updateCommentedMusic', { id, music })
         })
       }
     },
@@ -241,6 +277,7 @@ export default new Vuex.Store({
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).delete().then(() => {
         commit('deleteMusic', { id })
+        commit('deleteCommentedMusic', { id })
         })
       }
     },
@@ -251,6 +288,7 @@ export default new Vuex.Store({
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update({comment: firebase.firestore.FieldValue.delete()}).then(() => {
           commit('deleteComment', { id })
+          commit('deleteCommentView', { id })
         })
       }
     },
