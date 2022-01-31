@@ -121,10 +121,10 @@
                 >
                 </v-textarea>
               </v-card-text>
-              <div class="flex mr-11 mt-1 pb-1">
+              <div class="flex mr-10 mt-1 pb-1">
                 <v-spacer></v-spacer>
                 <div>
-                  <v-icon small class="pb-1">mdi-thumb-up</v-icon>
+                  <v-icon small class="pb-1 pr-1">mdi-thumb-up</v-icon>
                   {{ likes(music.id) }}
                 </div>
               </div>

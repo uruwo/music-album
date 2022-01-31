@@ -7,6 +7,9 @@
         label="曲名・アーティスト名"
         type="text"
         class="mt-16"
+        @blur="filterAlbum"
+        ref="blurThis"
+        @keyup.enter.exact="blur"
         >
         <template v-slot:append>
         <v-btn icon plain :ripple="false" @click="filterAlbum">
@@ -88,6 +91,9 @@ export default {
     }
   },
   methods: {
+    blur () {
+      this.$refs.blurThis.blur()
+    },
     filterAlbum () {
       const album = []
       for (const i in this.album) {
