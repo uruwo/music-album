@@ -76,7 +76,20 @@ export default new Vuex.Store({
         delete music.audio_url
         delete music.image_url
       }
-      state.all_album.unshift(music)
+      if (music.comment) {
+        state.all_album.unshift(music)
+        state.all_album.sort((a,b) => {
+          let dateA = a.date
+          let dateB = b.date
+          if (dateA > dateB) {
+            return -1
+          }
+          if (dateA < dateB) {
+            return 1
+          }
+          return 0
+        })
+      }
     },
     addProfile (state, {id, profile}) {
       profile.id = id
@@ -107,7 +120,11 @@ export default new Vuex.Store({
     },
     updateMusicInAll (state, {id, music}) {
       const index = state.all_album.findIndex(music => music.id === id)
-      state.all_album[index] = music
+      if (index === -1) {
+        state.all_album.unshift(music)
+      } else {
+        state.all_album[index] = music
+      }
     },
     updateProfile (state, profile) {
       state.profile = profile
@@ -116,15 +133,11 @@ export default new Vuex.Store({
       const index = state.album.findIndex( music => music.id === id)
       state.album.splice(index, 1)
     },
-    deleteCommentedMusic (state, {id}) {
-      const index = state.commented_album.findIndex(music => music.id === id)
-      if (index !== -1) {
-        state.commented_album.splice(index, 1)
-      }
-    },
     deleteCommentInAll (state, {id}) {
       const index = state.all_album.findIndex(music => music.id === id)
-      delete state.all_album[index].comment
+      if (index !== -1) {
+        state.all_album.splice(index, 1)
+      }
     },
     deleteComment (state, {id}) {
       const index = state.album.findIndex( music => music.id === id)
@@ -277,7 +290,7 @@ export default new Vuex.Store({
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).delete().then(() => {
         commit('deleteMusic', { id })
-        commit('deleteCommentedMusic', { id })
+        commit('deleteCommentView', { id })
         })
       }
     },

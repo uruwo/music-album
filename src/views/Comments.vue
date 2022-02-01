@@ -67,10 +67,14 @@
             dense
             placeholder="曲名・アーティスト名"
             type="text"
-            @change="putFilteredAlbum(filteredAlbum.filter(music => music.user_id === uid))"
+            ref='blurThis'
+            @blur="filterAlbum"
+            @keyup.enter.exact="blur"
             >
             <template v-slot:append>
-            <v-icon color="grey darken-1">mdi-magnify</v-icon>
+              <v-btn icon plain :ripple="false" @click="filterAlbum">
+                <v-icon color="grey darken-1">mdi-magnify</v-icon>
+              </v-btn>
             </template>
             </v-text-field>
           </v-card-title>
@@ -78,7 +82,7 @@
       </v-row>
       <v-divider></v-divider>
       <div
-        v-for="(music, index) in filteredAlbum"
+        v-for="(music, index) in all_album"
         :key="index"
       >
         <div class="flex mt-2 ml-2">
@@ -151,10 +155,32 @@ export default {
     this.album = this.$store.state.album
     this.all_album = this.$store.state.all_album
     this.all_profile = this.$store.state.all_profile
-    this.putFilteredAlbum(this.filteredAlbum.filter(music => music.user_id === this.uid))
+    this.putFilteredAlbum(this.all_album.filter(music => music.user_id === this.uid))
     this.favorite_comment = this.$store.state.favorite_comment
   },
+  watch: {
+    keyword: function (newVal) {
+      if (!newVal) {
+        this.filterAlbum()
+      }
+    }
+  },
   methods: {
+    filterAlbum () {
+      const album = []
+      for (const i in this.$store.state.all_album) {
+        const music = this.$store.state.all_album[i]
+        if (music.title.indexOf(this.keyword) !== -1 ||
+            music.artist.indexOf(this.keyword) !== -1) {
+            album.push(music)
+        }
+      }
+      this.all_album = album
+      this.putFilteredAlbum(this.all_album.filter(music => music.user_id === this.uid))
+    },
+    blur () {
+      this.$refs.blurThis.blur()
+    },
     play (music) {
       this.switchBarContent(music)
       this.switchPlayerBar()
@@ -167,27 +193,6 @@ export default {
     },
     comments: function () {
       return (this.album.filter(music => music.comment)).length
-    },
-    filteredAlbum: function () {
-      const album = []
-      for (const i in this.all_album) {
-        const music = this.all_album[i]
-        if (music.title.indexOf(this.keyword) !== -1 ||
-            music.artist.indexOf(this.keyword) !== -1) {
-            album.push(music)
-        }
-      }
-      return album.filter(music => music.comment).sort((a,b) => {
-        let dateA = a.date
-        let dateB = b.date
-        if (dateA > dateB) {
-          return -1
-        }
-        if (dateA < dateB) {
-          return 1
-        }
-        return 0
-      })
     },
     myImage: function () {
       if (this.$store.state.profile.profile_image) {
