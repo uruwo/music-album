@@ -64,7 +64,7 @@ export default {
     ...mapActions(['setLoginUser','deleteLoginUser','fetchAlbum','fetchProfile', 'fetchAllAlbum', 'fetchFavoriteComments', 'fetchLikedComments'])
   },
   computed: {
-    ...mapGetters(['userName', 'photoURL'])
+    ...mapGetters(['photoURL'])
   }
 };
 </script>

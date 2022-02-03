@@ -25,7 +25,6 @@ export default new Vuex.Store({
     comment_key: 0,
     filtered_album: [],
     profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
-    all_profile: [],
     profile_key: 0,
     favorite_comment: [],
     liked_comments: []
@@ -95,22 +94,11 @@ export default new Vuex.Store({
       profile.id = id
       state.profile = profile
     },
-    addProfileInAll (state, profile) {
-      state.all_profile.push(profile)
-    },
-    updateProfileInAll (state, {id, profile}) {
-      const index = state.all_profile.findIndex(profile => profile.user_id === id)
-      state.all_profile[index] = profile
-    },
-    addAllProfile (state, {id, profile}) {
-      profile.id = id
-      state.all_profile.push(profile)
-    },
     updateMusic (state, {id, music}) {
       const index = state.album.findIndex( music => music.id === id)
       state.album[index] = music
     },
-    updateCommentedMusic (state, {id, music}) {
+    updateComment (state, {id, music}) {
       const index = state.commented_album.findIndex(music => music.id === id)
       if (index === -1) {
         state.commented_album.unshift(music)
@@ -244,12 +232,6 @@ export default new Vuex.Store({
         }
       )
     },
-    addProfileInAll ({ commit }, profile) {
-      commit('addProfileInAll', profile)
-    },
-    updateProfileInAll ({ commit }, {id, profile}) {
-      commit('updateProfileInAll', {id, profile})
-    },
     fetchAlbum ({ getters, commit }) {
       firebase.firestore().collection(`users/${getters.uid}/album`).get().then(snapshot => {
         snapshot.forEach(doc => commit('addMusic', { id: doc.id, music: doc.data() }))
@@ -265,14 +247,11 @@ export default new Vuex.Store({
         snapshot.forEach(doc => commit('addProfile', { id: doc.id, profile: doc.data() }))
       })
     },
-    fetchAllProfile ({ commit }) {
-      firebase.firestore().collectionGroup('profile').get().then(snapshot => snapshot.forEach(doc => commit('addAllProfile', {id: doc.id, profile: doc.data()})))
-    },
     updateMusic ({ getters, commit }, {id, music}) {
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update(music).then(() => {
         commit('updateMusic', { id, music })
-        commit('updateCommentedMusic', { id, music })
+        commit('updateComment', { id, music })
         })
       }
     },

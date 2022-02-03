@@ -26,7 +26,7 @@
         <v-divider></v-divider>
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title>演奏者</v-list-item-title>
+            <v-list-item-title>アーティスト</v-list-item-title>
           </v-list-item-content>
           <p class="text-body-2 my-2" >{{ artists }}人</p>
         </v-list-item>

@@ -21,7 +21,7 @@
         <v-divider></v-divider>
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title>演奏者</v-list-item-title>
+            <v-list-item-title>アーティスト</v-list-item-title>
           </v-list-item-content>
           <p class="text-body-2 my-2" >{{ artists }}人</p>
         </v-list-item>
@@ -87,12 +87,12 @@
       >
         <div class="flex mt-2 ml-2">
           <div>
-            <v-avatar tile rounded="sm" @click="music.user_id === uid ? $router.push({name: 'Profile'}) : $router.push({name: 'OtherProfile', params: {user_id: music.user_id}})">
-              <v-img :src="profileImage(music.user_id)" aspect-ratio="1"></v-img>
+            <v-avatar tile rounded="sm" @click="watchProfile(music)">
+              <v-img :src="music.profile_image" aspect-ratio="1"></v-img>
             </v-avatar>
           </div>
           <div class="flex-grow">
-            <p class="ml-2 mb-2">{{ profileName(music.user_id) }}</p>
+            <p class="ml-2 mb-2">{{ music.profile_name }}</p>
             <v-card color="grey darken-4" class="ma-2">
               <div class="flex">
                 <div>
@@ -142,19 +142,14 @@ export default {
     return {
       album: [],
       all_album: [],
-      all_profile: [],
       favorite_comment: [],
       profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
       keyword: '',
     }
   },
   created () {
-    if (!this.$store.state.all_profile.length) {
-      this.fetchAllProfile()
-    }
     this.album = this.$store.state.album
     this.all_album = this.$store.state.all_album
-    this.all_profile = this.$store.state.all_profile
     this.putFilteredAlbum(this.all_album.filter(music => music.user_id === this.uid))
     this.favorite_comment = this.$store.state.favorite_comment
   },
@@ -185,6 +180,13 @@ export default {
       this.switchBarContent(music)
       this.switchPlayerBar()
     },
+    watchProfile (music) {
+      if (music.user_id === this.uid) {
+        this.$router.push({name: 'Profile'})
+      } else {
+        this.$router.push({name: 'OtherProfile', params: {user_id: music.user_id}})
+      }
+    },
     ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike'])
   },
   computed: {
@@ -199,36 +201,6 @@ export default {
         return this.$store.state.profile.profile_image
       } else {
         return 'default_user_icon.png'
-      }
-    },
-    profileImage: function () {
-      return function(id) {
-        const all_profile = this.$store.state.all_profile
-        const index = all_profile.findIndex(profile => profile.user_id === id)
-        if (index === -1) {
-          return 'default_user_icon.png'
-        } else {
-          if (all_profile[index].profile_image) {
-            return all_profile[index].profile_image
-          } else {
-            return 'default_user_icon.png'
-          }
-        }
-      }
-    },
-    profileName: function () {
-      return function(id) {
-        const all_profile = this.$store.state.all_profile
-        const index = all_profile.findIndex(profile => profile.user_id === id)
-        if (index === -1) {
-          return 'ユーザー'
-        } else {
-          if (all_profile[index].name) {
-            return all_profile[index].name
-          } else {
-            return 'ユーザー'
-          }
-        }
       }
     },
     ...mapGetters(['uid'])
