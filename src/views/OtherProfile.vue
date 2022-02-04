@@ -128,7 +128,7 @@ export default {
       profile: {
         name: 'ユーザー',
         comment: 'Write something you want to appeal.',
-        profile_image:'default_user_icon.png'
+        profile_image:'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png'
       },
       keyword: '',
     }
