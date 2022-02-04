@@ -58,6 +58,10 @@ export default {
       this.deleteCommentInAll({id: this.music.id, music: this.music})
     },
     updateComment () {
+      if (!this.music.profile_name) {
+        this.$set(this.music, 'profile_name', this.$store.state.profile.name)
+        this.$set(this.music, 'profile_image', this.$store.state.profile.profile_image)
+      }
       if (!this.music.date) {
         this.$set(this.music, 'date', Date.now())
       }

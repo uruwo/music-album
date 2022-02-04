@@ -21,7 +21,7 @@
         <v-divider></v-divider>
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title>演奏者</v-list-item-title>
+            <v-list-item-title>アーティスト</v-list-item-title>
           </v-list-item-content>
           <p class="text-body-2 my-2" >{{ artists }}人</p>
         </v-list-item>
@@ -67,10 +67,14 @@
             dense
             placeholder="曲名・アーティスト名"
             type="text"
-            @change="putFilteredAlbum(filteredAlbum.filter(music => music.user_id === uid))"
+            ref='blurThis'
+            @blur="filterAlbum"
+            @keyup.enter.exact="blur"
             >
             <template v-slot:append>
-            <v-icon color="grey darken-1">mdi-magnify</v-icon>
+              <v-btn icon plain :ripple="false" @click="filterAlbum">
+                <v-icon color="grey darken-1">mdi-magnify</v-icon>
+              </v-btn>
             </template>
             </v-text-field>
           </v-card-title>
@@ -78,17 +82,17 @@
       </v-row>
       <v-divider></v-divider>
       <div
-        v-for="(music, index) in filteredAlbum"
+        v-for="(music, index) in all_album"
         :key="index"
       >
         <div class="flex mt-2 ml-2">
           <div>
-            <v-avatar tile rounded="sm" @click="music.user_id === uid ? $router.push({name: 'Profile'}) : $router.push({name: 'OtherProfile', params: {user_id: music.user_id}})">
-              <v-img :src="profileImage(music.user_id)" aspect-ratio="1"></v-img>
+            <v-avatar tile rounded="sm" @click="watchProfile(music)">
+              <v-img :src="music.profile_image" aspect-ratio="1"></v-img>
             </v-avatar>
           </div>
           <div class="flex-grow">
-            <p class="ml-2 mb-2">{{ profileName(music.user_id) }}</p>
+            <p class="ml-2 mb-2">{{ music.profile_name }}</p>
             <v-card color="grey darken-4" class="ma-2">
               <div class="flex">
                 <div>
@@ -100,6 +104,8 @@
                   <v-card-title :class="[{ 'pr-10': $vuetify.breakpoint.smAndUp }, 'pl-0']">
                     <v-btn icon @click="play(music)" v-if="music.audio_url && music.audio_url.match(/audios%2F(.+)\?/)[1] !== 'undefined'">
                       <v-icon large>mdi-play-circle-outline</v-icon>
+                    </v-btn>
+                    <v-btn icon v-else-if="music.audio_url && music.audio_url.match(/audios%2F(.+)\?/)[1] == 'undefined'" class="d-none">
                     </v-btn>
                     <v-btn icon @click="addLike({music_id: music.id, creater_id: music.user_id})" v-else-if="!music.audio_url && !favorite_comment.includes(music.id)">
                       <v-icon>mdi-thumb-up-outline</v-icon>
@@ -138,26 +144,50 @@ export default {
     return {
       album: [],
       all_album: [],
-      all_profile: [],
       favorite_comment: [],
       profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
       keyword: '',
     }
   },
   created () {
-    if (!this.$store.state.all_profile.length) {
-      this.fetchAllProfile()
-    }
     this.album = this.$store.state.album
     this.all_album = this.$store.state.all_album
-    this.all_profile = this.$store.state.all_profile
-    this.putFilteredAlbum(this.filteredAlbum.filter(music => music.user_id === this.uid))
+    this.putFilteredAlbum(this.all_album.filter(music => music.user_id === this.uid))
     this.favorite_comment = this.$store.state.favorite_comment
   },
+  watch: {
+    keyword: function (newVal) {
+      if (!newVal) {
+        this.filterAlbum()
+      }
+    }
+  },
   methods: {
+    filterAlbum () {
+      const album = []
+      for (const i in this.$store.state.all_album) {
+        const music = this.$store.state.all_album[i]
+        if (music.title.indexOf(this.keyword) !== -1 ||
+            music.artist.indexOf(this.keyword) !== -1) {
+            album.push(music)
+        }
+      }
+      this.all_album = album
+      this.putFilteredAlbum(this.all_album.filter(music => music.user_id === this.uid))
+    },
+    blur () {
+      this.$refs.blurThis.blur()
+    },
     play (music) {
       this.switchBarContent(music)
       this.switchPlayerBar()
+    },
+    watchProfile (music) {
+      if (music.user_id === this.uid) {
+        this.$router.push({name: 'Profile'})
+      } else {
+        this.$router.push({name: 'OtherProfile', params: {user_id: music.user_id}})
+      }
     },
     ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike'])
   },
@@ -168,62 +198,11 @@ export default {
     comments: function () {
       return (this.album.filter(music => music.comment)).length
     },
-    filteredAlbum: function () {
-      const album = []
-      for (const i in this.all_album) {
-        const music = this.all_album[i]
-        if (music.title.indexOf(this.keyword) !== -1 ||
-            music.artist.indexOf(this.keyword) !== -1) {
-            album.push(music)
-        }
-      }
-      return album.filter(music => music.comment).sort((a,b) => {
-        let dateA = a.date
-        let dateB = b.date
-        if (dateA > dateB) {
-          return -1
-        }
-        if (dateA < dateB) {
-          return 1
-        }
-        return 0
-      })
-    },
     myImage: function () {
       if (this.$store.state.profile.profile_image) {
         return this.$store.state.profile.profile_image
       } else {
         return 'default_user_icon.png'
-      }
-    },
-    profileImage: function () {
-      return function(id) {
-        const all_profile = this.$store.state.all_profile
-        const index = all_profile.findIndex(profile => profile.user_id === id)
-        if (index === -1) {
-          return 'default_user_icon.png'
-        } else {
-          if (all_profile[index].profile_image) {
-            return all_profile[index].profile_image
-          } else {
-            return 'default_user_icon.png'
-          }
-        }
-      }
-    },
-    profileName: function () {
-      return function(id) {
-        const all_profile = this.$store.state.all_profile
-        const index = all_profile.findIndex(profile => profile.user_id === id)
-        if (index === -1) {
-          return 'ユーザー'
-        } else {
-          if (all_profile[index].name) {
-            return all_profile[index].name
-          } else {
-            return 'ユーザー'
-          }
-        }
       }
     },
     ...mapGetters(['uid'])

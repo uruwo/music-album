@@ -4,10 +4,10 @@
       <v-list-item>
         <v-list-item-content class="py-2">
           <v-list-item-title class="text-center mb-2">
-            {{ profileName }}
+            {{ profile.name }}
           </v-list-item-title>
           <v-list-item-title class="mb-2">
-            <v-img width="128" :src="profileImage" aspect-ratio="1" class="mx-auto"></v-img>
+            <v-img width="128" :src="profile.profile_image" aspect-ratio="1" class="mx-auto"></v-img>
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
@@ -50,13 +50,13 @@
         <v-list-item>
           <v-list-item-title>自己紹介</v-list-item-title>
         </v-list-item>
-        <p class="font-size px-4">{{ profileComment }}</p>
+        <p class="font-size px-4">{{ profile.comment }}</p>
       </v-list>
     </v-card>
     <v-card width="600" class="ml-4" min-height="100">
       <v-row>
         <v-col class="d-none d-sm-flex">
-          <v-card-title class="subtitle-1 py-3">{{ profileName }}さんの感想</v-card-title>
+          <v-card-title class="subtitle-1 py-3">{{ profile.name }}さんの感想</v-card-title>
         </v-col>
         <v-col>
           <v-card-title class="pa-0 px-4">
@@ -83,11 +83,11 @@
         <div class="flex mt-2 ml-2">
           <div>
             <v-avatar tile rounded="sm">
-              <v-img :src="profileImage" aspect-ratio="1"></v-img>
+              <v-img :src="profile.profile_image" aspect-ratio="1"></v-img>
             </v-avatar>
           </div>
           <div class="flex-grow">
-            <p class="ml-2 mb-2">{{ profileName }}</p>
+            <p class="ml-2 mb-2">{{ profile.name }}</p>
             <v-card color="grey darken-4" class="ma-2">
               <div class="flex">
                 <div>
@@ -120,14 +120,21 @@
 </template>
 
 <script>
+import firebase from 'firebase'
 export default {
   data () {
     return {
       album: [],
+      profile: {
+        name: 'ユーザー',
+        comment: 'Write something you want to appeal.',
+        profile_image:'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png'
+      },
       keyword: '',
     }
   },
   created () {
+    firebase.firestore().collection(`users/${this.$route.params.user_id}/profile`).get().then(snapshot => snapshot.forEach(doc => this.profile = doc.data()))
     this.album = this.$store.state.all_album.filter(music => music.user_id === this.$route.params.user_id)
   },
   computed: {
@@ -157,45 +164,6 @@ export default {
         }
         return 0
       })
-    },
-    profileImage: function () {
-        const all_profile = this.$store.state.all_profile
-        const index = all_profile.findIndex(profile => profile.user_id === this.$route.params.user_id)
-        if (index === -1) {
-          return 'default_user_icon.png'
-        } else {
-          if (all_profile[index].profile_image) {
-            return all_profile[index].profile_image
-          } else {
-            return 'default_user_icon.png'
-          }
-        }
-    },
-    profileName: function () {
-        const all_profile = this.$store.state.all_profile
-        const index = all_profile.findIndex(profile => profile.user_id === this.$route.params.user_id)
-        if (index === -1) {
-          return 'ユーザー'
-        } else {
-          if (all_profile[index].name) {
-            return all_profile[index].name
-          } else {
-            return 'ユーザー'
-          }
-        }
-    },
-    profileComment: function () {
-        const all_profile = this.$store.state.all_profile
-        const index = all_profile.findIndex(profile => profile.user_id === this.$route.params.user_id)
-        if (index === -1) {
-          return '自己紹介がありません'
-        } else {
-          if (all_profile[index].comment) {
-            return all_profile[index].comment
-          } else {
-            return '自己紹介がありません'
-          }
-        }
     },
   }
 }

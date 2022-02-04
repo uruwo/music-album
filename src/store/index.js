@@ -7,6 +7,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     album: [],
+    commented_album: [],
     all_album: [],
     login_user: null,
     drawer: false,
@@ -24,7 +25,6 @@ export default new Vuex.Store({
     comment_key: 0,
     filtered_album: [],
     profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
-    all_profile: [],
     profile_key: 0,
     favorite_comment: [],
     liked_comments: []
@@ -54,6 +54,20 @@ export default new Vuex.Store({
     addMusic (state, {id, music}) {
       music.id = id
       state.album.unshift(music)
+      if ('comment' in music) {
+        state.commented_album.unshift(music)
+        state.commented_album.sort((a,b) => {
+          let titleA = a.title.toUpperCase()
+          let titleB = b.title.toUpperCase()
+          if (titleA < titleB) {
+            return -1
+          }
+          if (titleA > titleB) {
+            return 1
+          }
+          return 0
+        })
+      }
     },
     addAllMusic (state, {id, music}) {
       music.id = id
@@ -61,30 +75,44 @@ export default new Vuex.Store({
         delete music.audio_url
         delete music.image_url
       }
-      state.all_album.unshift(music)
+      if (music.comment) {
+        state.all_album.unshift(music)
+        state.all_album.sort((a,b) => {
+          let dateA = a.date
+          let dateB = b.date
+          if (dateA > dateB) {
+            return -1
+          }
+          if (dateA < dateB) {
+            return 1
+          }
+          return 0
+        })
+      }
     },
     addProfile (state, {id, profile}) {
       profile.id = id
       state.profile = profile
     },
-    addProfileInAll (state, profile) {
-      state.all_profile.push(profile)
-    },
-    updateProfileInAll (state, {id, profile}) {
-      const index = state.all_profile.findIndex(profile => profile.user_id === id)
-      state.all_profile[index] = profile
-    },
-    addAllProfile (state, {id, profile}) {
-      profile.id = id
-      state.all_profile.push(profile)
-    },
     updateMusic (state, {id, music}) {
       const index = state.album.findIndex( music => music.id === id)
       state.album[index] = music
     },
+    updateComment (state, {id, music}) {
+      const index = state.commented_album.findIndex(music => music.id === id)
+      if (index === -1) {
+        state.commented_album.unshift(music)
+      } else {
+        state.commented_album[index] = music
+      }
+    },
     updateMusicInAll (state, {id, music}) {
       const index = state.all_album.findIndex(music => music.id === id)
-      state.all_album[index] = music
+      if (index === -1) {
+        state.all_album.unshift(music)
+      } else {
+        state.all_album[index] = music
+      }
     },
     updateProfile (state, profile) {
       state.profile = profile
@@ -95,11 +123,19 @@ export default new Vuex.Store({
     },
     deleteCommentInAll (state, {id}) {
       const index = state.all_album.findIndex(music => music.id === id)
-      delete state.all_album[index].comment
+      if (index !== -1) {
+        state.all_album.splice(index, 1)
+      }
     },
     deleteComment (state, {id}) {
       const index = state.album.findIndex( music => music.id === id)
       delete state.album[index].comment
+    },
+    deleteCommentView (state, {id}) {
+      const index = state.commented_album.findIndex( music => music.id === id)
+      if (index !== -1) {
+        state.commented_album.splice(index, 1)
+      }
     },
     addLike (state, music_id) {
       state.favorite_comment.push(music_id)
@@ -196,12 +232,6 @@ export default new Vuex.Store({
         }
       )
     },
-    addProfileInAll ({ commit }, profile) {
-      commit('addProfileInAll', profile)
-    },
-    updateProfileInAll ({ commit }, {id, profile}) {
-      commit('updateProfileInAll', {id, profile})
-    },
     fetchAlbum ({ getters, commit }) {
       firebase.firestore().collection(`users/${getters.uid}/album`).get().then(snapshot => {
         snapshot.forEach(doc => commit('addMusic', { id: doc.id, music: doc.data() }))
@@ -217,13 +247,11 @@ export default new Vuex.Store({
         snapshot.forEach(doc => commit('addProfile', { id: doc.id, profile: doc.data() }))
       })
     },
-    fetchAllProfile ({ commit }) {
-      firebase.firestore().collectionGroup('profile').get().then(snapshot => snapshot.forEach(doc => commit('addAllProfile', {id: doc.id, profile: doc.data()})))
-    },
     updateMusic ({ getters, commit }, {id, music}) {
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update(music).then(() => {
         commit('updateMusic', { id, music })
+        commit('updateComment', { id, music })
         })
       }
     },
@@ -241,6 +269,7 @@ export default new Vuex.Store({
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).delete().then(() => {
         commit('deleteMusic', { id })
+        commit('deleteCommentView', { id })
         })
       }
     },
@@ -251,6 +280,7 @@ export default new Vuex.Store({
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update({comment: firebase.firestore.FieldValue.delete()}).then(() => {
           commit('deleteComment', { id })
+          commit('deleteCommentView', { id })
         })
       }
     },

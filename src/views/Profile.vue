@@ -26,7 +26,7 @@
         <v-divider></v-divider>
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title>演奏者</v-list-item-title>
+            <v-list-item-title>アーティスト</v-list-item-title>
           </v-list-item-content>
           <p class="text-body-2 my-2" >{{ artists }}人</p>
         </v-list-item>
@@ -73,10 +73,14 @@
             dense
             placeholder="曲名・アーティスト名"
             type="text"
-            @change="putFilteredAlbum(filteredAlbum)"
+            ref='blurThis'
+            @blur="filterAlbum"
+            @keyup.enter.exact="blur"
             >
             <template v-slot:append>
-            <v-icon color="grey darken-1">mdi-magnify</v-icon>
+              <v-btn icon plain :ripple="false" @click="filterAlbum">
+                <v-icon color="grey darken-1">mdi-magnify</v-icon>
+              </v-btn>
             </template>
             </v-text-field>
           </v-card-title>
@@ -84,7 +88,7 @@
       </v-row>
       <v-divider></v-divider>
       <div
-        v-for="(music, index) in filteredAlbum"
+        v-for="(music, index) in filtered_album"
         :key="index"
       >
         <div class="flex mt-2 ml-2">
@@ -146,6 +150,7 @@ export default {
   data () {
     return {
       album: [],
+      filtered_album: [],
       profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
       edit: false,
       keyword: '',
@@ -154,8 +159,9 @@ export default {
   },
   created () {
     this.album = this.$store.state.album
+    this.filtered_album = this.$store.state.commented_album
     this.liked_comments = this.$store.state.liked_comments
-    this.putFilteredAlbum(this.filteredAlbum)
+    this.putFilteredAlbum(this.filtered_album)
   },
   directives: {
     focus: {
@@ -164,7 +170,26 @@ export default {
       }
     }
   },
+  watch: {
+    keyword: function (newVal) {
+      if (!newVal) {
+        this.filterAlbum()
+      }
+    }
+  },
   methods: {
+    filterAlbum () {
+      const album = []
+      for (const i in this.$store.state.commented_album) {
+        const music = this.$store.state.commented_album[i]
+        if (music.title.indexOf(this.keyword) !== -1 ||
+            music.artist.indexOf(this.keyword) !== -1) {
+            album.push(music)
+        }
+      }
+      this.filtered_album = album
+      this.putFilteredAlbum(this.filtered_album)
+    },
     blur () {
       this.$refs.blurThis.blur()
     },
@@ -191,7 +216,7 @@ export default {
       this.edit = false
     },
     updateComment (index) {
-      const filteredMusic = this.filteredAlbum[index]
+      const filteredMusic = this.filtered_album[index]
       this.updateMusic({id: filteredMusic.id, music: filteredMusic})
       this.updateMusicInAll({id: filteredMusic.id, music: filteredMusic})
     },
@@ -231,27 +256,6 @@ export default {
     },
     comments: function () {
       return (this.album.filter(music => music.comment)).length
-    },
-    filteredAlbum: function () {
-      const album = []
-      for (const i in this.album) {
-        const music = this.album[i]
-        if (music.title.indexOf(this.keyword) !== -1 ||
-            music.artist.indexOf(this.keyword) !== -1) {
-            album.push(music)
-        }
-      }
-      return album.filter(music => 'comment' in music).sort((a,b) => {
-        let titleA = a.title.toUpperCase()
-        let titleB = b.title.toUpperCase()
-        if (titleA < titleB) {
-          return -1
-        }
-        if (titleA > titleB) {
-          return 1
-        }
-        return 0
-      })
     },
     profileImage: function () {
       if (this.$store.state.profile.profile_image) {
