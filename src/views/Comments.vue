@@ -11,14 +11,12 @@
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-divider></v-divider>
       <v-list dense class="py-0">
-        <v-list-item>
+        <v-list-item class="title-color">
           <v-list-item-content>
             <v-list-item-title>鑑賞データ</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-divider></v-divider>
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title>アーティスト</v-list-item-title>
@@ -39,13 +37,24 @@
           </v-list-item-content>
           <p class="text-body-2 my-2" >{{ comments }}曲</p>
         </v-list-item>
-        <v-divider></v-divider>
-        <v-list-item>
+        <v-list-item class="title-color">
           <v-list-item-content>
             <v-list-item-title>プロフィール</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>フォロー</v-list-item-title>
+          </v-list-item-content>
+          <p class="text-body-2 my-2" >3人</p>
+        </v-list-item>
         <v-divider></v-divider>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>フォロワー</v-list-item-title>
+          </v-list-item-content>
+          <p class="text-body-2 my-2">3人</p>
+        </v-list-item>
         <v-divider></v-divider>
         <v-list-item>
           <v-list-item-title>自己紹介</v-list-item-title>
@@ -237,5 +246,8 @@ export default {
   }
   .v-text-field .v-label {
     font-size: 1rem;
+  }
+  .title-color {
+    background-color: #272727 !important;
   }
 </style>
