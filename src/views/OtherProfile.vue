@@ -10,8 +10,11 @@
             <v-img width="128" :src="profile.profile_image" aspect-ratio="1" class="mx-auto"></v-img>
           </v-list-item-title>
           <v-list-item-title class="text-center">
-            <v-btn>
+            <v-btn v-if="!my_followee.includes($route.params.user_id)" @click="follow($route.params.user_id)">
               フォローする
+            </v-btn>
+            <v-btn v-else color="blue" @click="remove($route.params.user_id)">
+              フォローを外す
             </v-btn>
           </v-list-item-title>
         </v-list-item-content>
@@ -51,14 +54,14 @@
           <v-list-item-content>
             <v-list-item-title>フォロー</v-list-item-title>
           </v-list-item-content>
-          <p class="text-body-2 my-2" >3人</p>
+          <p class="text-body-2 my-2" >{{ followee.length }}人</p>
         </v-list-item>
         <v-divider></v-divider>
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title>フォロワー</v-list-item-title>
           </v-list-item-content>
-          <p class="text-body-2 my-2">3人</p>
+          <p class="text-body-2 my-2">{{ follower.length }}人</p>
         </v-list-item>
         <v-divider></v-divider>
         <v-list-item>
@@ -135,10 +138,17 @@
 
 <script>
 import firebase from 'firebase'
+import { mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
+import axios from 'axios'
+
 export default {
   data () {
     return {
       album: [],
+      follower: [],
+      followee: [],
+      my_followee: [],
       profile: {
         name: 'ユーザー',
         comment: 'Write something you want to appeal.',
@@ -148,8 +158,34 @@ export default {
     }
   },
   created () {
-    firebase.firestore().collection(`users/${this.$route.params.user_id}/profile`).get().then(snapshot => snapshot.forEach(doc => this.profile = doc.data()))
-    this.album = this.$store.state.all_album.filter(music => music.user_id === this.$route.params.user_id)
+    const user_id = this.$route.params.user_id
+    firebase.firestore().collection(`users/${user_id}/profile`).get().then(snapshot => snapshot.forEach(doc => this.profile = doc.data()))
+    this.album = this.$store.state.all_album.filter(music => music.user_id === user_id)
+
+    axios.get('http://52.69.186.157:8000/followee/' + user_id).then(
+      response => {
+        response.data.forEach(item => this.followee.push(item.followee_id))
+      }
+    )
+    axios.get('http://52.69.186.157:8000/follower/' + user_id).then(
+      response => {
+        response.data.forEach(item =>this.follower.push(item.follower_id))
+      }
+    )
+
+    this.my_followee = this.$store.state.my_followee
+  },
+  methods: {
+    follow (user_id) {
+      this.follower.push(this.uid)
+      this.addFollowee(user_id)
+    },
+    remove (user_id) {
+      const index = this.follower.findIndex(id => id === this.uid)
+      this.follower.splice(index, 1)
+      this.deleteFollowee(user_id)
+    },
+    ...mapActions(['addFollowee', 'deleteFollowee'])
   },
   computed: {
     artists: function () {
@@ -179,6 +215,7 @@ export default {
         return 0
       })
     },
+    ...mapGetters(['uid'])
   }
 }
 </script>

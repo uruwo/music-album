@@ -46,14 +46,14 @@
           <v-list-item-content>
             <v-list-item-title>フォロー</v-list-item-title>
           </v-list-item-content>
-          <p class="text-body-2 my-2" >3人</p>
+          <p class="text-body-2 my-2" >{{ followee.length }}人</p>
         </v-list-item>
         <v-divider></v-divider>
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title>フォロワー</v-list-item-title>
           </v-list-item-content>
-          <p class="text-body-2 my-2">3人</p>
+          <p class="text-body-2 my-2">{{ follower.length }}人</p>
         </v-list-item>
         <v-divider></v-divider>
         <v-list-item>
@@ -120,7 +120,7 @@
                       <v-icon>mdi-thumb-up-outline</v-icon>
                     </v-btn>
                     <v-btn icon v-else @click="deleteLike(music.id)">
-                      <v-icon color="cyan accent-4">mdi-thumb-up</v-icon>
+                      <v-icon color="blue">mdi-thumb-up</v-icon>
                     </v-btn>
                   </v-card-title>
                 </div>
@@ -156,6 +156,8 @@ export default {
       favorite_comment: [],
       profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
       keyword: '',
+      followee: [],
+      follower: []
     }
   },
   created () {
@@ -163,6 +165,8 @@ export default {
     this.all_album = this.$store.state.all_album
     this.putFilteredAlbum(this.all_album.filter(music => music.user_id === this.uid))
     this.favorite_comment = this.$store.state.favorite_comment
+    this.followee = this.$store.state.my_followee
+    this.follower = this.$store.state.my_follower
   },
   watch: {
     keyword: function (newVal) {

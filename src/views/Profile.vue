@@ -51,14 +51,14 @@
           <v-list-item-content>
             <v-list-item-title>フォロー</v-list-item-title>
           </v-list-item-content>
-          <p class="text-body-2 my-2" >3人</p>
+          <p class="text-body-2 my-2" >{{ followee.length }}人</p>
         </v-list-item>
         <v-divider></v-divider>
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title>フォロワー</v-list-item-title>
           </v-list-item-content>
-          <p class="text-body-2 my-2">3人</p>
+          <p class="text-body-2 my-2">{{ follower.length }}人</p>
         </v-list-item>
         <v-divider></v-divider>
         <v-list-item>
@@ -163,7 +163,9 @@ export default {
       profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
       edit: false,
       keyword: '',
-      liked_comments: []
+      liked_comments: [],
+      followee: [],
+      follower: []
     }
   },
   created () {
@@ -171,6 +173,8 @@ export default {
     this.filtered_album = this.$store.state.commented_album
     this.liked_comments = this.$store.state.liked_comments
     this.putFilteredAlbum(this.filtered_album)
+    this.followee = this.$store.state.my_followee
+    this.follower = this.$store.state.my_follower
   },
   directives: {
     focus: {
