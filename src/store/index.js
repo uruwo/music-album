@@ -27,7 +27,9 @@ export default new Vuex.Store({
     profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
     profile_key: 0,
     favorite_comment: [],
-    liked_comments: []
+    liked_comments: [],
+    my_followee: [],
+    my_follower: []
   },
   mutations: {
     setLoginUser (state, user) {
@@ -137,6 +139,16 @@ export default new Vuex.Store({
         state.commented_album.splice(index, 1)
       }
     },
+    addFollowee (state, user_id) {
+      state.my_followee.push(user_id)
+    },
+    deleteFollowee (state, user_id) {
+      const index = state.my_followee.findIndex(id => id === user_id)
+      state.my_followee.splice(index, 1)
+    },
+    addFollower (state, user_id) {
+      state.my_follower.push(user_id)
+    },
     addLike (state, music_id) {
       state.favorite_comment.push(music_id)
     },
@@ -208,6 +220,30 @@ export default new Vuex.Store({
           commit('addProfile', { id: doc.id, profile })
         })
       }
+    },
+    addFollowee ({ getters, commit }, user_id) {
+      axios.post('http://52.69.186.157:8000/follows/', {
+      follower_id: getters.uid, followee_id: user_id})
+      commit('addFollowee', user_id)
+    },
+    deleteFollowee ({ getters, commit }, user_id) {
+      axios.delete('http://52.69.186.157:8000/follows/', {data: {
+      follower_id: getters.uid, followee_id: user_id}})
+      commit('deleteFollowee', user_id)
+    },
+    fetchFollowee ({ getters, commit }) {
+      axios.get('http://52.69.186.157:8000/followee/' + getters.uid).then(
+        response => {
+          response.data.forEach(item => commit('addFollowee', item.followee_id))
+        }
+      )
+    },
+    fetchFollower ({ getters, commit }) {
+      axios.get('http://52.69.186.157:8000/follower/' + getters.uid).then(
+        response => {
+          response.data.forEach(item => commit('addFollower', item.follower_id))
+        }
+      )
     },
     addLike ({ getters, commit }, {music_id, creater_id}) {
       axios.post('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment', { fan_id: getters.uid, music_id: music_id, creater_id: creater_id })

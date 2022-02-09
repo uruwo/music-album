@@ -16,14 +16,12 @@
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-divider></v-divider>
       <v-list dense class="py-0">
-        <v-list-item>
+        <v-list-item class="title-color">
           <v-list-item-content>
             <v-list-item-title>鑑賞データ</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-divider></v-divider>
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title>アーティスト</v-list-item-title>
@@ -44,13 +42,24 @@
           </v-list-item-content>
           <p class="text-body-2 my-2" >{{ comments }}曲</p>
         </v-list-item>
-        <v-divider></v-divider>
-        <v-list-item>
+        <v-list-item class="title-color">
           <v-list-item-content>
             <v-list-item-title>プロフィール</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>フォロー</v-list-item-title>
+          </v-list-item-content>
+          <p class="text-body-2 my-2" >{{ followee.length }}人</p>
+        </v-list-item>
         <v-divider></v-divider>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>フォロワー</v-list-item-title>
+          </v-list-item-content>
+          <p class="text-body-2 my-2">{{ follower.length }}人</p>
+        </v-list-item>
         <v-divider></v-divider>
         <v-list-item>
           <v-list-item-title>自己紹介</v-list-item-title>
@@ -154,7 +163,9 @@ export default {
       profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
       edit: false,
       keyword: '',
-      liked_comments: []
+      liked_comments: [],
+      followee: [],
+      follower: []
     }
   },
   created () {
@@ -162,6 +173,8 @@ export default {
     this.filtered_album = this.$store.state.commented_album
     this.liked_comments = this.$store.state.liked_comments
     this.putFilteredAlbum(this.filtered_album)
+    this.followee = this.$store.state.my_followee
+    this.follower = this.$store.state.my_follower
   },
   directives: {
     focus: {
@@ -296,5 +309,8 @@ export default {
   }
   .v-text-field .v-label {
     font-size: 1rem;
+  }
+  .title-color {
+    background-color: #272727 !important;
   }
 </style>
