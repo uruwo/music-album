@@ -1,6 +1,7 @@
 <template>
   <v-card width="600" class="ml-4" min-height="100">
-    <v-card-title class="subtitle-1 py-3">{{ profile.name }}さんがフォロー</v-card-title>
+    <v-card-title class="subtitle-1 py-3" v-if="this.$route.path.includes('followee')">{{ profile.name }}さんがフォロー</v-card-title>
+    <v-card-title class="subtitle-1 py-3" v-else>{{ profile.name }}さんのフォロワー</v-card-title>
     <v-divider></v-divider>
     <div
       v-for="(user, index) in users"
