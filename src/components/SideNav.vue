@@ -5,7 +5,7 @@
         <v-list-item to="/home">
           <v-list-item-title>アルバム</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/profile">
+        <v-list-item to="/profile/comment">
           <v-list-item-title>マイページ</v-list-item-title>
         </v-list-item>
         <v-list-item to="/comments">

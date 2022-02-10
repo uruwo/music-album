@@ -14,7 +14,7 @@
               フォローする
             </v-btn>
             <v-btn v-else color="blue" @click="remove($route.params.user_id)">
-              フォローを外す
+              フォロー中
             </v-btn>
           </v-list-item-title>
         </v-list-item-content>
@@ -39,7 +39,7 @@
           <p class="text-body-2 my-2" >{{ album.length }}曲</p>
         </v-list-item>
         <v-divider></v-divider>
-        <v-list-item>
+        <v-list-item @click="$router.push({name: 'OthersComment', params: {user_id: $route.params.user_id}})">
           <v-list-item-content>
             <v-list-item-title>感想</v-list-item-title>
           </v-list-item-content>
@@ -50,14 +50,14 @@
             <v-list-item-title>プロフィール</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item>
+        <v-list-item @click="$router.push({name: 'OthersFollowee', params: {user_id: $route.params.user_id}})">
           <v-list-item-content>
             <v-list-item-title>フォロー</v-list-item-title>
           </v-list-item-content>
           <p class="text-body-2 my-2" >{{ followee.length }}人</p>
         </v-list-item>
         <v-divider></v-divider>
-        <v-list-item>
+        <v-list-item @click="$router.push({name: 'OthersFollower', params: {user_id: $route.params.user_id}})">
           <v-list-item-content>
             <v-list-item-title>フォロワー</v-list-item-title>
           </v-list-item-content>
@@ -70,69 +70,7 @@
         <p class="font-size px-4">{{ profile.comment }}</p>
       </v-list>
     </v-card>
-    <v-card width="600" class="ml-4" min-height="100">
-      <v-row>
-        <v-col class="d-none d-sm-flex">
-          <v-card-title class="subtitle-1 py-3">{{ profile.name }}さんの感想</v-card-title>
-        </v-col>
-        <v-col>
-          <v-card-title class="pa-0 px-4">
-            <v-text-field
-            single-line
-            class="pt-0 mt-3"
-            v-model="keyword"
-            dense
-            placeholder="曲名・アーティスト名"
-            type="text"
-            >
-            <template v-slot:append>
-            <v-icon color="grey darken-1">mdi-magnify</v-icon>
-            </template>
-            </v-text-field>
-          </v-card-title>
-        </v-col>
-      </v-row>
-      <v-divider></v-divider>
-      <div
-        v-for="(music, index) in filteredAlbum"
-        :key="index"
-      >
-        <div class="flex mt-2 ml-2">
-          <div>
-            <v-avatar tile rounded="sm">
-              <v-img :src="profile.profile_image" aspect-ratio="1"></v-img>
-            </v-avatar>
-          </div>
-          <div class="flex-grow">
-            <p class="ml-2 mb-2">{{ profile.name }}</p>
-            <v-card color="grey darken-4" class="ma-2">
-              <div class="flex">
-                <div>
-                  <v-card-title class="subtitle-1 pt-2">{{ music.title }}</v-card-title>
-                  <v-card-subtitle class="py-0">{{ music.artist }}</v-card-subtitle>
-                </div>
-                <v-spacer></v-spacer>
-                <div>
-                  <v-card-title :class="{ 'pr-10': $vuetify.breakpoint.smAndUp }">
-                  </v-card-title>
-                </div>
-              </div>
-              <v-card-text class="pb-0 pt-0 mt-n2">
-                <v-textarea
-                  class="mt-0"
-                  background-color="#1E1E1E"
-                  v-model="music.comment"
-                  loading="false"
-                  readonly
-                >
-                </v-textarea>
-              </v-card-text>
-            </v-card>
-          </div>
-        </div>
-        <v-divider></v-divider>
-      </div>
-    </v-card>
+    <router-view :profile="profile" :follower="follower" :followee="followee" :album="album"></router-view>
   </div>
 </template>
 
@@ -157,11 +95,32 @@ export default {
       keyword: '',
     }
   },
+  beforeRouteUpdate (to, from , next) {
+    if (to.name === 'OthersComment') {
+      const user_id = to.params.user_id
+      firebase.firestore().collection(`users/${user_id}/profile`).get().then(snapshot => snapshot.forEach(doc => this.profile = doc.data()))
+      this.album = this.$store.state.all_album.filter(music => music.user_id === user_id)
+      axios.get('http://52.69.186.157:8000/followee/' + user_id).then(
+        response => {
+          this.followee = []
+          response.data.forEach(item => this.followee.push(item.followee_id))
+        }
+      )
+      axios.get('http://52.69.186.157:8000/follower/' + user_id).then(
+        response => {
+          this.follower = []
+          response.data.forEach(item =>this.follower.push(item.follower_id))
+        }
+      )
+
+      this.my_followee = this.$store.state.my_followee
+    }
+    next()
+  },
   created () {
     const user_id = this.$route.params.user_id
     firebase.firestore().collection(`users/${user_id}/profile`).get().then(snapshot => snapshot.forEach(doc => this.profile = doc.data()))
     this.album = this.$store.state.all_album.filter(music => music.user_id === user_id)
-
     axios.get('http://52.69.186.157:8000/followee/' + user_id).then(
       response => {
         response.data.forEach(item => this.followee.push(item.followee_id))
@@ -192,7 +151,7 @@ export default {
       return (this.album.filter((music, index, self) => self.findIndex(e => e.artist === music.artist) === index)).length
     },
     comments: function () {
-      return (this.album.filter(music => music.comment)).length
+      return this.album.filter(music => music.comment).length
     },
     filteredAlbum: function () {
       const album = []

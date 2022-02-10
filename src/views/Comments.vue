@@ -197,9 +197,9 @@ export default {
     },
     watchProfile (music) {
       if (music.user_id === this.uid) {
-        this.$router.push({name: 'Profile'})
+        this.$router.push({name: 'MyComment'})
       } else {
-        this.$router.push({name: 'OtherProfile', params: {user_id: music.user_id}})
+        this.$router.push({name: 'OthersComment', params: {user_id: music.user_id}})
       }
     },
     ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike'])
