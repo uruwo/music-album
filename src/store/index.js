@@ -24,7 +24,7 @@ export default new Vuex.Store({
     comment: false,
     comment_key: 0,
     filtered_album: [],
-    profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
+    profile: {name: 'ユーザー', profile_image: 'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png', comment: 'Write something you want to appeal.'},
     profile_key: 0,
     favorite_comment: [],
     liked_comments: [],
@@ -115,6 +115,14 @@ export default new Vuex.Store({
       } else {
         state.all_album[index] = music
       }
+    },
+    updateCommentImage (state, {id, image_url}) {
+      const index = state.all_album.findIndex(music => music.id === id)
+      state.all_album[index].profile_image = image_url
+    },
+    updateCommentUser (state, {id, user_name}) {
+      const index = state.all_album.findIndex(music => music.id === id)
+      state.all_album[index].profile_name = user_name
     },
     updateProfile (state, profile) {
       state.profile = profile
@@ -290,6 +298,16 @@ export default new Vuex.Store({
         commit('updateComment', { id, music })
         })
       }
+    },
+    updateCommentImage ({ getters, commit }, {id, image_url}) {
+      firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).set({profile_image: image_url}, {merge: true}).then(() => {
+        commit('updateCommentImage', { id, image_url})
+      })
+    },
+    updateCommentUser ({ getters, commit }, {id, user_name}) {
+      firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).set({profile_name: user_name}, {merge: true}).then(() => {
+        commit('updateCommentUser', { id, user_name })
+      })
     },
     updateMusicInAll ({ commit }, {id, music}) {
       commit('updateMusicInAll', { id, music })

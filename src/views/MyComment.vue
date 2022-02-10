@@ -141,7 +141,7 @@ export default {
       if (this.$store.state.profile.profile_image) {
         return this.$store.state.profile.profile_image
       } else {
-        return 'default_user_icon.png'
+        return 'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png'
       }
     },
   }

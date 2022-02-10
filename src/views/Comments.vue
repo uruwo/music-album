@@ -1,67 +1,6 @@
 <template>
   <div class="container">
-    <v-card width="300">
-      <v-list-item>
-        <v-list-item-content class="py-2">
-          <v-list-item-title class="text-center mb-2">
-            {{ $store.state.profile.name }}
-          </v-list-item-title>
-          <v-list-item-title class="mb-2">
-            <v-img width="128" :src="myImage" aspect-ratio="1" class="mx-auto"></v-img>
-          </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list dense class="py-0">
-        <v-list-item class="title-color">
-          <v-list-item-content>
-            <v-list-item-title>鑑賞データ</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>アーティスト</v-list-item-title>
-          </v-list-item-content>
-          <p class="text-body-2 my-2" >{{ artists }}人</p>
-        </v-list-item>
-        <v-divider></v-divider>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>曲</v-list-item-title>
-          </v-list-item-content>
-          <p class="text-body-2 my-2" >{{ album.length }}曲</p>
-        </v-list-item>
-        <v-divider></v-divider>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>感想</v-list-item-title>
-          </v-list-item-content>
-          <p class="text-body-2 my-2" >{{ comments }}曲</p>
-        </v-list-item>
-        <v-list-item class="title-color">
-          <v-list-item-content>
-            <v-list-item-title>プロフィール</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>フォロー</v-list-item-title>
-          </v-list-item-content>
-          <p class="text-body-2 my-2" >{{ followee.length }}人</p>
-        </v-list-item>
-        <v-divider></v-divider>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>フォロワー</v-list-item-title>
-          </v-list-item-content>
-          <p class="text-body-2 my-2">{{ follower.length }}人</p>
-        </v-list-item>
-        <v-divider></v-divider>
-        <v-list-item>
-          <v-list-item-title>自己紹介</v-list-item-title>
-        </v-list-item>
-        <p class="font-size px-4">{{ $store.state.profile.comment }}</p>
-      </v-list>
-    </v-card>
+    <MyStatus></MyStatus>
     <v-card width="600" class="ml-4" min-height="100">
       <v-row>
         <v-col class="d-none d-sm-flex">
@@ -148,25 +87,23 @@
 import { mapActions } from 'vuex'
 import { mapGetters } from 'vuex'
 import "firebase/storage"
+import MyStatus from '../components/MyStatus.vue'
+
 export default {
+  components: {
+    MyStatus
+  },
   data () {
     return {
-      album: [],
       all_album: [],
       favorite_comment: [],
-      profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
       keyword: '',
-      followee: [],
-      follower: []
     }
   },
   created () {
-    this.album = this.$store.state.album
     this.all_album = this.$store.state.all_album
     this.putFilteredAlbum(this.all_album.filter(music => music.user_id === this.uid))
     this.favorite_comment = this.$store.state.favorite_comment
-    this.followee = this.$store.state.my_followee
-    this.follower = this.$store.state.my_follower
   },
   watch: {
     keyword: function (newVal) {
@@ -205,19 +142,6 @@ export default {
     ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike'])
   },
   computed: {
-    artists: function () {
-      return (this.album.filter((music, index, self) => self.findIndex(e => e.artist === music.artist) === index)).length
-    },
-    comments: function () {
-      return (this.album.filter(music => music.comment)).length
-    },
-    myImage: function () {
-      if (this.$store.state.profile.profile_image) {
-        return this.$store.state.profile.profile_image
-      } else {
-        return 'default_user_icon.png'
-      }
-    },
     ...mapGetters(['uid'])
   }
 }
@@ -235,23 +159,5 @@ export default {
   }
   .flex-grow {
     flex-grow: 1;
-  }
-  .font-size {
-    font-size: 0.8125rem;
-  }
-  input {
-    outline: none;
-    color: white;
-    text-align: center;
-  }
-  .v-input {
-    font-size: 1rem;
-    font-weight: 400;
-  }
-  .v-text-field .v-label {
-    font-size: 1rem;
-  }
-  .title-color {
-    background-color: #272727 !important;
   }
 </style>
