@@ -96,10 +96,34 @@ export default {
     }
   },
   beforeRouteUpdate (to, from , next) {
-    if (to.name === 'OthersComment') {
-      const user_id = to.params.user_id
+    const to_user = to.path.substring(to.path.lastIndexOf('/') + 1)
+    const from_user = from.path.substring(from.path.lastIndexOf('/') + 1)
+    if (to.name === 'OthersComment' && to_user !== from_user) {
+      this.fetchData(to.params.user_id)
+    }
+    next()
+  },
+  created () {
+    this.fetchData(this.$route.params.user_id)
+  },
+  methods: {
+    follow (user_id) {
+      this.follower.push(this.uid)
+      this.addFollowee(user_id)
+    },
+    remove (user_id) {
+      const index = this.follower.findIndex(id => id === this.uid)
+      this.follower.splice(index, 1)
+      this.deleteFollowee(user_id)
+    },
+    fetchData (user_id) {
       firebase.firestore().collection(`users/${user_id}/profile`).get().then(snapshot => snapshot.forEach(doc => this.profile = doc.data()))
-      this.album = this.$store.state.all_album.filter(music => music.user_id === user_id)
+      firebase.firestore().collection(`users/${user_id}/album`).get().then(
+        snapshot => {
+          this.album = []
+          snapshot.forEach(doc => this.album.push(doc.data()))
+        }
+      )
       axios.get('http://52.69.186.157:8000/followee/' + user_id).then(
         response => {
           this.followee = []
@@ -112,37 +136,7 @@ export default {
           response.data.forEach(item =>this.follower.push(item.follower_id))
         }
       )
-
       this.my_followee = this.$store.state.my_followee
-    }
-    next()
-  },
-  created () {
-    const user_id = this.$route.params.user_id
-    firebase.firestore().collection(`users/${user_id}/profile`).get().then(snapshot => snapshot.forEach(doc => this.profile = doc.data()))
-    this.album = this.$store.state.all_album.filter(music => music.user_id === user_id)
-    axios.get('http://52.69.186.157:8000/followee/' + user_id).then(
-      response => {
-        response.data.forEach(item => this.followee.push(item.followee_id))
-      }
-    )
-    axios.get('http://52.69.186.157:8000/follower/' + user_id).then(
-      response => {
-        response.data.forEach(item =>this.follower.push(item.follower_id))
-      }
-    )
-
-    this.my_followee = this.$store.state.my_followee
-  },
-  methods: {
-    follow (user_id) {
-      this.follower.push(this.uid)
-      this.addFollowee(user_id)
-    },
-    remove (user_id) {
-      const index = this.follower.findIndex(id => id === this.uid)
-      this.follower.splice(index, 1)
-      this.deleteFollowee(user_id)
     },
     ...mapActions(['addFollowee', 'deleteFollowee'])
   },
