@@ -54,8 +54,9 @@ export default {
   methods: {
     deleteMusicComment () {
       delete this.music.comment
-      this.deleteComment({id: this.music.id, music: this.music})
-      this.deleteCommentInAll({id: this.music.id, music: this.music})
+      delete this.music.date
+      this.deleteComment({id: this.music.id})
+      this.deleteCommentInAll({id: this.music.id})
     },
     updateComment () {
       if (!this.music.profile_name) {

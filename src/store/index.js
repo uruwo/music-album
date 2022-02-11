@@ -59,12 +59,12 @@ export default new Vuex.Store({
       if ('comment' in music) {
         state.commented_album.unshift(music)
         state.commented_album.sort((a,b) => {
-          let titleA = a.title.toUpperCase()
-          let titleB = b.title.toUpperCase()
-          if (titleA < titleB) {
+          const dateA = a.date
+          const dateB = b.date
+          if (dateA > dateB) {
             return -1
           }
-          if (titleA > titleB) {
+          if (dateA < dateB) {
             return 1
           }
           return 0
@@ -79,17 +79,6 @@ export default new Vuex.Store({
       }
       if (music.comment) {
         state.all_album.unshift(music)
-        state.all_album.sort((a,b) => {
-          let dateA = a.date
-          let dateB = b.date
-          if (dateA > dateB) {
-            return -1
-          }
-          if (dateA < dateB) {
-            return 1
-          }
-          return 0
-        })
       }
     },
     addProfile (state, {id, profile}) {
@@ -277,12 +266,12 @@ export default new Vuex.Store({
       )
     },
     fetchAlbum ({ getters, commit }) {
-      firebase.firestore().collection(`users/${getters.uid}/album`).get().then(snapshot => {
+      firebase.firestore().collection(`users/${getters.uid}/album`).orderBy("created_date").get().then(snapshot => {
         snapshot.forEach(doc => commit('addMusic', { id: doc.id, music: doc.data() }))
       })
     },
     fetchAllAlbum ({ commit }) {
-      firebase.firestore().collectionGroup('album').get().then(snapshot => {
+      firebase.firestore().collectionGroup('album').orderBy("date").get().then(snapshot => {
         snapshot.forEach(doc => commit('addAllMusic', {id: doc.id, music: doc.data()}))
       })
     },
@@ -332,7 +321,12 @@ export default new Vuex.Store({
     },
     deleteComment ({ getters, commit }, {id}) {
       if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update({comment: firebase.firestore.FieldValue.delete()}).then(() => {
+        firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update(
+          {
+            comment: firebase.firestore.FieldValue.delete(),
+            date: firebase.firestore.FieldValue.delete()
+          }
+        ).then(() => {
           commit('deleteComment', { id })
           commit('deleteCommentView', { id })
         })
