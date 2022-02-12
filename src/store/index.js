@@ -29,7 +29,8 @@ export default new Vuex.Store({
     favorite_comment: [],
     liked_comments: [],
     my_followee: [],
-    my_follower: []
+    my_follower: [],
+    last_comment: null,
   },
   mutations: {
     setLoginUser (state, user) {
@@ -78,8 +79,11 @@ export default new Vuex.Store({
         delete music.image_url
       }
       if (music.comment) {
-        state.all_album.unshift(music)
+        state.all_album.push(music)
       }
+    },
+    setLastComment (state, comment) {
+      state.last_comment = comment
     },
     addProfile (state, {id, profile}) {
       profile.id = id
@@ -270,10 +274,15 @@ export default new Vuex.Store({
         snapshot.forEach(doc => commit('addMusic', { id: doc.id, music: doc.data() }))
       })
     },
-    fetchAllAlbum ({ commit }) {
-      firebase.firestore().collectionGroup('album').orderBy("date").get().then(snapshot => {
+    fetchAllAlbum ({ commit },) {
+      firebase.firestore().collectionGroup('album').where("date", "!=", null).orderBy("date", "desc").limit(5).get().then(snapshot => {
         snapshot.forEach(doc => commit('addAllMusic', {id: doc.id, music: doc.data()}))
+        const last_comment = snapshot.docs[snapshot.docs.length - 1]
+        commit('setLastComment', last_comment)
       })
+    },
+    setLastComment ({ commit }, comment) {
+      commit('setLastComment', comment)
     },
     fetchProfile ({ getters, commit }) {
       firebase.firestore().collection(`users/${getters.uid}/profile`).get().then(snapshot => {
@@ -324,7 +333,7 @@ export default new Vuex.Store({
         firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update(
           {
             comment: firebase.firestore.FieldValue.delete(),
-            date: firebase.firestore.FieldValue.delete()
+            date: null
           }
         ).then(() => {
           commit('deleteComment', { id })

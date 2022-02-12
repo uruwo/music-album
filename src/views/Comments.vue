@@ -79,6 +79,9 @@
         </div>
         <v-divider></v-divider>
       </div>
+      <v-card min-height="2000px" v-if="!$store.state.last_comment"></v-card>
+      <infinite-loading spinner="spiral" @infinite="infiniteHandler">
+      </infinite-loading>
     </v-card>
   </div>
 </template>
@@ -87,11 +90,14 @@
 import { mapActions } from 'vuex'
 import { mapGetters } from 'vuex'
 import "firebase/storage"
+import firebase from 'firebase'
 import MyStatus from '../components/MyStatus.vue'
+import InfiniteLoading from 'vue-infinite-loading'
 
 export default {
   components: {
-    MyStatus
+    MyStatus,
+    InfiniteLoading
   },
   data () {
     return {
@@ -102,7 +108,7 @@ export default {
   },
   created () {
     this.all_album = this.$store.state.all_album
-    this.putFilteredAlbum(this.all_album.filter(music => music.user_id === this.uid))
+    this.putFilteredAlbum(this.$store.state.album)
     this.favorite_comment = this.$store.state.favorite_comment
   },
   watch: {
@@ -123,7 +129,6 @@ export default {
         }
       }
       this.all_album = album
-      this.putFilteredAlbum(this.all_album.filter(music => music.user_id === this.uid))
     },
     blur () {
       this.$refs.blurThis.blur()
@@ -139,7 +144,28 @@ export default {
         this.$router.push({name: 'OthersComment', params: {user_id: music.user_id}})
       }
     },
-    ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike'])
+    infiniteHandler ($state) {
+      console.log("handled")
+      firebase.firestore().collectionGroup('album').where("date", "!=", null).orderBy("date", "desc").startAfter(this.$store.state.last_comment).limit(5).get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const music = doc.data()
+          if (music.user_id !== this.uid) {
+            delete music.audio_url
+            delete music.image_url
+          }
+          this.all_album.push(music)
+        })
+        if (snapshot.docs.length === 5) {
+          setTimeout(() => {
+            this.setLastComment(snapshot.docs[snapshot.docs.length - 1])
+            $state.loaded()
+          }, 1000)
+        } else {
+          $state.complete()
+        }
+      })
+    },
+    ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike', 'setLastComment'])
   },
   computed: {
     ...mapGetters(['uid'])

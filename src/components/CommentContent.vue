@@ -54,7 +54,7 @@ export default {
   methods: {
     deleteMusicComment () {
       delete this.music.comment
-      delete this.music.date
+      this.music.date = null
       this.deleteComment({id: this.music.id})
       this.deleteCommentInAll({id: this.music.id})
     },

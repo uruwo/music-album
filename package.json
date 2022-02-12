@@ -13,6 +13,7 @@
     "core-js": "^3.6.5",
     "firebase": "^8.10.0",
     "vue": "^2.6.11",
+    "vue-infinite-loading": "^2.4.5",
     "vue-loading-template": "^1.3.2",
     "vue-router": "^3.2.0",
     "vuetify": "^2.4.0",
