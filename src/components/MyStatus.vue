@@ -134,7 +134,7 @@ export default {
           that.$set(that.profile, 'profile_image', url)
         })
       }
-      this.$store.state.commented_album.forEach(music => this.updateCommentImage({id: music.id, image_url: this.profile.profile_image}))
+      this.$store.state.album.forEach(music => this.updateCommentImage({id: music.id, image_url: this.profile.profile_image}))
       if (this.$store.state.profile.id) {
         this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
         this.updateProfileInAll({id: this.profile.user_id, profile: this.profile})
