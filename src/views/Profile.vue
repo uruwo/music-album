@@ -14,7 +14,6 @@ export default {
   },
   data () {
     return {
-      profile: {name: 'ユーザー', profile_image: 'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png', comment: 'Write something you want to appeal.'},
       followee: [],
       follower: []
     }
