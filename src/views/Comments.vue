@@ -15,12 +15,10 @@
             dense
             placeholder="曲名・アーティスト名"
             type="text"
-            ref='blurThis'
-            @blur="filterAlbum"
-            @keyup.enter.exact="blur"
+            @keyup.enter.exact="firstFilter"
             >
             <template v-slot:append>
-              <v-btn icon plain :ripple="false" @click="filterAlbum">
+              <v-btn icon plain :ripple="false" @click="firstFilter">
                 <v-icon color="grey darken-1">mdi-magnify</v-icon>
               </v-btn>
             </template>
@@ -81,6 +79,8 @@
       </div>
       <v-card min-height="2000px" v-if="!$store.state.last_comment"></v-card>
       <infinite-loading spinner="spiral" @infinite="infiniteHandler">
+        <template slot="no-more">No more message</template>
+        <template slot="no-results">No more message</template>
       </infinite-loading>
     </v-card>
   </div>
@@ -104,6 +104,7 @@ export default {
       all_album: [],
       favorite_comment: [],
       keyword: '',
+      last_comment: null,
     }
   },
   created () {
@@ -114,21 +115,32 @@ export default {
   watch: {
     keyword: function (newVal) {
       if (!newVal) {
-        this.filterAlbum()
+        this.all_album = this.$store.state.all_album
+        this.last_comment = null
       }
     }
   },
   methods: {
-    filterAlbum () {
-      const album = []
-      for (const i in this.$store.state.all_album) {
-        const music = this.$store.state.all_album[i]
-        if (music.title.indexOf(this.keyword) !== -1 ||
-            music.artist.indexOf(this.keyword) !== -1) {
-            album.push(music)
+    firstFilter () {
+      this.last_comment = null
+      this.all_album = []
+      this.firstFilterFetch('artist')
+      this.firstFilterFetch('title')
+    },
+    firstFilterFetch (field) {
+      firebase.firestore().collectionGroup('album').where("date", "!=", null).where(field, '==', this.keyword).orderBy('date', 'desc').limit(5).get().then(snapshot => {
+        if (snapshot.docs.length !== 0) {
+          this.last_comment = snapshot.docs[snapshot.docs.length - 1]
+          snapshot.forEach(doc => {
+            const music = doc.data()
+            if (music.user_id !== this.uid) {
+              delete music.audio_url
+              delete music.image_url
+            }
+            this.all_album.push(music)
+          })
         }
-      }
-      this.all_album = album
+      })
     },
     blur () {
       this.$refs.blurThis.blur()
@@ -145,7 +157,13 @@ export default {
       }
     },
     infiniteHandler ($state) {
-      console.log("handled")
+      if (!this.last_comment) {
+        this.normalHandler($state)
+      } else {
+        this.filterHandler($state)
+      }
+    },
+    normalHandler ($state) {
       firebase.firestore().collectionGroup('album').where("date", "!=", null).orderBy("date", "desc").startAfter(this.$store.state.last_comment).limit(5).get().then(snapshot => {
         snapshot.forEach(doc => {
           const music = doc.data()
@@ -162,6 +180,34 @@ export default {
           }, 1000)
         } else {
           $state.complete()
+        }
+      })
+    },
+    filterHandler ($state) {
+      this.nextFilterFetch('artist', $state)
+      this.nextFilterFetch('title', $state)
+    },
+    nextFilterFetch (field, $state) {
+      firebase.firestore().collectionGroup('album').where("date", "!=", null).where(field, '==', this.keyword).orderBy('date', 'desc').startAfter(this.last_comment).limit(5).get().then(snapshot => {
+        if (snapshot.docs.length !== 0) {
+          snapshot.forEach(doc => {
+            const music = doc.data()
+            if (music.user_id !== this.uid) {
+              delete music.audio_url
+              delete music.image_url
+            }
+            this.all_album.push(music)
+          })
+          if (snapshot.docs.length === 5) {
+            setTimeout(() => {
+              this.last_comment = snapshot.docs[snapshot.docs.length - 1]
+              $state.loaded()
+            }, 1000)
+          } else {
+            $state.complete()
+          }
+        } else {
+          return
         }
       })
     },
