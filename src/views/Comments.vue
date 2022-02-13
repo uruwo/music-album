@@ -216,7 +216,7 @@ export default {
             $state.complete()
           }
         } else {
-          return
+          $state.complete()
         }
       })
     },
