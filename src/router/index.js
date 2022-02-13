@@ -10,6 +10,7 @@ import OthersComment from '../views/OthersComment.vue'
 import Follower from '../views/Follower.vue'
 import Followee from '../views/Followee.vue'
 import MyComment from '../views/MyComment.vue'
+import FavoriteComment from '../views/FavoriteComment.vue'
 
 Vue.use(VueRouter)
 
@@ -40,6 +41,11 @@ const routes = [
         component: MyComment
       },
       {
+        path: 'favorite_comment',
+        name: 'MyFavoriteComment',
+        component: FavoriteComment
+      },
+      {
         path: 'follower',
         name: 'MyFollower',
         component: Follower
@@ -65,6 +71,11 @@ const routes = [
         path: 'comment/:user_id?',
         name: 'OthersComment',
         component: OthersComment
+      },
+      {
+        path: 'favorite_comment/:user_id?',
+        name: 'OthersFavoriteComment',
+        component: FavoriteComment
       },
       {
         path: 'follower/:user_id?',

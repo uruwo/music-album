@@ -60,6 +60,13 @@
         <p class="text-body-2 my-2">{{ follower.length }}人</p>
       </v-list-item>
       <v-divider></v-divider>
+      <v-list-item @click="$router.push({name: 'MyFavoriteComment'})">
+        <v-list-item-content>
+          <v-list-item-title>いいねした感想</v-list-item-title>
+        </v-list-item-content>
+        <p class="text-body-2 my-2">{{ $store.state.favorite_comment.length }}編</p>
+      </v-list-item>
+      <v-divider></v-divider>
       <v-list-item>
         <v-list-item-title>自己紹介</v-list-item-title>
         <v-icon small @click="switchDialogProfile">mdi-pencil</v-icon>

@@ -64,13 +64,20 @@
           <p class="text-body-2 my-2">{{ follower.length }}人</p>
         </v-list-item>
         <v-divider></v-divider>
+        <v-list-item @click="$router.push({name: 'OthersFavoriteComment', params: {user_id: $route.params.user_id}})">
+          <v-list-item-content>
+            <v-list-item-title>いいねした感想</v-list-item-title>
+          </v-list-item-content>
+          <p class="text-body-2 my-2">{{ favorite_comment.length }}編</p>
+        </v-list-item>
+        <v-divider></v-divider>
         <v-list-item>
           <v-list-item-title>自己紹介</v-list-item-title>
         </v-list-item>
         <p class="font-size px-4">{{ profile.comment }}</p>
       </v-list>
     </v-card>
-    <router-view :profile="profile" :follower="follower" :followee="followee" :album="album"></router-view>
+    <router-view :profile="profile" :follower="follower" :followee="followee" :album="album" :favorite_comment="favorite_comment"></router-view>
   </div>
 </template>
 
@@ -93,6 +100,7 @@ export default {
         profile_image:'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png'
       },
       keyword: '',
+      favorite_comment: []
     }
   },
   beforeRouteUpdate (to, from , next) {
@@ -134,6 +142,11 @@ export default {
         response => {
           this.follower = []
           response.data.forEach(item =>this.follower.push(item.follower_id))
+        }
+      )
+      axios.get(this.$store.state.api_like, {params: { user_id: user_id }}).then(
+        response => {
+          JSON.parse(response.data.body).forEach(item => this.favorite_comment.push(item.music_id))
         }
       )
       this.my_followee = this.$store.state.my_followee
