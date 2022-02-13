@@ -31,6 +31,7 @@ export default new Vuex.Store({
     my_followee: [],
     my_follower: [],
     last_comment: null,
+    api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment'
   },
   mutations: {
     setLoginUser (state, user) {
@@ -250,31 +251,31 @@ export default new Vuex.Store({
         }
       )
     },
-    addLike ({ getters, commit }, {music_id, creater_id}) {
-      axios.post('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment', { fan_id: getters.uid, music_id: music_id, creater_id: creater_id })
+    addLike ({ state, getters, commit }, {music_id, creater_id}) {
+      axios.post(state.api_like, { fan_id: getters.uid, music_id: music_id, creater_id: creater_id })
       commit('addLike', music_id)
     },
-    deleteLike ({ getters, commit }, music_id) {
-      axios.delete('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment', {data: { user_id: getters.uid, music_id: music_id }})
+    deleteLike ({ state, getters, commit }, music_id) {
+      axios.delete(state.api_like, {data: { user_id: getters.uid, music_id: music_id }})
       commit('deleteLike', music_id)
     },
-    fetchFavoriteComments ({ getters, commit }) {
-      axios.get('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment', {params: { user_id: getters.uid }}).then(
+    fetchFavoriteComments ({ state, getters, commit }) {
+      axios.get(state.api_like, {params: { user_id: getters.uid }}).then(
         response => {
           JSON.parse(response.data.body).forEach(item => commit('addLike', item.music_id))
         }
       )
     },
-    fetchLikedComments ({ getters, commit }) {
-      axios.get('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment/own-comment', {params: {
+    fetchLikedComments ({ state, getters, commit }) {
+      axios.get(state.api_like + '/own-comment', {params: {
       user_id: getters.uid}}).then(
         response => {
           JSON.parse(response.data.body).forEach(item => commit('addLikedComment', item.music_id))
         }
       )
     },
-    deleteLikedComment ({ commit }, id) {
-      axios.delete('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment/own-comment', {data: {music_id: id}}).then(response => console.log(response))
+    deleteLikedComment ({ state, commit }, id) {
+      axios.delete(state.api_like + '/own-comment', {data: {music_id: id}})
       commit('deleteLikedComment', id)
     },
     fetchAlbum ({ getters, commit }) {
