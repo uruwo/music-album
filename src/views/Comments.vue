@@ -78,7 +78,8 @@
         <v-divider></v-divider>
       </div>
       <v-card min-height="2000px" v-if="!$store.state.last_comment"></v-card>
-      <infinite-loading spinner="spiral" @infinite="infiniteHandler">
+      <v-card min-height="2000px" v-if="dummy"></v-card>
+      <infinite-loading spinner="spiral" @infinite="infiniteHandler" :identifier="infinite_id">
         <template slot="no-more">No more message</template>
         <template slot="no-results">No more message</template>
       </infinite-loading>
@@ -105,6 +106,8 @@ export default {
       favorite_comment: [],
       keyword: '',
       last_comment: null,
+      infinite_id: 0,
+      dummy: false
     }
   },
   created () {
@@ -117,15 +120,21 @@ export default {
       if (!newVal) {
         this.all_album = this.$store.state.all_album
         this.last_comment = null
+        this.infinite_id += 1
       }
     }
   },
   methods: {
     firstFilter () {
+      this.infinite_id += 1
       this.last_comment = null
       this.all_album = []
       this.firstFilterFetch('artist')
       this.firstFilterFetch('title')
+      this.dummy = true
+      setTimeout(() => {
+        this.dummy = false
+      },1000)
     },
     firstFilterFetch (field) {
       firebase.firestore().collectionGroup('album').where("date", "!=", null).where(field, '==', this.keyword).orderBy('date', 'desc').limit(5).get().then(snapshot => {
@@ -157,7 +166,7 @@ export default {
       }
     },
     infiniteHandler ($state) {
-      if (!this.last_comment) {
+      if (!this.keyword) {
         this.normalHandler($state)
       } else {
         this.filterHandler($state)
