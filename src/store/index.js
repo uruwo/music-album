@@ -160,6 +160,10 @@ export default new Vuex.Store({
     addLikedComment (state, music_id) {
       state.liked_comments.push(music_id)
     },
+    deleteLikedComment (state, music_id) {
+      const array = state.liked_comments.filter(comment => comment !== music_id)
+      state.liked_comments = array
+    },
     setMusicTemp (state, music) {
       state.music_tmp = music
     },
@@ -268,6 +272,10 @@ export default new Vuex.Store({
           JSON.parse(response.data.body).forEach(item => commit('addLikedComment', item.music_id))
         }
       )
+    },
+    deleteLikedComment ({ commit }, id) {
+      axios.delete('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment/own-comment', {data: {music_id: id}}).then(response => console.log(response))
+      commit('deleteLikedComment', id)
     },
     fetchAlbum ({ getters, commit }) {
       firebase.firestore().collection(`users/${getters.uid}/album`).orderBy("created_date").get().then(snapshot => {
