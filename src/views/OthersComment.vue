@@ -42,7 +42,13 @@
               </div>
               <v-spacer></v-spacer>
               <div>
-                <v-card-title :class="{ 'pr-10': $vuetify.breakpoint.smAndUp }">
+                <v-card-title :class="[{ 'pr-10': $vuetify.breakpoint.smAndUp }, 'pl-0']">
+                  <v-btn icon @click="addLike({music_id: music.id, creater_id: music.user_id})" v-if="!$store.state.favorite_comment.includes(music.id)">
+                    <v-icon>mdi-thumb-up-outline</v-icon>
+                  </v-btn>
+                  <v-btn icon v-else @click="deleteLike(music.id)">
+                    <v-icon color="blue">mdi-thumb-up</v-icon>
+                  </v-btn>
                 </v-card-title>
               </div>
             </div>
@@ -65,6 +71,8 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
   data () {
     return {
@@ -97,6 +105,9 @@ export default {
         return 0
       })
     },
+  },
+  methods: {
+    ...mapActions(['addLike', 'deleteLike'])
   }
 }
 </script>

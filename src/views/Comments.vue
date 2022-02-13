@@ -42,8 +42,8 @@
             <v-card color="grey darken-4" class="ma-2">
               <div class="flex">
                 <div>
-              <v-card-title class="subtitle-1 pt-2">{{ music.title }}</v-card-title>
-              <v-card-subtitle class="pt-0 pb-2">{{ music.artist }}</v-card-subtitle>
+                  <v-card-title class="subtitle-1 pt-2">{{ music.title }}</v-card-title>
+                  <v-card-subtitle class="pt-0 pb-2">{{ music.artist }}</v-card-subtitle>
                 </div>
                 <v-spacer></v-spacer>
                 <div>
