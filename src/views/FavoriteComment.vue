@@ -28,7 +28,7 @@
     >
       <div class="flex mt-2 ml-2">
         <div>
-          <v-avatar tile rounded="sm">
+          <v-avatar tile rounded="sm" @click="watchProfile(music)">
             <v-img :src="music.profile_image" aspect-ratio="1"></v-img>
           </v-avatar>
         </div>
@@ -43,7 +43,8 @@
               <v-spacer></v-spacer>
               <div>
                 <v-card-title :class="[{ 'pr-10': $vuetify.breakpoint.smAndUp }, 'pl-0']">
-                  <v-btn icon @click="addLike({music_id: music.id, creater_id: music.user_id})" v-if="!$store.state.favorite_comment.includes(music.id)">
+                  <v-btn v-if="music.audio_url" class="d-none"></v-btn>
+                  <v-btn icon @click="addLike({music_id: music.id, creater_id: music.user_id})" v-else-if="!$store.state.favorite_comment.includes(music.id)">
                     <v-icon>mdi-thumb-up-outline</v-icon>
                   </v-btn>
                   <v-btn icon v-else @click="deleteLike(music.id)">
@@ -98,10 +99,19 @@ export default {
         const favorite_comment = favorite_comments[i]
         firebase.firestore().collectionGroup('album').where('id', '==', favorite_comment).orderBy('date', 'desc').get().then(snapshot => snapshot.forEach(doc => {
           const music = doc.data()
-          delete music.audio_url
-          delete music.image_url
+          if (music.user_id !== this.uid) {
+            delete music.audio_url
+            delete music.image_url
+          }
           this.album.push(music)
         }))
+      }
+    },
+    watchProfile (music) {
+      if (music.user_id === this.uid) {
+        this.$router.push({name: 'MyComment'})
+      } else {
+        this.$router.push({name: 'OthersComment', params: {user_id: music.user_id}})
       }
     },
     ...mapActions(['addLike', 'deleteLike'])
