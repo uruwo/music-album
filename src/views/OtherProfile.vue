@@ -146,6 +146,7 @@ export default {
       )
       axios.get(this.$store.state.api_like, {params: { user_id: user_id }}).then(
         response => {
+          this.favorite_comment = []
           JSON.parse(response.data.body).forEach(item => this.favorite_comment.push(item.music_id))
         }
       )
