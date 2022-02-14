@@ -54,8 +54,10 @@ export default {
   methods: {
     deleteMusicComment () {
       delete this.music.comment
-      this.deleteComment({id: this.music.id, music: this.music})
-      this.deleteCommentInAll({id: this.music.id, music: this.music})
+      this.music.date = null
+      this.deleteComment({id: this.music.id})
+      this.deleteCommentInAll({id: this.music.id})
+      this.deleteLikedComment(this.music.id)
     },
     updateComment () {
       if (!this.music.profile_name) {
@@ -68,7 +70,7 @@ export default {
       this.updateMusic({id: this.music.id, music: this.music})
       this.updateMusicInAll({id: this.music.id, music: this.music})
     },
-    ...mapActions(['switchCommentState','updateMusic', 'deleteComment','updateMusicInAll', 'deleteCommentInAll'])
+    ...mapActions(['switchCommentState','updateMusic', 'deleteComment','updateMusicInAll', 'deleteCommentInAll', 'deleteLikedComment'])
   },
   computed: {
     ...mapGetters(['uid'])

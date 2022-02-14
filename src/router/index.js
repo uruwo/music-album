@@ -6,6 +6,11 @@ import Profile from '../views/Profile.vue'
 import Comments from '../views/Comments.vue'
 import OtherProfile from '../views/OtherProfile.vue'
 import Loading from '../views/Loading.vue'
+import OthersComment from '../views/OthersComment.vue'
+import Follower from '../views/Follower.vue'
+import Followee from '../views/Followee.vue'
+import MyComment from '../views/MyComment.vue'
+import FavoriteComment from '../views/FavoriteComment.vue'
 
 Vue.use(VueRouter)
 
@@ -28,7 +33,29 @@ const routes = [
   {
     path: '/profile',
     name: 'Profile',
-    component: Profile
+    component: Profile,
+    children: [
+      {
+        path: 'comment',
+        name: 'MyComment',
+        component: MyComment
+      },
+      {
+        path: 'favorite_comment',
+        name: 'MyFavoriteComment',
+        component: FavoriteComment
+      },
+      {
+        path: 'follower',
+        name: 'MyFollower',
+        component: Follower
+      },
+      {
+        path: 'followee',
+        name: 'MyFollowee',
+        component: Followee
+      }
+    ]
   },
   {
     path: '/comments',
@@ -36,9 +63,31 @@ const routes = [
     component: Comments
   },
   {
-    path: '/other_profile/:user_id?',
+    path: '/other_profile',
     name: 'OtherProfile',
-    component: OtherProfile
+    component: OtherProfile,
+    children: [
+      {
+        path: 'comment/:user_id?',
+        name: 'OthersComment',
+        component: OthersComment
+      },
+      {
+        path: 'favorite_comment/:user_id?',
+        name: 'OthersFavoriteComment',
+        component: FavoriteComment
+      },
+      {
+        path: 'follower/:user_id?',
+        name: 'OthersFollower',
+        component: Follower
+      },
+      {
+        path: 'followee/:user_id?',
+        name: 'OthersFollowee',
+        component: Followee
+      }
+    ]
   }
 ]
 

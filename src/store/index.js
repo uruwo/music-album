@@ -24,12 +24,14 @@ export default new Vuex.Store({
     comment: false,
     comment_key: 0,
     filtered_album: [],
-    profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
+    profile: {name: 'ユーザー', profile_image: 'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png', comment: 'Write something you want to appeal.'},
     profile_key: 0,
     favorite_comment: [],
     liked_comments: [],
     my_followee: [],
-    my_follower: []
+    my_follower: [],
+    last_comment: null,
+    api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment'
   },
   mutations: {
     setLoginUser (state, user) {
@@ -59,12 +61,12 @@ export default new Vuex.Store({
       if ('comment' in music) {
         state.commented_album.unshift(music)
         state.commented_album.sort((a,b) => {
-          let titleA = a.title.toUpperCase()
-          let titleB = b.title.toUpperCase()
-          if (titleA < titleB) {
+          const dateA = a.date
+          const dateB = b.date
+          if (dateA > dateB) {
             return -1
           }
-          if (titleA > titleB) {
+          if (dateA < dateB) {
             return 1
           }
           return 0
@@ -78,19 +80,11 @@ export default new Vuex.Store({
         delete music.image_url
       }
       if (music.comment) {
-        state.all_album.unshift(music)
-        state.all_album.sort((a,b) => {
-          let dateA = a.date
-          let dateB = b.date
-          if (dateA > dateB) {
-            return -1
-          }
-          if (dateA < dateB) {
-            return 1
-          }
-          return 0
-        })
+        state.all_album.push(music)
       }
+    },
+    setLastComment (state, comment) {
+      state.last_comment = comment
     },
     addProfile (state, {id, profile}) {
       profile.id = id
@@ -115,6 +109,14 @@ export default new Vuex.Store({
       } else {
         state.all_album[index] = music
       }
+    },
+    updateCommentImage (state, {id, image_url}) {
+      const index = state.all_album.findIndex(music => music.id === id)
+      state.all_album[index].profile_image = image_url
+    },
+    updateCommentUser (state, {id, user_name}) {
+      const index = state.all_album.findIndex(music => music.id === id)
+      state.all_album[index].profile_name = user_name
     },
     updateProfile (state, profile) {
       state.profile = profile
@@ -158,6 +160,10 @@ export default new Vuex.Store({
     },
     addLikedComment (state, music_id) {
       state.liked_comments.push(music_id)
+    },
+    deleteLikedComment (state, music_id) {
+      const array = state.liked_comments.filter(comment => comment !== music_id)
+      state.liked_comments = array
     },
     setMusicTemp (state, music) {
       state.music_tmp = music
@@ -245,38 +251,47 @@ export default new Vuex.Store({
         }
       )
     },
-    addLike ({ getters, commit }, {music_id, creater_id}) {
-      axios.post('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment', { fan_id: getters.uid, music_id: music_id, creater_id: creater_id })
+    addLike ({ state, getters, commit }, {music_id, creater_id}) {
+      axios.post(state.api_like, { fan_id: getters.uid, music_id: music_id, creater_id: creater_id })
       commit('addLike', music_id)
     },
-    deleteLike ({ getters, commit }, music_id) {
-      axios.delete('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment', {data: { user_id: getters.uid, music_id: music_id }})
+    deleteLike ({ state, getters, commit }, music_id) {
+      axios.delete(state.api_like, {data: { user_id: getters.uid, music_id: music_id }})
       commit('deleteLike', music_id)
     },
-    fetchFavoriteComments ({ getters, commit }) {
-      axios.get('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment', {params: { user_id: getters.uid }}).then(
+    fetchFavoriteComments ({ state, getters, commit }) {
+      axios.get(state.api_like, {params: { user_id: getters.uid }}).then(
         response => {
           JSON.parse(response.data.body).forEach(item => commit('addLike', item.music_id))
         }
       )
     },
-    fetchLikedComments ({ getters, commit }) {
-      axios.get('https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment/own-comment', {params: {
+    fetchLikedComments ({ state, getters, commit }) {
+      axios.get(state.api_like + '/own-comment', {params: {
       user_id: getters.uid}}).then(
         response => {
           JSON.parse(response.data.body).forEach(item => commit('addLikedComment', item.music_id))
         }
       )
     },
+    deleteLikedComment ({ state, commit }, id) {
+      axios.delete(state.api_like + '/own-comment', {data: {music_id: id}})
+      commit('deleteLikedComment', id)
+    },
     fetchAlbum ({ getters, commit }) {
-      firebase.firestore().collection(`users/${getters.uid}/album`).get().then(snapshot => {
+      firebase.firestore().collection(`users/${getters.uid}/album`).orderBy("created_date").get().then(snapshot => {
         snapshot.forEach(doc => commit('addMusic', { id: doc.id, music: doc.data() }))
       })
     },
-    fetchAllAlbum ({ commit }) {
-      firebase.firestore().collectionGroup('album').get().then(snapshot => {
+    fetchAllAlbum ({ commit },) {
+      firebase.firestore().collectionGroup('album').where("date", "!=", null).orderBy("date", "desc").limit(5).get().then(snapshot => {
         snapshot.forEach(doc => commit('addAllMusic', {id: doc.id, music: doc.data()}))
+        const last_comment = snapshot.docs[snapshot.docs.length - 1]
+        commit('setLastComment', last_comment)
       })
+    },
+    setLastComment ({ commit }, comment) {
+      commit('setLastComment', comment)
     },
     fetchProfile ({ getters, commit }) {
       firebase.firestore().collection(`users/${getters.uid}/profile`).get().then(snapshot => {
@@ -290,6 +305,16 @@ export default new Vuex.Store({
         commit('updateComment', { id, music })
         })
       }
+    },
+    updateCommentImage ({ getters, commit }, {id, image_url}) {
+      firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).set({profile_image: image_url}, {merge: true}).then(() => {
+        commit('updateCommentImage', { id, image_url})
+      })
+    },
+    updateCommentUser ({ getters, commit }, {id, user_name}) {
+      firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).set({profile_name: user_name}, {merge: true}).then(() => {
+        commit('updateCommentUser', { id, user_name })
+      })
     },
     updateMusicInAll ({ commit }, {id, music}) {
       commit('updateMusicInAll', { id, music })
@@ -314,7 +339,12 @@ export default new Vuex.Store({
     },
     deleteComment ({ getters, commit }, {id}) {
       if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update({comment: firebase.firestore.FieldValue.delete()}).then(() => {
+        firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update(
+          {
+            comment: firebase.firestore.FieldValue.delete(),
+            date: null
+          }
+        ).then(() => {
           commit('deleteComment', { id })
           commit('deleteCommentView', { id })
         })

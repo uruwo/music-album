@@ -1,67 +1,6 @@
 <template>
   <div class="container">
-    <v-card width="300">
-      <v-list-item>
-        <v-list-item-content class="py-2">
-          <v-list-item-title class="text-center mb-2">
-            {{ $store.state.profile.name }}
-          </v-list-item-title>
-          <v-list-item-title class="mb-2">
-            <v-img width="128" :src="myImage" aspect-ratio="1" class="mx-auto"></v-img>
-          </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list dense class="py-0">
-        <v-list-item class="title-color">
-          <v-list-item-content>
-            <v-list-item-title>鑑賞データ</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>アーティスト</v-list-item-title>
-          </v-list-item-content>
-          <p class="text-body-2 my-2" >{{ artists }}人</p>
-        </v-list-item>
-        <v-divider></v-divider>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>曲</v-list-item-title>
-          </v-list-item-content>
-          <p class="text-body-2 my-2" >{{ album.length }}曲</p>
-        </v-list-item>
-        <v-divider></v-divider>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>感想</v-list-item-title>
-          </v-list-item-content>
-          <p class="text-body-2 my-2" >{{ comments }}曲</p>
-        </v-list-item>
-        <v-list-item class="title-color">
-          <v-list-item-content>
-            <v-list-item-title>プロフィール</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>フォロー</v-list-item-title>
-          </v-list-item-content>
-          <p class="text-body-2 my-2" >{{ followee.length }}人</p>
-        </v-list-item>
-        <v-divider></v-divider>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>フォロワー</v-list-item-title>
-          </v-list-item-content>
-          <p class="text-body-2 my-2">{{ follower.length }}人</p>
-        </v-list-item>
-        <v-divider></v-divider>
-        <v-list-item>
-          <v-list-item-title>自己紹介</v-list-item-title>
-        </v-list-item>
-        <p class="font-size px-4">{{ $store.state.profile.comment }}</p>
-      </v-list>
-    </v-card>
+    <MyStatus></MyStatus>
     <v-card width="600" class="ml-4" min-height="100">
       <v-row>
         <v-col class="d-none d-sm-flex">
@@ -76,12 +15,10 @@
             dense
             placeholder="曲名・アーティスト名"
             type="text"
-            ref='blurThis'
-            @blur="filterAlbum"
-            @keyup.enter.exact="blur"
+            @keyup.enter.exact="firstFilter"
             >
             <template v-slot:append>
-              <v-btn icon plain :ripple="false" @click="filterAlbum">
+              <v-btn icon plain :ripple="false" @click="firstFilter">
                 <v-icon color="grey darken-1">mdi-magnify</v-icon>
               </v-btn>
             </template>
@@ -105,8 +42,8 @@
             <v-card color="grey darken-4" class="ma-2">
               <div class="flex">
                 <div>
-              <v-card-title class="subtitle-1 pt-2">{{ music.title }}</v-card-title>
-              <v-card-subtitle class="pt-0 pb-2">{{ music.artist }}</v-card-subtitle>
+                  <v-card-title class="subtitle-1 pt-2">{{ music.title }}</v-card-title>
+                  <v-card-subtitle class="pt-0 pb-2">{{ music.artist }}</v-card-subtitle>
                 </div>
                 <v-spacer></v-spacer>
                 <div>
@@ -140,6 +77,12 @@
         </div>
         <v-divider></v-divider>
       </div>
+      <v-card min-height="2000px" v-if="!$store.state.last_comment"></v-card>
+      <v-card min-height="2000px" v-if="dummy"></v-card>
+      <infinite-loading spinner="spiral" @infinite="infiniteHandler" :identifier="infinite_id">
+        <template slot="no-more">No more message</template>
+        <template slot="no-results">No more message</template>
+      </infinite-loading>
     </v-card>
   </div>
 </template>
@@ -148,45 +91,65 @@
 import { mapActions } from 'vuex'
 import { mapGetters } from 'vuex'
 import "firebase/storage"
+import firebase from 'firebase'
+import MyStatus from '../components/MyStatus.vue'
+import InfiniteLoading from 'vue-infinite-loading'
+
 export default {
+  components: {
+    MyStatus,
+    InfiniteLoading
+  },
   data () {
     return {
-      album: [],
       all_album: [],
       favorite_comment: [],
-      profile: {name: 'ユーザー', profile_image: 'default_user_icon.png', comment: 'Write something you want to appeal.'},
       keyword: '',
-      followee: [],
-      follower: []
+      last_comment: null,
+      infinite_id: 0,
+      dummy: false
     }
   },
   created () {
-    this.album = this.$store.state.album
     this.all_album = this.$store.state.all_album
-    this.putFilteredAlbum(this.all_album.filter(music => music.user_id === this.uid))
+    this.putFilteredAlbum(this.$store.state.album)
     this.favorite_comment = this.$store.state.favorite_comment
-    this.followee = this.$store.state.my_followee
-    this.follower = this.$store.state.my_follower
   },
   watch: {
     keyword: function (newVal) {
       if (!newVal) {
-        this.filterAlbum()
+        this.all_album = this.$store.state.all_album
+        this.last_comment = null
+        this.infinite_id += 1
       }
     }
   },
   methods: {
-    filterAlbum () {
-      const album = []
-      for (const i in this.$store.state.all_album) {
-        const music = this.$store.state.all_album[i]
-        if (music.title.indexOf(this.keyword) !== -1 ||
-            music.artist.indexOf(this.keyword) !== -1) {
-            album.push(music)
+    firstFilter () {
+      this.infinite_id += 1
+      this.last_comment = null
+      this.all_album = []
+      this.firstFilterFetch('artist')
+      this.firstFilterFetch('title')
+      this.dummy = true
+      setTimeout(() => {
+        this.dummy = false
+      },1000)
+    },
+    firstFilterFetch (field) {
+      firebase.firestore().collectionGroup('album').where("date", "!=", null).where(field, '==', this.keyword).orderBy('date', 'desc').limit(5).get().then(snapshot => {
+        if (snapshot.docs.length !== 0) {
+          this.last_comment = snapshot.docs[snapshot.docs.length - 1]
+          snapshot.forEach(doc => {
+            const music = doc.data()
+            if (music.user_id !== this.uid) {
+              delete music.audio_url
+              delete music.image_url
+            }
+            this.all_album.push(music)
+          })
         }
-      }
-      this.all_album = album
-      this.putFilteredAlbum(this.all_album.filter(music => music.user_id === this.uid))
+      })
     },
     blur () {
       this.$refs.blurThis.blur()
@@ -197,27 +160,69 @@ export default {
     },
     watchProfile (music) {
       if (music.user_id === this.uid) {
-        this.$router.push({name: 'Profile'})
+        this.$router.push({name: 'MyComment'})
       } else {
-        this.$router.push({name: 'OtherProfile', params: {user_id: music.user_id}})
+        this.$router.push({name: 'OthersComment', params: {user_id: music.user_id}})
       }
     },
-    ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike'])
+    infiniteHandler ($state) {
+      if (!this.keyword) {
+        this.normalHandler($state)
+      } else {
+        this.filterHandler($state)
+      }
+    },
+    normalHandler ($state) {
+      firebase.firestore().collectionGroup('album').where("date", "!=", null).orderBy("date", "desc").startAfter(this.$store.state.last_comment).limit(5).get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const music = doc.data()
+          if (music.user_id !== this.uid) {
+            delete music.audio_url
+            delete music.image_url
+          }
+          this.all_album.push(music)
+        })
+        if (snapshot.docs.length === 5) {
+          setTimeout(() => {
+            this.setLastComment(snapshot.docs[snapshot.docs.length - 1])
+            $state.loaded()
+          }, 1000)
+        } else {
+          $state.complete()
+        }
+      })
+    },
+    filterHandler ($state) {
+      this.nextFilterFetch('artist', $state)
+      this.nextFilterFetch('title', $state)
+    },
+    nextFilterFetch (field, $state) {
+      firebase.firestore().collectionGroup('album').where("date", "!=", null).where(field, '==', this.keyword).orderBy('date', 'desc').startAfter(this.last_comment).limit(5).get().then(snapshot => {
+        if (snapshot.docs.length !== 0) {
+          snapshot.forEach(doc => {
+            const music = doc.data()
+            if (music.user_id !== this.uid) {
+              delete music.audio_url
+              delete music.image_url
+            }
+            this.all_album.push(music)
+          })
+          if (snapshot.docs.length === 5) {
+            setTimeout(() => {
+              this.last_comment = snapshot.docs[snapshot.docs.length - 1]
+              $state.loaded()
+            }, 1000)
+          } else {
+            $state.complete()
+          }
+        } else {
+          $state.complete()
+        }
+      })
+    },
+    ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike', 'setLastComment'])
   },
   computed: {
-    artists: function () {
-      return (this.album.filter((music, index, self) => self.findIndex(e => e.artist === music.artist) === index)).length
-    },
-    comments: function () {
-      return (this.album.filter(music => music.comment)).length
-    },
-    myImage: function () {
-      if (this.$store.state.profile.profile_image) {
-        return this.$store.state.profile.profile_image
-      } else {
-        return 'default_user_icon.png'
-      }
-    },
     ...mapGetters(['uid'])
   }
 }
@@ -235,23 +240,5 @@ export default {
   }
   .flex-grow {
     flex-grow: 1;
-  }
-  .font-size {
-    font-size: 0.8125rem;
-  }
-  input {
-    outline: none;
-    color: white;
-    text-align: center;
-  }
-  .v-input {
-    font-size: 1rem;
-    font-weight: 400;
-  }
-  .v-text-field .v-label {
-    font-size: 1rem;
-  }
-  .title-color {
-    background-color: #272727 !important;
   }
 </style>
