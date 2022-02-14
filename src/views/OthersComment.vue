@@ -29,11 +29,11 @@
       <div class="flex mt-2 ml-2">
         <div>
           <v-avatar tile rounded="sm">
-            <v-img :src="profile.profile_image" aspect-ratio="1"></v-img>
+            <v-img :src="music.profile_image" aspect-ratio="1"></v-img>
           </v-avatar>
         </div>
         <div class="flex-grow">
-          <p class="ml-2 mb-2">{{ profile.name }}</p>
+          <p class="ml-2 mb-2">{{ music.profile_name }}</p>
           <v-card color="grey darken-4" class="ma-2">
             <div class="flex">
               <div>
