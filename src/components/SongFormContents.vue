@@ -94,6 +94,10 @@ import { mapGetters } from 'vuex'
           }
         )
         const res_audio_info = await axios.post('https://ij6adayafg.execute-api.ap-northeast-1.amazonaws.com/getAudioInfo', { uuid: uuid, name: event.name })
+        if (!res_audio_info.data.body) {
+          this.overlay = false
+          return
+        }
         const audio_info = JSON.parse(res_audio_info.data.body)
         this.$set(this.music, 'title', audio_info.title)
         this.$set(this.music, 'artist', audio_info.artist)
