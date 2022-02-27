@@ -191,7 +191,16 @@ export default new Vuex.Store({
       const google_auth_provider = new firebase.auth.GoogleAuthProvider()
       firebase.auth().signInWithRedirect(google_auth_provider)
     },
-    logout () {
+    async logout ({state, getters}) {
+      if (state.login_user.isAnonymous) {
+        const uid = getters.uid
+        await firebase.firestore().collection(`users/${uid}/album`).get().then(snapshot => snapshot.forEach(doc => {
+          firebase.firestore().collection(`users/${uid}/album`).doc(doc.id).delete()
+        }))
+        await firebase.firestore().collection(`users/${uid}/profile`).get().then(snapshot => snapshot.forEach(doc => {
+          firebase.firestore().collection(`users/${uid}/profile`).doc(doc.id).delete()
+        }))
+      }
       firebase.auth().signOut()
     },
     setLoginUser ({ commit }, user) {

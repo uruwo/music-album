@@ -118,10 +118,8 @@ export default {
       this.$set(this.profile, 'user_id', this.uid)
       if (this.$store.state.profile.id) {
         this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
-        this.updateProfileInAll({id: this.profile.user_id, profile: this.profile})
       } else {
         this.addProfile(this.profile)
-        this.addProfileInAll(this.profile)
       }
       this.$store.state.commented_album.forEach(music => this.updateCommentUser({id: music.id, user_name: this.profile.name}))
       this.edit = false
@@ -144,13 +142,11 @@ export default {
       this.$store.state.album.forEach(music => this.updateCommentImage({id: music.id, image_url: this.profile.profile_image}))
       if (this.$store.state.profile.id) {
         this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
-        this.updateProfileInAll({id: this.profile.user_id, profile: this.profile})
       } else {
         this.addProfile(this.profile)
-        this.addProfileInAll(this.profile)
       }
     },
-    ...mapActions(['addProfile','updateProfile', 'switchDialogProfile', 'addProfileInAll', 'updateProfileInAll', 'updateCommentImage', 'updateCommentUser'])
+    ...mapActions(['addProfile','updateProfile', 'switchDialogProfile', 'updateCommentImage', 'updateCommentUser'])
   },
   computed: {
     artists: function () {
