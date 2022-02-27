@@ -24,7 +24,7 @@ export default new Vuex.Store({
     comment: false,
     comment_key: 0,
     filtered_album: [],
-    profile: {name: 'ユーザー', profile_image: 'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png', comment: 'Write something you want to appeal.'},
+    profile: {},
     profile_key: 0,
     favorite_comment: [],
     liked_comments: [],
@@ -229,13 +229,6 @@ export default new Vuex.Store({
         })
       }
     },
-    addProfile ({ getters, commit }, profile) {
-      if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/profile`).add(profile).then(doc => {
-          commit('addProfile', { id: doc.id, profile })
-        })
-      }
-    },
     addFollowee ({ getters, commit }, user_id) {
       axios.post('http://52.69.186.157:8000/follows/', {
       follower_id: getters.uid, followee_id: user_id})
@@ -304,7 +297,18 @@ export default new Vuex.Store({
     },
     fetchProfile ({ getters, commit }) {
       firebase.firestore().collection(`users/${getters.uid}/profile`).get().then(snapshot => {
-        snapshot.forEach(doc => commit('addProfile', { id: doc.id, profile: doc.data() }))
+        if (snapshot.docs.length !== 0) {
+          snapshot.forEach(doc => commit('addProfile', { id: doc.id, profile: doc.data() }))
+          console.log(snapshot.docs)
+        } else {
+          const default_profile = {
+            name: 'ユーザー',
+            profile_image: 'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png',
+            comment: 'Write something you want to appeal.',
+            user_id: getters.uid
+          }
+          firebase.firestore().collection(`users/${getters.uid}/profile`).add(default_profile).then(doc => commit('addProfile', { id: doc.id, profile: default_profile }))
+        }
       })
     },
     updateMusic ({ getters, commit }, {id, music}) {

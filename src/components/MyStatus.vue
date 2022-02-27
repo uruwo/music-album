@@ -85,7 +85,7 @@ export default {
   data () {
     return {
       album: [],
-      profile: {name: 'ユーザー', profile_image: 'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png', comment: 'Write something you want to appeal.'},
+      profile: {},
       edit: false,
       followee: [],
       follower: []
@@ -116,11 +116,7 @@ export default {
     },
     changeName () {
       this.$set(this.profile, 'user_id', this.uid)
-      if (this.$store.state.profile.id) {
-        this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
-      } else {
-        this.addProfile(this.profile)
-      }
+      this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
       this.$store.state.commented_album.forEach(music => this.updateCommentUser({id: music.id, user_name: this.profile.name}))
       this.edit = false
     },
@@ -140,13 +136,9 @@ export default {
         })
       }
       this.$store.state.album.forEach(music => this.updateCommentImage({id: music.id, image_url: this.profile.profile_image}))
-      if (this.$store.state.profile.id) {
-        this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
-      } else {
-        this.addProfile(this.profile)
-      }
+      this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
     },
-    ...mapActions(['addProfile','updateProfile', 'switchDialogProfile', 'updateCommentImage', 'updateCommentUser'])
+    ...mapActions(['updateProfile', 'switchDialogProfile', 'updateCommentImage', 'updateCommentUser'])
   },
   computed: {
     artists: function () {

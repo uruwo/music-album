@@ -13,7 +13,6 @@
           tile
           @click="login(); load()"
           class="px-8"
-          
         >
             <v-avatar size="24" class="mr-4">
               <img
@@ -41,6 +40,11 @@
         </v-btn>
       </v-col>
     </v-row>
+    <v-row class="mt-10">
+      <v-col align="center" justify="center">
+        <p class="attention">※ゲストアカウントでログインした場合、ログアウト時に全データが削除されます</p>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -59,3 +63,9 @@ import { mapActions } from 'vuex'
     }
   }
 </script>
+
+<style scoped>
+  .attention {
+    font-size: 14px;
+  }
+</style>

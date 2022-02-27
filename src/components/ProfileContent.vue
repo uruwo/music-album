@@ -51,14 +51,10 @@ export default {
     },
     saveComment () {
       this.$set(this.profile, 'user_id', this.uid)
-      if (this.$store.state.profile.id) {
-        this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
-      } else {
-        this.addProfile(this.profile)
-      }
+      this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
       this.switchDialogProfile()
     },
-    ...mapActions(['switchDialogProfile', 'addProfile', 'updateProfile'])
+    ...mapActions(['switchDialogProfile', 'updateProfile'])
   },
   computed: {
     ...mapGetters(['uid'])
