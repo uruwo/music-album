@@ -194,11 +194,11 @@ export default new Vuex.Store({
     async logout ({state, getters}) {
       if (state.login_user.isAnonymous) {
         const uid = getters.uid
-        await firebase.firestore().collection(`users/${uid}/album`).get().then(snapshot => snapshot.forEach(doc => {
-          firebase.firestore().collection(`users/${uid}/album`).doc(doc.id).delete()
-        }))
         await firebase.firestore().collection(`users/${uid}/profile`).get().then(snapshot => snapshot.forEach(doc => {
           firebase.firestore().collection(`users/${uid}/profile`).doc(doc.id).delete()
+        }))
+        await firebase.firestore().collection(`users/${uid}/album`).get().then(snapshot => snapshot.forEach(doc => {
+          firebase.firestore().collection(`users/${uid}/album`).doc(doc.id).delete()
         }))
       }
       firebase.auth().signOut()
@@ -299,7 +299,6 @@ export default new Vuex.Store({
       firebase.firestore().collection(`users/${getters.uid}/profile`).get().then(snapshot => {
         if (snapshot.docs.length !== 0) {
           snapshot.forEach(doc => commit('addProfile', { id: doc.id, profile: doc.data() }))
-          console.log(snapshot.docs)
         } else {
           const default_profile = {
             name: 'ユーザー',
