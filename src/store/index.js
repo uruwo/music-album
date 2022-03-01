@@ -24,14 +24,15 @@ export default new Vuex.Store({
     comment: false,
     comment_key: 0,
     filtered_album: [],
-    profile: {name: 'ユーザー', profile_image: 'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png', comment: 'Write something you want to appeal.'},
+    profile: {},
     profile_key: 0,
     favorite_comment: [],
     liked_comments: [],
     my_followee: [],
     my_follower: [],
     last_comment: null,
-    api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment'
+    api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment',
+    api_follow: 'https://fr93ff6r0j.execute-api.ap-northeast-1.amazonaws.com/follow-function'
   },
   mutations: {
     setLoginUser (state, user) {
@@ -194,11 +195,11 @@ export default new Vuex.Store({
     async logout ({state, getters}) {
       if (state.login_user.isAnonymous) {
         const uid = getters.uid
-        await firebase.firestore().collection(`users/${uid}/album`).get().then(snapshot => snapshot.forEach(doc => {
-          firebase.firestore().collection(`users/${uid}/album`).doc(doc.id).delete()
-        }))
         await firebase.firestore().collection(`users/${uid}/profile`).get().then(snapshot => snapshot.forEach(doc => {
           firebase.firestore().collection(`users/${uid}/profile`).doc(doc.id).delete()
+        }))
+        await firebase.firestore().collection(`users/${uid}/album`).get().then(snapshot => snapshot.forEach(doc => {
+          firebase.firestore().collection(`users/${uid}/album`).doc(doc.id).delete()
         }))
       }
       firebase.auth().signOut()
@@ -229,34 +230,51 @@ export default new Vuex.Store({
         })
       }
     },
-    addProfile ({ getters, commit }, profile) {
-      if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/profile`).add(profile).then(doc => {
-          commit('addProfile', { id: doc.id, profile })
-        })
-      }
-    },
-    addFollowee ({ getters, commit }, user_id) {
-      axios.post('http://52.69.186.157:8000/follows/', {
+    // addFollowee ({ getters, commit }, user_id) {
+    //   axios.post('http://52.69.186.157:8000/follows/', {
+    //   follower_id: getters.uid, followee_id: user_id})
+    //   commit('addFollowee', user_id)
+    // },
+    // deleteFollowee ({ getters, commit }, user_id) {
+    //   axios.delete('http://52.69.186.157:8000/follows/', {data: {
+    //   follower_id: getters.uid, followee_id: user_id}})
+    //   commit('deleteFollowee', user_id)
+    // },
+    // fetchFollowee ({ getters, commit }) {
+    //   axios.get('http://52.69.186.157:8000/followee/' + getters.uid).then(
+    //     response => {
+    //       response.data.forEach(item => commit('addFollowee', item.followee_id))
+    //     }
+    //   )
+    // },
+    // fetchFollower ({ getters, commit }) {
+    //   axios.get('http://52.69.186.157:8000/follower/' + getters.uid).then(
+    //     response => {
+    //       response.data.forEach(item => commit('addFollower', item.follower_id))
+    //     }
+    //   )
+    // },
+    addFollowee ({ state, getters, commit }, user_id) {
+      axios.post(state.api_follow, {
       follower_id: getters.uid, followee_id: user_id})
       commit('addFollowee', user_id)
     },
-    deleteFollowee ({ getters, commit }, user_id) {
-      axios.delete('http://52.69.186.157:8000/follows/', {data: {
+    deleteFollowee ({ state, getters, commit }, user_id) {
+      axios.delete(state.api_follow, {data: {
       follower_id: getters.uid, followee_id: user_id}})
       commit('deleteFollowee', user_id)
     },
-    fetchFollowee ({ getters, commit }) {
-      axios.get('http://52.69.186.157:8000/followee/' + getters.uid).then(
+    fetchFollowee ({ state, getters, commit }) {
+      axios.get(state.api_follow + '/followee', {params: { user_id: getters.uid }}).then(
         response => {
-          response.data.forEach(item => commit('addFollowee', item.followee_id))
+          JSON.parse(response.data.body).forEach(item => commit('addFollowee', item.followee))
         }
       )
     },
-    fetchFollower ({ getters, commit }) {
-      axios.get('http://52.69.186.157:8000/follower/' + getters.uid).then(
+    fetchFollower ({ state, getters, commit }) {
+      axios.get(state.api_follow + '/follower', {params: { user_id: getters.uid }}).then(
         response => {
-          response.data.forEach(item => commit('addFollower', item.follower_id))
+          JSON.parse(response.data.body).forEach(item => commit('addFollower', item.follower))
         }
       )
     },
@@ -304,7 +322,17 @@ export default new Vuex.Store({
     },
     fetchProfile ({ getters, commit }) {
       firebase.firestore().collection(`users/${getters.uid}/profile`).get().then(snapshot => {
-        snapshot.forEach(doc => commit('addProfile', { id: doc.id, profile: doc.data() }))
+        if (snapshot.docs.length !== 0) {
+          snapshot.forEach(doc => commit('addProfile', { id: doc.id, profile: doc.data() }))
+        } else {
+          const default_profile = {
+            name: 'ユーザー',
+            profile_image: 'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png',
+            comment: 'Write something you want to appeal.',
+            user_id: getters.uid
+          }
+          firebase.firestore().collection(`users/${getters.uid}/profile`).add(default_profile).then(doc => commit('addProfile', { id: doc.id, profile: default_profile }))
+        }
       })
     },
     updateMusic ({ getters, commit }, {id, music}) {

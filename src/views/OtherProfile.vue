@@ -132,16 +132,28 @@ export default {
           snapshot.forEach(doc => this.album.push(doc.data()))
         }
       )
-      axios.get('http://52.69.186.157:8000/followee/' + user_id).then(
+      // axios.get('http://52.69.186.157:8000/followee/' + user_id).then(
+      //   response => {
+      //     this.followee = []
+      //     response.data.forEach(item => this.followee.push(item.followee_id))
+      //   }
+      // )
+      // axios.get('http://52.69.186.157:8000/follower/' + user_id).then(
+      //   response => {
+      //     this.follower = []
+      //     response.data.forEach(item =>this.follower.push(item.follower_id))
+      //   }
+      // )
+      axios.get(this.$store.state.api_follow + '/followee', {params: { user_id: user_id }}).then(
         response => {
           this.followee = []
-          response.data.forEach(item => this.followee.push(item.followee_id))
+          JSON.parse(response.data.body).forEach(item => this.followee.push(item.followee))
         }
       )
-      axios.get('http://52.69.186.157:8000/follower/' + user_id).then(
+      axios.get(this.$store.state.api_follow + '/follower', {params: { user_id: user_id }}).then(
         response => {
           this.follower = []
-          response.data.forEach(item =>this.follower.push(item.follower_id))
+          JSON.parse(response.data.body).forEach(item =>this.follower.push(item.follower))
         }
       )
       axios.get(this.$store.state.api_like, {params: { user_id: user_id }}).then(
