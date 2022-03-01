@@ -127,9 +127,10 @@ export default {
     updateComment (index) {
       const filteredMusic = this.filtered_album[index]
       this.updateMusic({id: filteredMusic.id, music: filteredMusic})
+      this.updateCommentView({id: filteredMusic.id, music: filteredMusic})
       this.updateMusicInAll({id: filteredMusic.id, music: filteredMusic})
     },
-    ...mapActions(['putFilteredAlbum','updateMusic','switchBarContent', 'switchPlayerBar', 'updateMusicInAll'])
+    ...mapActions(['putFilteredAlbum','updateMusic','switchBarContent', 'switchPlayerBar', 'updateMusicInAll', 'updateCommentView'])
   },
   computed: {
     likes: function () {

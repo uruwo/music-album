@@ -339,9 +339,11 @@ export default new Vuex.Store({
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update(music).then(() => {
         commit('updateMusic', { id, music })
-        commit('updateComment', { id, music })
         })
       }
+    },
+    updateCommentView ({ commit }, {id, music}) {
+      commit('updateComment', { id, music })
     },
     updateCommentImage ({ getters, commit }, {id, image_url}) {
       firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).set({profile_image: image_url}, {merge: true}).then(() => {

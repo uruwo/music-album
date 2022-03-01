@@ -68,9 +68,10 @@ export default {
         this.$set(this.music, 'date', Date.now())
       }
       this.updateMusic({id: this.music.id, music: this.music})
+      this.updateCommentView({id: this.music.id, music: this.music})
       this.updateMusicInAll({id: this.music.id, music: this.music})
     },
-    ...mapActions(['switchCommentState','updateMusic', 'deleteComment','updateMusicInAll', 'deleteCommentInAll', 'deleteLikedComment'])
+    ...mapActions(['switchCommentState','updateMusic', 'deleteComment','updateMusicInAll', 'deleteCommentInAll', 'deleteLikedComment', 'updateCommentView'])
   },
   computed: {
     ...mapGetters(['uid'])
