@@ -31,7 +31,8 @@ export default new Vuex.Store({
     my_followee: [],
     my_follower: [],
     last_comment: null,
-    api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment'
+    api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment',
+    api_follow: 'https://fr93ff6r0j.execute-api.ap-northeast-1.amazonaws.com/follow-function'
   },
   mutations: {
     setLoginUser (state, user) {
@@ -229,27 +230,51 @@ export default new Vuex.Store({
         })
       }
     },
-    addFollowee ({ getters, commit }, user_id) {
-      axios.post('http://52.69.186.157:8000/follows/', {
+    // addFollowee ({ getters, commit }, user_id) {
+    //   axios.post('http://52.69.186.157:8000/follows/', {
+    //   follower_id: getters.uid, followee_id: user_id})
+    //   commit('addFollowee', user_id)
+    // },
+    // deleteFollowee ({ getters, commit }, user_id) {
+    //   axios.delete('http://52.69.186.157:8000/follows/', {data: {
+    //   follower_id: getters.uid, followee_id: user_id}})
+    //   commit('deleteFollowee', user_id)
+    // },
+    // fetchFollowee ({ getters, commit }) {
+    //   axios.get('http://52.69.186.157:8000/followee/' + getters.uid).then(
+    //     response => {
+    //       response.data.forEach(item => commit('addFollowee', item.followee_id))
+    //     }
+    //   )
+    // },
+    // fetchFollower ({ getters, commit }) {
+    //   axios.get('http://52.69.186.157:8000/follower/' + getters.uid).then(
+    //     response => {
+    //       response.data.forEach(item => commit('addFollower', item.follower_id))
+    //     }
+    //   )
+    // },
+    addFollowee ({ state, getters, commit }, user_id) {
+      axios.post(state.api_follow, {
       follower_id: getters.uid, followee_id: user_id})
       commit('addFollowee', user_id)
     },
-    deleteFollowee ({ getters, commit }, user_id) {
-      axios.delete('http://52.69.186.157:8000/follows/', {data: {
+    deleteFollowee ({ state, getters, commit }, user_id) {
+      axios.delete(state.api_follow, {data: {
       follower_id: getters.uid, followee_id: user_id}})
       commit('deleteFollowee', user_id)
     },
-    fetchFollowee ({ getters, commit }) {
-      axios.get('http://52.69.186.157:8000/followee/' + getters.uid).then(
+    fetchFollowee ({ state, getters, commit }) {
+      axios.get(state.api_follow + '/followee', {params: { user_id: getters.uid }}).then(
         response => {
-          response.data.forEach(item => commit('addFollowee', item.followee_id))
+          JSON.parse(response.data.body).forEach(item => commit('addFollowee', item.followee))
         }
       )
     },
-    fetchFollower ({ getters, commit }) {
-      axios.get('http://52.69.186.157:8000/follower/' + getters.uid).then(
+    fetchFollower ({ state, getters, commit }) {
+      axios.get(state.api_follow + '/follower', {params: { user_id: getters.uid }}).then(
         response => {
-          response.data.forEach(item => commit('addFollower', item.follower_id))
+          JSON.parse(response.data.body).forEach(item => commit('addFollower', item.follower))
         }
       )
     },
