@@ -36,14 +36,14 @@
       <v-btn
         color="blue darken-1"
         text
-        @click="switchDialog"
+        @click="switchDialog(); scrollTop()"
       >
         キャンセル
       </v-btn>
       <v-btn
         color="blue darken-1"
         text
-        @click="fileUpload()"
+        @click="fileUpload(); scrollTop()"
       >
         作成
       </v-btn>
@@ -71,6 +71,12 @@ import { mapGetters } from 'vuex'
       }
     },
     methods: {
+      scrollTop () {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        })
+      },
       inputImageFile (event) {
         this.file_image = event
       },

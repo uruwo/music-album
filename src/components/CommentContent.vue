@@ -13,6 +13,14 @@
         rows="12"></v-textarea>
     </v-card-text>
     <v-card-actions>
+      <v-btn
+        v-if="$vuetify.breakpoint.xs"
+        color="red darken-1"
+        text
+        @click="deleteConfirm(music.id)"
+      >
+        曲削除
+      </v-btn>
       <v-spacer></v-spacer>
       <v-btn
         color="blue darken-1"
@@ -53,11 +61,13 @@ export default {
   },
   methods: {
     deleteMusicComment () {
-      delete this.music.comment
-      this.music.date = null
-      this.deleteComment({id: this.music.id})
-      this.deleteCommentInAll({id: this.music.id})
-      this.deleteLikedComment(this.music.id)
+      if (confirm('この感想を削除してよろしいですか?')) {
+        delete this.music.comment
+        this.music.date = null
+        this.deleteComment({id: this.music.id})
+        this.deleteCommentInAll({id: this.music.id})
+        this.deleteLikedComment(this.music.id)
+      }
     },
     updateComment () {
       if (!this.music.profile_name) {
@@ -71,7 +81,15 @@ export default {
       this.updateCommentView({id: this.music.id, music: this.music})
       this.updateMusicInAll({id: this.music.id, music: this.music})
     },
-    ...mapActions(['switchCommentState','updateMusic', 'deleteComment','updateMusicInAll', 'deleteCommentInAll', 'deleteLikedComment', 'updateCommentView'])
+    deleteConfirm (id) {
+      if (confirm('この楽曲を削除してよろしいですか?')) {
+        this.deleteMusic({id})
+        this.deleteCommentInAll({id})
+        this.deleteLikedComment(id)
+        this.switchCommentState()
+      }
+    },
+    ...mapActions(['switchCommentState','updateMusic', 'deleteComment','updateMusicInAll', 'deleteCommentInAll', 'deleteLikedComment', 'updateCommentView', 'deleteMusic'])
   },
   computed: {
     ...mapGetters(['uid'])

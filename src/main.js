@@ -4,7 +4,6 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 import firebase from 'firebase'
-import { longClickDirective } from 'vue-long-click'
 
 Vue.config.productionTip = false
 
@@ -19,10 +18,6 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
-const longClickInstance = longClickDirective({ delay: 500, interval: 100})
-
-Vue.directive('longclick', longClickInstance)
 
 new Vue({
   router,
