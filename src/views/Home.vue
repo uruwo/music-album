@@ -6,7 +6,7 @@
         v-model="keyword"
         label="曲名・アーティスト名"
         type="text"
-        class="mt-16"
+        :class="[{'mt-5': $vuetify.breakpoint.xs}, {'mt-16': $vuetify.breakpoint.smAndUp}]"
         @blur="filterAlbum"
         ref="blurThis"
         @keyup.enter.exact="blur"
