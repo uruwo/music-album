@@ -44,6 +44,7 @@
           @mouseleave="mouseLeave"
           @click="setMusicActive(music); switchCommentState()"
           @click.right.prevent="switchDialogUpdate(); setMusicTemp(music)"
+          v-longclick="() => {switchDialogUpdate(); setMusicTemp(music)}"
         >
           <template>
             <v-row
