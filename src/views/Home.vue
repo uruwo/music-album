@@ -1,12 +1,12 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols=8>
+      <v-col cols=9 sm="8">
         <v-text-field
         v-model="keyword"
         label="曲名・アーティスト名"
         type="text"
-        class="mt-16"
+        :class="[{'mt-2': $vuetify.breakpoint.xs}, {'mt-16': $vuetify.breakpoint.smAndUp}]"
         @blur="filterAlbum"
         ref="blurThis"
         @keyup.enter.exact="blur"
@@ -52,7 +52,7 @@
               justify="center"
             >
               <v-btn icon @click.stop="play(music)" v-if="hoverFlag && index === hoverIndex && music.audio_url.match(/audios%2F(.+)\?/)[1] !== 'undefined'">
-                <v-icon x-large @mouseover="mouseHover(index)" @mouseleave="mouseLeave" >mdi-play-circle-outline</v-icon>
+                <v-icon x-large @mouseover="mouseHover(index)" @mouseleave="mouseLeave">mdi-play-circle-outline</v-icon>
               </v-btn>
             </v-row>
           </template>

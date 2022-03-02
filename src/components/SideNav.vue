@@ -11,7 +11,20 @@
         <v-list-item to="/comments">
           <v-list-item-title>みんなの感想</v-list-item-title>
         </v-list-item>
+        <v-list-item @click="logout">
+          <v-list-item-title>ログアウト</v-list-item-title>
+        </v-list-item>
       </v-list-item-group>
     </v-list>
   </v-navigation-drawer>
 </template>
+
+<script>
+import { mapActions } from 'vuex'
+
+export default {
+  methods: {
+    ...mapActions(['logout'])
+  }
+}
+</script>

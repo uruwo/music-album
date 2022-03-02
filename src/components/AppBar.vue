@@ -7,7 +7,7 @@
       Music Album
     </v-toolbar-title>
     <v-toolbar-items v-if="$store.state.login_user">
-      <v-btn text @click="logout">ログアウト</v-btn>
+      <v-btn class="visible" text @click="logout">ログアウト</v-btn>
     </v-toolbar-items>
     <v-tabs v-if="$store.state.login_user" right optional>
       <v-tab to="/home">アルバム</v-tab>
@@ -46,6 +46,14 @@ export default {
   }
 
   .v-tabs {
+    display: none;
+
+    @include display_pc {
+      display: block !important;
+    }
+  }
+
+  .visible {
     display: none;
 
     @include display_pc {
