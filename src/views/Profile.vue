@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div :class="[{'media': $vuetify.breakpoint.xs}, 'container']">
     <MyStatus></MyStatus>
     <router-view :follower="follower" :followee="followee" :profile="$store.state.profile"></router-view>
   </div>
@@ -31,5 +31,10 @@ export default {
     justify-content: center;
     margin-top: 40px;
     align-items: flex-start;
+  }
+  .media {
+    justify-content: center;
+    margin-top: 20px;
+    flex-direction: column;
   }
 </style>

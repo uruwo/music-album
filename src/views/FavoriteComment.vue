@@ -1,5 +1,5 @@
 <template>
-  <v-card width="600" class="ml-4" min-height="100">
+  <v-card width="600" :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]" min-height="100">
     <v-row>
       <v-col class="d-none d-sm-flex">
         <v-card-title class="subtitle-1 py-3">{{ profile.name }}さんのお気に入り</v-card-title>

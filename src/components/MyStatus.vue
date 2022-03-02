@@ -1,5 +1,5 @@
 <template>
-  <v-card width="300">
+  <v-card :class="[{'card-xs': $vuetify.breakpoint.xs}, {'card-sm-up': $vuetify.breakpoint.smAndUp}]">
     <v-list-item>
       <v-list-item-content class="py-2">
         <v-list-item-title v-if="!edit" class="text-center mb-2 ml-4">
@@ -15,64 +15,71 @@
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
+    <div :class="{'media': $vuetify.breakpoint.xs }">
+      <v-list dense class="py-0">
+        <v-list-item class="title-color">
+          <v-list-item-content>
+            <v-list-item-title>鑑賞データ</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>アーティスト</v-list-item-title>
+          </v-list-item-content>
+          <p class="text-body-2 my-2" >{{ artists }}人</p>
+        </v-list-item>
+        <v-divider></v-divider>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>曲</v-list-item-title>
+          </v-list-item-content>
+          <p class="text-body-2 my-2" >{{ album.length }}曲</p>
+        </v-list-item>
+        <v-divider></v-divider>
+        <v-list-item @click="$router.push({name: 'MyComment'})">
+          <v-list-item-content>
+            <v-list-item-title>感想</v-list-item-title>
+          </v-list-item-content>
+          <p class="text-body-2 my-2" >{{ comments }}曲</p>
+        </v-list-item>
+        <v-divider :class="{'d-none': $vuetify.breakpoint.smAndUp}"></v-divider>
+      </v-list>
+      <v-list dense class="py-0">
+        <v-list-item class="title-color">
+          <v-list-item-content>
+            <v-list-item-title>プロフィール</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item @click="$router.push({name: 'MyFollowee'})">
+          <v-list-item-content>
+            <v-list-item-title>フォロー</v-list-item-title>
+          </v-list-item-content>
+          <p class="text-body-2 my-2" >{{ followee.length }}人</p>
+        </v-list-item>
+        <v-divider></v-divider>
+        <v-list-item @click="$router.push({name: 'MyFollower'})">
+          <v-list-item-content>
+            <v-list-item-title>フォロワー</v-list-item-title>
+          </v-list-item-content>
+          <p class="text-body-2 my-2">{{ follower.length }}人</p>
+        </v-list-item>
+        <v-divider></v-divider>
+        <v-list-item @click="$router.push({name: 'MyFavoriteComment'})">
+          <v-list-item-content>
+            <v-list-item-title>いいねした感想</v-list-item-title>
+          </v-list-item-content>
+          <p class="text-body-2 my-2">{{ $store.state.favorite_comment.length }}編</p>
+        </v-list-item>
+        <v-divider></v-divider>
+      </v-list>
+    </div>
     <v-list dense class="py-0">
-      <v-list-item class="title-color">
-        <v-list-item-content>
-          <v-list-item-title>鑑賞データ</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item>
-        <v-list-item-content>
-          <v-list-item-title>アーティスト</v-list-item-title>
-        </v-list-item-content>
-        <p class="text-body-2 my-2" >{{ artists }}人</p>
-      </v-list-item>
-      <v-divider></v-divider>
-      <v-list-item>
-        <v-list-item-content>
-          <v-list-item-title>曲</v-list-item-title>
-        </v-list-item-content>
-        <p class="text-body-2 my-2" >{{ album.length }}曲</p>
-      </v-list-item>
-      <v-divider></v-divider>
-      <v-list-item @click="$router.push({name: 'MyComment'})">
-        <v-list-item-content>
-          <v-list-item-title>感想</v-list-item-title>
-        </v-list-item-content>
-        <p class="text-body-2 my-2" >{{ comments }}曲</p>
-      </v-list-item>
-      <v-list-item class="title-color">
-        <v-list-item-content>
-          <v-list-item-title>プロフィール</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item @click="$router.push({name: 'MyFollowee'})">
-        <v-list-item-content>
-          <v-list-item-title>フォロー</v-list-item-title>
-        </v-list-item-content>
-        <p class="text-body-2 my-2" >{{ followee.length }}人</p>
-      </v-list-item>
-      <v-divider></v-divider>
-      <v-list-item @click="$router.push({name: 'MyFollower'})">
-        <v-list-item-content>
-          <v-list-item-title>フォロワー</v-list-item-title>
-        </v-list-item-content>
-        <p class="text-body-2 my-2">{{ follower.length }}人</p>
-      </v-list-item>
-      <v-divider></v-divider>
-      <v-list-item @click="$router.push({name: 'MyFavoriteComment'})">
-        <v-list-item-content>
-          <v-list-item-title>いいねした感想</v-list-item-title>
-        </v-list-item-content>
-        <p class="text-body-2 my-2">{{ $store.state.favorite_comment.length }}編</p>
-      </v-list-item>
-      <v-divider></v-divider>
       <v-list-item>
         <v-list-item-title>自己紹介</v-list-item-title>
         <v-icon small @click="switchDialogProfile">mdi-pencil</v-icon>
       </v-list-item>
-      <p class="font-size px-4">{{ $store.state.profile.comment }}</p>
     </v-list>
+    <p class="font-size px-4">{{ $store.state.profile.comment }}</p>
   </v-card>
 </template>
 
@@ -166,6 +173,16 @@ export default {
     margin-top: 40px;
     align-items: flex-start;
   }
+  .media {
+    display: flex;
+    width: 100%;
+  }
+  .card-xs {
+    width: 600px;
+  }
+  .card-sm-up {
+    width: 300px;
+  }
   .flex {
     display: flex;
   }
@@ -189,5 +206,8 @@ export default {
   }
   .title-color {
     background-color: #272727 !important;
+  }
+  .v-list {
+    width: 100%;
   }
 </style>

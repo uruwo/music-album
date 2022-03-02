@@ -1,7 +1,7 @@
 <template>
-  <div class="container">
+  <div :class="[{'media': $vuetify.breakpoint.xs}, 'container']">
     <MyStatus></MyStatus>
-    <v-card width="600" class="ml-4" min-height="100">
+    <v-card width="600" :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]" min-height="100">
       <v-row>
         <v-col class="d-none d-sm-flex">
           <v-card-title class="subtitle-1 py-3">みんなの感想</v-card-title>
@@ -240,5 +240,10 @@ export default {
   }
   .flex-grow {
     flex-grow: 1;
+  }
+  .media {
+    justify-content: center;
+    margin-top: 20px;
+    flex-direction: column;
   }
 </style>
