@@ -58,7 +58,7 @@ export default {
         }
       } else {
         this.deleteLoginUser()
-        this.$router.push({name: 'Login'})
+        this.$router.push({name: 'Top'})
       }
     })
   },
@@ -74,6 +74,9 @@ export default {
 <style lang="scss" scoped>
   footer {
     height: 100px;
+  }
+  .container {
+    max-width: 100%;
   }
   .v-toolbar__title {
     overflow: visible !important;

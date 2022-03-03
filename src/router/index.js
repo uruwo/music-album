@@ -11,12 +11,18 @@ import Follower from '../views/Follower.vue'
 import Followee from '../views/Followee.vue'
 import MyComment from '../views/MyComment.vue'
 import FavoriteComment from '../views/FavoriteComment.vue'
+import Top from '../views/Top.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
+    name: 'Top',
+    component: Top
+  },
+  {
+    path: '/login',
     name: 'Login',
     component: Login
   },

@@ -20,7 +20,7 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-col @click="switchDialog" class="child-flex pa-2" cols="4" sm="3" md="2">
+      <v-col @click="switchDialog" class="child-flex pa-2" cols="6" sm="3" md="2">
         <v-img
           :src="create"
           aspect-ratio="1"
@@ -33,7 +33,7 @@
         v-for="(music, index) in filteredAlbum"
         :key="index"
         class=" child-flex pa-2"
-        cols="4" sm="3" md="2"
+        cols="6" sm="3" md="2"
       >
         <v-img
           :lazy-src="music.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? music.image_url: 'undefined.jpeg'"
@@ -131,5 +131,8 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+  }
+  .container {
+    max-width: 900px;
   }
 </style>
