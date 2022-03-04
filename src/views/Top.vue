@@ -68,7 +68,7 @@
       <div class="py-12"></div>
 
       <v-container class="text-center">
-        <h2 class="h6 font-weight-bold mb-3">持っている音楽をアルバムにしませんか？</h2>
+        <h2 class="h6 font-weight-bold mb-3">音楽をアルバムにしませんか？</h2>
 
         <v-responsive
           class="mx-auto mb-8"
