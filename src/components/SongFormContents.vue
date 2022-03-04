@@ -8,7 +8,16 @@
         <v-form ref="form">
           <v-row>
             <v-col cols="12" sm="6">
-              <v-file-input accept="audio/*" label="楽曲を選択" @change="inputAudioFile" v-if="show" small-chips prepend-icon="mdi-file-music-outline"></v-file-input>
+              <v-file-input 
+                accept="audio/*" 
+                label="楽曲を選択" 
+                @change="inputAudioFile" 
+                v-if="show" 
+                small-chips 
+                prepend-icon="mdi-file-music-outline" 
+                hint="入力すると他の項目が自動入力されます"
+                persistent-hint
+                ></v-file-input>
             </v-col>
             <v-col cols="12" sm="6">
               <v-file-input accept="image/*" label="画像を選択" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline" v-model="file_image"></v-file-input>
@@ -17,14 +26,12 @@
               <v-text-field
                 label="曲名"
                 v-model="music.title"
-                :rules="[!!music.title]"
               ></v-text-field>
             </v-col>
             <v-col cols="12">
               <v-text-field
                 label="アーティスト名"
                 v-model="music.artist"
-                :rules="[!!music.artist]"
               ></v-text-field>
             </v-col>
           </v-row>
@@ -111,9 +118,6 @@ import { mapGetters } from 'vuex'
         fetch(image_url).then(response => response.blob()).then(blob => new File([blob], audio_info.image_name)).then(file => this.file_image = file)
       },
       async fileUpload () {
-        if (!this.$refs.form.validate()) {
-          return
-        }
         if (this.file_image === null) {
           this.file_image = ''
         }
