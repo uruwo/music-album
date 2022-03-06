@@ -1,7 +1,7 @@
 <template>
   <div :class="[{'media': $vuetify.breakpoint.xs}, 'container']">
     <MyStatus></MyStatus>
-    <router-view :follower="follower" :followee="followee" :profile="$store.state.profile"></router-view>
+    <router-view :follower="follower" :followee="followee" :profile="$store.state.profile" :artists_album="artists_album" :titles_album="titles_album"></router-view>
   </div>
 </template>
 
@@ -15,13 +15,23 @@ export default {
   data () {
     return {
       followee: [],
-      follower: []
+      follower: [],
+      album: []
     }
   },
   created () {
     this.followee = this.$store.state.my_followee
     this.follower = this.$store.state.my_follower
+    this.album = this.$store.state.album
   },
+  computed: {
+    artists_album: function () {
+      return (this.album.filter((music, index, self) => self.findIndex(e => e.artist === music.artist) === index))
+    },
+    titles_album: function () {
+      return (this.album.filter((music, index, self) => self.findIndex(e => e.title === music.title) === index))
+    },
+  }
 }
 </script>
 

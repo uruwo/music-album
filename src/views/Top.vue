@@ -95,7 +95,7 @@
           class="mx-auto sub-title font-weight-light mb-8"
           max-width="720"
         >
-          いつもなんとなく音楽を聴いている方や、クラシックの演奏者ごとの違いが分からない方、<br>好きな音楽への想いを形にしたい方などにおすすめです。
+          いつもなんとなく音楽を聴いている方や、演奏者ごとの違いを知りたい方、<br>好きな音楽への想いを形にしたい方などにおすすめです。
         </v-responsive>
         <v-responsive
           class="mx-auto mb-12"

@@ -12,6 +12,8 @@ import Followee from '../views/Followee.vue'
 import MyComment from '../views/MyComment.vue'
 import FavoriteComment from '../views/FavoriteComment.vue'
 import Top from '../views/Top.vue'
+import Artists from '../views/Artists.vue'
+import Titles from '../views/Titles.vue'
 
 Vue.use(VueRouter)
 
@@ -42,7 +44,7 @@ const routes = [
     component: Profile,
     children: [
       {
-        path: 'comment',
+        path: 'comment/:keyword?',
         name: 'MyComment',
         component: MyComment
       },
@@ -60,6 +62,16 @@ const routes = [
         path: 'followee',
         name: 'MyFollowee',
         component: Followee
+      },
+      {
+        path: 'artists',
+        name: 'MyArtists',
+        component: Artists
+      },
+      {
+        path: 'titles',
+        name: 'MyTitles',
+        component: Titles
       }
     ]
   },
@@ -74,7 +86,7 @@ const routes = [
     component: OtherProfile,
     children: [
       {
-        path: 'comment/:user_id?',
+        path: 'comment/:user_id?/:keyword?',
         name: 'OthersComment',
         component: OthersComment
       },
@@ -92,6 +104,16 @@ const routes = [
         path: 'followee/:user_id?',
         name: 'OthersFollowee',
         component: Followee
+      },
+      {
+        path: 'artists/:user_id?',
+        name: 'OthersArtists',
+        component: Artists
+      },
+      {
+        path: 'titles/:user_id?',
+        name: 'OthersTitles',
+        component: Titles
       }
     ]
   }
