@@ -1,7 +1,7 @@
 <template>
   <div :class="[{'media': $vuetify.breakpoint.xs}, 'container']">
     <MyStatus></MyStatus>
-    <router-view :follower="follower" :followee="followee" :profile="$store.state.profile" :artists_album="artists_album" :titles_album="titles_album"></router-view>
+    <router-view :follower="follower" :followee="followee" :profile="$store.state.profile" :artists_album="artists_album" :titles_album="titles_album" :comments="comments"></router-view>
   </div>
 </template>
 
@@ -31,6 +31,9 @@ export default {
     titles_album: function () {
       return (this.album.filter((music, index, self) => self.findIndex(e => e.title === music.title) === index))
     },
+    comments: function () {
+      return this.album.filter(music => music.comment)
+    }
   }
 }
 </script>

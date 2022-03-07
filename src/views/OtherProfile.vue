@@ -44,7 +44,7 @@
             <v-list-item-content>
               <v-list-item-title>感想</v-list-item-title>
             </v-list-item-content>
-            <p class="text-body-2 my-2" >{{ comments }}曲</p>
+            <p class="text-body-2 my-2" >{{ comments.length }}曲</p>
           </v-list-item>
           <v-divider :class="{'d-none': $vuetify.breakpoint.smAndUp}"></v-divider>
         </v-list>
@@ -84,7 +84,7 @@
         <p class="font-size px-4">{{ profile.comment }}</p>
       </v-list>
     </v-card>
-    <router-view :profile="profile" :follower="follower" :followee="followee" :album="album" :favorite_comment="favorite_comment" :artists_album="artists_album" :titles_album="titles_album"></router-view>
+    <router-view :profile="profile" :follower="follower" :followee="followee" :album="album" :favorite_comment="favorite_comment" :artists_album="artists_album" :titles_album="titles_album" :comments="comments"></router-view>
   </div>
 </template>
 
@@ -180,7 +180,7 @@ export default {
       return (this.album.filter((music, index, self) => self.findIndex(e => e.title === music.title) === index))
     },
     comments: function () {
-      return this.album.filter(music => music.comment).length
+      return this.album.filter(music => music.comment)
     },
     filteredAlbum: function () {
       const album = []

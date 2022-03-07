@@ -1,5 +1,5 @@
 <template>
-  <listening-data :album="titles_album" :profile="profile"></listening-data>
+  <listening-data :album="titles_album" :profile="profile" :comments="comments"></listening-data>
 </template>
 
 <script>
@@ -11,7 +11,8 @@ export default {
   },
   props: [
     'titles_album',
-    'profile'
+    'profile',
+    'comments'
   ]
 }
 </script>
