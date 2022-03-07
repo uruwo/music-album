@@ -15,6 +15,9 @@
       <v-tab to="/comments">みんなの感想</v-tab>
     </v-tabs>
     <v-spacer></v-spacer>
+    <v-toolbar-items v-if="!$store.state.login_user && this.$route.path === '/'">
+      <v-btn text to="/login">ログイン</v-btn>
+    </v-toolbar-items>
     <v-app-bar-nav-icon @click="toggleSideMenu" v-if="$store.state.login_user"></v-app-bar-nav-icon>
   </v-app-bar>
 </template>

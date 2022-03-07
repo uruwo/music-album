@@ -83,6 +83,11 @@ export default {
     "profile",
     "album"
   ],
+  created () {
+    if (this.$route.params.keyword !== undefined) {
+      this.keyword = this.$route.params.keyword
+    }
+  },
   computed: {
     filteredAlbum: function () {
       const album = []

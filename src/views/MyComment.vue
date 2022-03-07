@@ -95,6 +95,10 @@ export default {
     this.album = this.$store.state.album
     this.filtered_album = this.$store.state.commented_album
     this.liked_comments = this.$store.state.liked_comments
+    if (this.$route.params.keyword !== undefined) {
+      this.keyword = this.$route.params.keyword
+      this.filterAlbum()
+    }
     this.putFilteredAlbum(this.filtered_album)
   },
   watch: {

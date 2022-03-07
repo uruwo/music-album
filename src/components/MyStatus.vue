@@ -22,18 +22,18 @@
             <v-list-item-title>鑑賞データ</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item>
+        <v-list-item @click="$router.push({name: 'MyArtists'})">
           <v-list-item-content>
             <v-list-item-title>アーティスト</v-list-item-title>
           </v-list-item-content>
-          <p class="text-body-2 my-2" >{{ artists }}人</p>
+          <p class="text-body-2 my-2" >{{ artists_album.length }}人</p>
         </v-list-item>
         <v-divider></v-divider>
-        <v-list-item>
+        <v-list-item @click="$router.push({name: 'MyTitles'})">
           <v-list-item-content>
             <v-list-item-title>曲</v-list-item-title>
           </v-list-item-content>
-          <p class="text-body-2 my-2" >{{ album.length }}曲</p>
+          <p class="text-body-2 my-2" >{{ titles_album.length }}曲</p>
         </v-list-item>
         <v-divider></v-divider>
         <v-list-item @click="$router.push({name: 'MyComment'})">
@@ -148,8 +148,11 @@ export default {
     ...mapActions(['updateProfile', 'switchDialogProfile', 'updateCommentImage', 'updateCommentUser'])
   },
   computed: {
-    artists: function () {
-      return (this.album.filter((music, index, self) => self.findIndex(e => e.artist === music.artist) === index)).length
+    artists_album: function () {
+      return (this.album.filter((music, index, self) => self.findIndex(e => e.artist === music.artist) === index))
+    },
+    titles_album: function () {
+      return (this.album.filter((music, index, self) => self.findIndex(e => e.title === music.title) === index))
     },
     comments: function () {
       return (this.album.filter(music => music.comment)).length

@@ -26,25 +26,25 @@
               <v-list-item-title>鑑賞データ</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item>
+          <v-list-item @click="$router.push({name: 'OthersArtists', params: {user_id: $route.params.user_id}})">
             <v-list-item-content>
-              <v-list-item-title>演奏者</v-list-item-title>
+              <v-list-item-title>アーティスト</v-list-item-title>
             </v-list-item-content>
-            <p class="text-body-2 my-2" >{{ artists }}人</p>
+            <p class="text-body-2 my-2" >{{ artists_album.length }}人</p>
           </v-list-item>
           <v-divider></v-divider>
-          <v-list-item>
+          <v-list-item @click="$router.push({name: 'OthersTitles', params: {user_id: $route.params.user_id}})">
             <v-list-item-content>
               <v-list-item-title>曲</v-list-item-title>
             </v-list-item-content>
-            <p class="text-body-2 my-2" >{{ album.length }}曲</p>
+            <p class="text-body-2 my-2" >{{ titles_album.length }}曲</p>
           </v-list-item>
           <v-divider></v-divider>
           <v-list-item @click="$router.push({name: 'OthersComment', params: {user_id: $route.params.user_id}})">
             <v-list-item-content>
               <v-list-item-title>感想</v-list-item-title>
             </v-list-item-content>
-            <p class="text-body-2 my-2" >{{ comments }}曲</p>
+            <p class="text-body-2 my-2" >{{ comments.length }}曲</p>
           </v-list-item>
           <v-divider :class="{'d-none': $vuetify.breakpoint.smAndUp}"></v-divider>
         </v-list>
@@ -84,7 +84,7 @@
         <p class="font-size px-4">{{ profile.comment }}</p>
       </v-list>
     </v-card>
-    <router-view :profile="profile" :follower="follower" :followee="followee" :album="album" :favorite_comment="favorite_comment"></router-view>
+    <router-view :profile="profile" :follower="follower" :followee="followee" :album="album" :favorite_comment="favorite_comment" :artists_album="artists_album" :titles_album="titles_album" :comments="comments"></router-view>
   </div>
 </template>
 
@@ -106,7 +106,6 @@ export default {
         comment: 'Write something you want to appeal.',
         profile_image:'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/default_user_icon.png'
       },
-      keyword: '',
       favorite_comment: []
     }
   },
@@ -174,11 +173,14 @@ export default {
     ...mapActions(['addFollowee', 'deleteFollowee'])
   },
   computed: {
-    artists: function () {
-      return (this.album.filter((music, index, self) => self.findIndex(e => e.artist === music.artist) === index)).length
+    artists_album: function () {
+      return (this.album.filter((music, index, self) => self.findIndex(e => e.artist === music.artist) === index))
+    },
+    titles_album: function () {
+      return (this.album.filter((music, index, self) => self.findIndex(e => e.title === music.title) === index))
     },
     comments: function () {
-      return this.album.filter(music => music.comment).length
+      return this.album.filter(music => music.comment)
     },
     filteredAlbum: function () {
       const album = []
