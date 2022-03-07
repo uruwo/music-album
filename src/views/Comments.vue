@@ -9,6 +9,7 @@
         <v-col>
           <v-card-title class="pa-0 px-4">
             <v-text-field
+            ref="blurThis"
             single-line
             class="pt-0 mt-3"
             v-model="keyword"
@@ -130,8 +131,10 @@ export default {
   methods: {
     clearKeyword () {
       this.keyword = ''
+      this.blur()
     },
     firstFilter () {
+      this.blur()
       this.infinite_id += 1
       this.last_comment = null
       this.all_album = []

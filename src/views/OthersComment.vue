@@ -13,6 +13,7 @@
           dense
           placeholder="曲名・アーティスト名"
           type="text"
+          ref='blurThis'
           >
           <template v-slot:append>
           <v-btn icon plain :ripple="false" @click="clearKeyword" v-if="keyword">
@@ -117,6 +118,10 @@ export default {
   methods: {
     clearKeyword () {
       this.keyword = ''
+      this.blur()
+    },
+    blur () {
+      this.$refs.blurThis.blur()
     },
     ...mapActions(['addLike', 'deleteLike'])
   }

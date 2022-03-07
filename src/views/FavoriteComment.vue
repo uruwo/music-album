@@ -7,6 +7,7 @@
       <v-col>
         <v-card-title class="pa-0 px-4">
           <v-text-field
+          ref="blurThis"
           single-line
           class="pt-0 mt-3"
           v-model="keyword"
@@ -97,8 +98,12 @@ export default {
     }
   },
   methods: {
+    blur () {
+      this.$refs.blurThis.blur()
+    },
     clearKeyword () {
       this.keyword = ''
+      this.blur()
     },
     fetchFavoriteComments (favorite_comments) {
       for (const i in favorite_comments) {

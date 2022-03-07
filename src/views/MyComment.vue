@@ -129,6 +129,7 @@ export default {
     },
     clearKeyword () {
       this.keyword = ''
+      this.blur()
     },
     play (music) {
       this.switchBarContent(music)
