@@ -18,6 +18,9 @@
             @keyup.enter.exact="firstFilter"
             >
             <template v-slot:append>
+              <v-btn icon plain :ripple="false" @click="clearKeyword" v-if="keyword">
+                <v-icon color="grey darken-1">mdi-close-circle</v-icon>
+              </v-btn>
               <v-btn icon plain :ripple="false" @click="firstFilter">
                 <v-icon color="grey darken-1">mdi-magnify</v-icon>
               </v-btn>
@@ -125,6 +128,9 @@ export default {
     }
   },
   methods: {
+    clearKeyword () {
+      this.keyword = ''
+    },
     firstFilter () {
       this.infinite_id += 1
       this.last_comment = null
