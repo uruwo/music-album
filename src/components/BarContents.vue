@@ -9,7 +9,7 @@
 
     <v-list>
       <v-list-item>
-        <v-list-item-content>
+        <v-list-item-content :class="{ 'd-none': $vuetify.breakpoint.xs }">
           <v-slider
             hide-details
             v-model="volume"
@@ -17,16 +17,21 @@
             class="slider"
           ></v-slider>
         </v-list-item-content>
+        <v-list-item-icon :class="[{ 'd-none': $vuetify.breakpoint.smAndUp }, 'mr-2']">
+          <v-btn icon @click="setMusicActive(music); switchCommentState()">
+            <v-icon>mdi-message-text</v-icon>
+          </v-btn>
+        </v-list-item-icon>
         <v-spacer></v-spacer>
         <v-list-item-avatar tile size="45" class="ma-0 mx-4 d-none d-sm-flex">
           <v-img :src="music.image_url"></v-img>
         </v-list-item-avatar>
-        <v-list-item-content :class="{ 'd-none': $vuetify.breakpoint.xs }">
+        <v-list-item-content :class="[{ 'theme-xs': $vuetify.breakpoint.xs }, { 'theme-sm': $vuetify.breakpoint.sm }]">
           <v-list-item-title>{{ music.title }}</v-list-item-title>
           <v-list-item-subtitle>{{ music.artist }}</v-list-item-subtitle>
         </v-list-item-content>
         <v-spacer></v-spacer>
-        <v-list-item-icon :class="{ 'mr-8': $vuetify.breakpoint.mdAndUp }">
+        <v-list-item-icon :class="[{ 'mr-8': $vuetify.breakpoint.mdAndUp }, { 'd-none': $vuetify.breakpoint.xs}]">
           <v-btn icon @click="setMusicActive(music); switchCommentState()">
             <v-icon>mdi-message-text</v-icon>
           </v-btn>
@@ -155,5 +160,11 @@ export default {
   .slider {
     min-width: 120px;
     max-width: 120px;
+  }
+  .theme-xs {
+    max-width: 190px;
+  }
+  .theme-sm {
+    max-width: 290px;
   }
 </style>
