@@ -195,6 +195,7 @@ export default new Vuex.Store({
     async logout ({state, getters}) {
       if (state.login_user.isAnonymous) {
         const uid = getters.uid
+        axios.delete(state.api_follow + '/user', {data: {user_id: uid}})
         await firebase.firestore().collection(`users/${uid}/profile`).get().then(snapshot => snapshot.forEach(doc => {
           firebase.firestore().collection(`users/${uid}/profile`).doc(doc.id).delete()
         }))

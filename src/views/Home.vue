@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols=9 sm="8">
+      <v-col cols="9" sm="5">
         <v-text-field
         v-model="keyword"
         label="曲名・アーティスト名"
@@ -12,6 +12,9 @@
         @keyup.enter.exact="blur"
         >
         <template v-slot:append>
+        <v-btn icon plain :ripple="false" @click="clearKeyword" v-if="keyword">
+          <v-icon color="grey darken-1">mdi-close-circle</v-icon>
+        </v-btn>
         <v-btn icon plain :ripple="false" @click="filterAlbum">
           <v-icon color="grey darken-1">mdi-magnify</v-icon>
         </v-btn>
@@ -91,6 +94,10 @@ export default {
     }
   },
   methods: {
+    clearKeyword () {
+      this.keyword = ''
+      this.blur()
+    },
     blur () {
       this.$refs.blurThis.blur()
     },
@@ -133,6 +140,6 @@ export default {
     overflow: hidden;
   }
   .container {
-    max-width: 900px;
+    max-width: 1200px;
   }
 </style>

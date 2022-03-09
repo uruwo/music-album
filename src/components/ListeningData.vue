@@ -17,7 +17,7 @@
         >{{ music.artist }}</v-card-title>
       </v-card>
 
-      <v-card v-else :color="commented_titles.includes(music.title) ? 'grey darken-3' : 'grey darken-4'" class="ma-2">
+      <v-card v-if="$route.path.includes('titles')" :color="commented_titles.includes(music.title) ? 'grey darken-3' : 'grey darken-4'" class="ma-2">
         <v-card-title
           :class="[{'disabled': !commented_titles.includes(music.title)},'subtitle-1 pt-2']"
           @click="$route.path.includes('other_profile') ? $router.push({name: 'OthersComment', params: {user_id: $route.params.user_id, keyword: music.title}}) : $router.push({name: 'MyComment', params: {keyword: music.title}})"

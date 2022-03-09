@@ -5,24 +5,34 @@
     </v-card-title>
     <v-card-text>
       <v-container>
-        <v-row>
-          <v-col cols="12">
-            <v-text-field
-              label="曲名" v-model="music.title"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field
-              label="アーティスト名" v-model="music.artist"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" sm="6">
-            <v-file-input accept="audio/*" label="楽曲を選択" :value="file_audio" @change="inputAudioFile" v-if="show" small-chips prepend-icon="mdi-file-music-outline"></v-file-input>
-          </v-col>
-          <v-col cols="12" sm="6">
-            <v-file-input accept="image/*" label="画像を選択" :value="file_image" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline"></v-file-input>
-          </v-col>
-        </v-row>
+        <v-form ref="form">
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                label="曲名"
+                v-model="music.title"
+                :rules="[!!music.title]"
+                hint="必須"
+                persistent-hint
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <v-text-field
+                label="アーティスト名"
+                v-model="music.artist"
+                :rules="[!!music.artist]"
+                hint="必須"
+                persistent-hint
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-file-input accept="audio/*" label="楽曲を選択" :value="file_audio" @change="inputAudioFile" v-if="show" small-chips prepend-icon="mdi-file-music-outline"></v-file-input>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-file-input accept="image/*" label="画像を選択" :value="file_image" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline"></v-file-input>
+            </v-col>
+          </v-row>
+        </v-form>
       </v-container>
     </v-card-text>
     <v-card-actions>
@@ -30,14 +40,14 @@
       <v-btn
         color="blue darken-1"
         text
-        @click="switchDialogUpdate"
+        @click="cancel"
       >
         キャンセル
       </v-btn>
       <v-btn
         color="blue darken-1"
         text
-        @click="fileUpdate(); switchDialogUpdate()"
+        @click="fileUpdate"
       >
         作成
       </v-btn>
@@ -91,7 +101,17 @@ import { mapGetters } from 'vuex'
           this.switchDialogUpdate()
         }
       },
+      cancel () {
+        if (!this.$refs.form.validate()) {
+          return
+        }
+        this.switchDialogUpdate()
+      },
       async fileUpdate () {
+        if (!this.$refs.form.validate()) {
+          return
+        }
+        this.switchDialogUpdate()
         const storageImage = firebase.storage().ref(`users/${this.uid}/images/` + this.file_image.name)
         const storageAudio = firebase.storage().ref(`users/${this.uid}/audios/` + this.file_audio.name)
         const that = this

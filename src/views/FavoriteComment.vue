@@ -7,6 +7,7 @@
       <v-col>
         <v-card-title class="pa-0 px-4">
           <v-text-field
+          ref="blurThis"
           single-line
           class="pt-0 mt-3"
           v-model="keyword"
@@ -15,6 +16,9 @@
           type="text"
           >
           <template v-slot:append>
+          <v-btn icon plain :ripple="false" @click="clearKeyword" v-if="keyword">
+            <v-icon color="grey darken-1">mdi-close-circle</v-icon>
+          </v-btn>
           <v-icon color="grey darken-1">mdi-magnify</v-icon>
           </template>
           </v-text-field>
@@ -94,6 +98,13 @@ export default {
     }
   },
   methods: {
+    blur () {
+      this.$refs.blurThis.blur()
+    },
+    clearKeyword () {
+      this.keyword = ''
+      this.blur()
+    },
     fetchFavoriteComments (favorite_comments) {
       for (const i in favorite_comments) {
         const favorite_comment = favorite_comments[i]

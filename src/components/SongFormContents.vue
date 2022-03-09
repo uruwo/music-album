@@ -26,12 +26,18 @@
               <v-text-field
                 label="曲名"
                 v-model="music.title"
+                :rules="[!!music.title]"
+                hint="必須"
+                persistent-hint
               ></v-text-field>
             </v-col>
             <v-col cols="12">
               <v-text-field
                 label="アーティスト名"
                 v-model="music.artist"
+                :rules="[!!music.artist]"
+                hint="必須"
+                persistent-hint
               ></v-text-field>
             </v-col>
           </v-row>
@@ -118,6 +124,9 @@ import { mapGetters } from 'vuex'
         fetch(image_url).then(response => response.blob()).then(blob => new File([blob], audio_info.image_name)).then(file => this.file_image = file)
       },
       async fileUpload () {
+        if (!this.$refs.form.validate()) {
+          return
+        }
         if (this.file_image === null) {
           this.file_image = ''
         }
