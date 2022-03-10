@@ -10,7 +10,7 @@
         clearable
         clear-icon="mdi-close-circle"
         placeholder="自由にご記述ください"
-        rows="12"></v-textarea>
+        rows="10"></v-textarea>
     </v-card-text>
     <v-card-actions>
       <v-btn

@@ -137,7 +137,10 @@ export default {
         that.$set(that.profile, 'profile_image', url)
       }
       async function onReject () {
-        await storageImage.put(file)
+        const metadata = {
+          cacheControl: 'public,max-age=604800'
+        }
+        await storageImage.put(file, metadata)
         await storageImage.getDownloadURL().then(url => {
           that.$set(that.profile, 'profile_image', url)
         })

@@ -142,7 +142,10 @@ import { mapGetters } from 'vuex'
           that.$set(that.music, 'image_url', url)
         }
         async function onRejectImage () {
-          await storageImage.put(that.file_image)
+          const metadata = {
+            cacheControl: 'public,max-age=604800'
+          }
+          await storageImage.put(that.file_image, metadata)
           await storageImage.getDownloadURL().then(url => {
             that.$set(that.music, 'image_url', url)
           })
