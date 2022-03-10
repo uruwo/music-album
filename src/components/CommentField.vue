@@ -6,8 +6,10 @@
       persistent
       hide-overlay
       no-click-animation
+      scrollable
+      :key="$store.state.comment_key"
     >
-      <CommentContent :key="$store.state.comment_key"></CommentContent>
+      <CommentContent></CommentContent>
     </v-dialog>
   </v-row>
 </template>
