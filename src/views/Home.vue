@@ -60,8 +60,8 @@
             </v-row>
           </template>
         </v-img>
-        <p class="text-caption ma-0 mt-1">{{ music.artist }}</p>
-        <p class="text-caption ma-0">{{ music.title }}</p>
+        <p class="text-caption ma-0 mt-1">{{ music.title }}</p>
+        <p class="text-caption ma-0">{{ music.artist }}</p>
       </v-col>
     </v-row>
   </v-container>
