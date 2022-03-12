@@ -5,12 +5,12 @@ You can checkout the app on https://music-album.com!
 
 # About
 This service allows you to record your music with your favorite images and comments Like an album.
-### feature
+### Features
 * You can save your music with your favorite images and comments, just as you would keep your memories in an album.
 * Comments are shared by all users. You can stock your favorite comments and follow your favorite users.
 * Listening to music while looking at the feedback you and others have left will help you gain a deeper understanding of the music.
 
-# development
+# Development
 Follow this guide to set up your environment etc.
 ### Downloading and installing steps
 1. Clone this repository
@@ -29,3 +29,13 @@ npm install
 ```
 npm run serve
 ```
+
+# Technologies used
+This app uses the following technologies.
+* Vue.js
+* FastAPI
+* Firebase (Firestore Database, Storage, Hosting, Authentication)
+* AWS (EC2, RDS, DynamoDB, S3, API Gateway, Lambda)
+* Nginx
+* MySQL
+* GitHub Actions
