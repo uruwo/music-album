@@ -31,7 +31,7 @@ npm run serve
 ```
 
 # Infrastructure
-<img width="450" src="https://user-images.githubusercontent.com/84354821/158047567-94394e1c-6fcc-4d61-8fff-5502d095f13b.png">
+<img width="450" src="https://user-images.githubusercontent.com/84354821/158048589-f7b1ce13-0b43-4a35-8127-c1322514e4dc.png">
 
 # Technologies used
 This app uses the following technologies.
