@@ -30,6 +30,9 @@ npm install
 npm run serve
 ```
 
+# Infrastructure
+<img width="450" src="https://user-images.githubusercontent.com/84354821/158047567-94394e1c-6fcc-4d61-8fff-5502d095f13b.png">
+
 # Technologies used
 This app uses the following technologies.
 * Vue.js
