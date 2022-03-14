@@ -82,7 +82,6 @@
         <v-divider></v-divider>
       </div>
       <v-card min-height="2000px" v-if="!$store.state.last_comment"></v-card>
-      <v-card min-height="2000px" v-if="dummy"></v-card>
       <infinite-loading spinner="spiral" @infinite="infiniteHandler" :identifier="infinite_id">
         <template slot="no-more">No more message</template>
         <template slot="no-results">No more message</template>
@@ -111,7 +110,6 @@ export default {
       keyword: '',
       last_comment: null,
       infinite_id: 0,
-      dummy: false
     }
   },
   created () {
@@ -135,14 +133,12 @@ export default {
     },
     firstFilter () {
       this.blur()
-      this.infinite_id += 1
       this.last_comment = null
       this.all_album = []
       this.firstFilterFetch('artist')
       this.firstFilterFetch('title')
-      this.dummy = true
       setTimeout(() => {
-        this.dummy = false
+        this.infinite_id += 1
       },1000)
     },
     firstFilterFetch (field) {
@@ -218,6 +214,7 @@ export default {
           })
           if (snapshot.docs.length === 5) {
             setTimeout(() => {
+              this.infinite_id += 1
               this.last_comment = snapshot.docs[snapshot.docs.length - 1]
               $state.loaded()
             }, 1000)
