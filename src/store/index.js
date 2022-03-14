@@ -312,7 +312,7 @@ export default new Vuex.Store({
       })
     },
     fetchAllAlbum ({ commit },) {
-      firebase.firestore().collectionGroup('album').where("date", "!=", null).orderBy("date", "desc").limit(5).get().then(snapshot => {
+      firebase.firestore().collectionGroup('album').where("date", "!=", null).where("public", "==", true).orderBy("date", "desc").limit(5).get().then(snapshot => {
         snapshot.forEach(doc => commit('addAllMusic', {id: doc.id, music: doc.data()}))
         const last_comment = snapshot.docs[snapshot.docs.length - 1]
         commit('setLastComment', last_comment)

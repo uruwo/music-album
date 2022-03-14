@@ -142,7 +142,7 @@ export default {
       },1000)
     },
     firstFilterFetch (field) {
-      firebase.firestore().collectionGroup('album').where("date", "!=", null).where(field, '==', this.keyword).orderBy('date', 'desc').limit(5).get().then(snapshot => {
+      firebase.firestore().collectionGroup('album').where("date", "!=", null).where("public", "==", true).where(field, '==', this.keyword).orderBy('date', 'desc').limit(5).get().then(snapshot => {
         if (snapshot.docs.length !== 0) {
           this.last_comment = snapshot.docs[snapshot.docs.length - 1]
           snapshot.forEach(doc => {
@@ -178,7 +178,7 @@ export default {
       }
     },
     normalHandler ($state) {
-      firebase.firestore().collectionGroup('album').where("date", "!=", null).orderBy("date", "desc").startAfter(this.$store.state.last_comment).limit(5).get().then(snapshot => {
+      firebase.firestore().collectionGroup('album').where("date", "!=", null).where("public", "==", true).orderBy("date", "desc").startAfter(this.$store.state.last_comment).limit(5).get().then(snapshot => {
         snapshot.forEach(doc => {
           const music = doc.data()
           if (music.user_id !== this.uid) {
@@ -202,7 +202,7 @@ export default {
       this.nextFilterFetch('title', $state)
     },
     nextFilterFetch (field, $state) {
-      firebase.firestore().collectionGroup('album').where("date", "!=", null).where(field, '==', this.keyword).orderBy('date', 'desc').startAfter(this.last_comment).limit(5).get().then(snapshot => {
+      firebase.firestore().collectionGroup('album').where("date", "!=", null).where("public", "==", true).where(field, '==', this.keyword).orderBy('date', 'desc').startAfter(this.last_comment).limit(5).get().then(snapshot => {
         if (snapshot.docs.length !== 0) {
           snapshot.forEach(doc => {
             const music = doc.data()

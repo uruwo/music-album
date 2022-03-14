@@ -44,13 +44,6 @@ export default {
     this.comments.forEach(comment => this.commented_artists.push(comment.artist))
     this.comments.forEach(comment => this.commented_titles.push(comment.title))
   },
-  // methods : {
-  //   watchComment (music) {
-  //     if (this.$route.path.includes('other_profile')) {
-  //       this.$router.push({name: 'OthersComment', params: {user_id: $route.params.user_id, keyword: music.artist}})
-  //     }
-  //   }
-  // }
 }
 </script>
 
