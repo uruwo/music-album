@@ -108,7 +108,7 @@ export default {
     fetchFavoriteComments (favorite_comments) {
       for (const i in favorite_comments) {
         const favorite_comment = favorite_comments[i]
-        firebase.firestore().collectionGroup('album').where('id', '==', favorite_comment).orderBy('date', 'desc').get().then(snapshot => snapshot.forEach(doc => {
+        firebase.firestore().collectionGroup('album').where('public', '==', true).where('id', '==', favorite_comment).orderBy('date', 'desc').get().then(snapshot => snapshot.forEach(doc => {
           const music = doc.data()
           if (music.user_id !== this.uid) {
             delete music.audio_url

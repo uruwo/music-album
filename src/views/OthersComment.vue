@@ -102,7 +102,7 @@ export default {
             album.push(music)
         }
       }
-      return album.filter(music => music.comment).sort((a,b) => {
+      return album.filter(music => music.comment && music.public).sort((a,b) => {
         let titleA = a.title.toUpperCase()
         let titleB = b.title.toUpperCase()
         if (titleA < titleB) {

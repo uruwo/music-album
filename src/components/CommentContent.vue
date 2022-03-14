@@ -1,7 +1,15 @@
 <template>
   <v-card>
-    <v-card-title class="subtitle-1">{{ music.title }}</v-card-title>
-    <v-card-subtitle class="py-0">{{ music.artist }}</v-card-subtitle>
+    <div class="header">
+      <div>
+        <v-card-title class="subtitle-1">{{ music.title }}</v-card-title>
+        <v-card-subtitle class="py-0">{{ music.artist }}</v-card-subtitle>
+      </div>
+      <v-spacer></v-spacer>
+      <div>
+      <v-switch inset class="pr-6 pt-4" label="公開" v-model="music.public" hide-details color="#1976D2"></v-switch>
+      </div>
+    </div>
     <v-card-text class="pb-0">
       <v-textarea
         background-color="grey darken-4"
@@ -77,9 +85,14 @@ export default {
       if (!this.music.date) {
         this.$set(this.music, 'date', Date.now())
       }
+      if (!this.music.public) {
+        this.deleteCommentInAll({id: this.music.id})
+      }
       this.updateMusic({id: this.music.id, music: this.music})
       this.updateCommentView({id: this.music.id, music: this.music})
-      this.updateMusicInAll({id: this.music.id, music: this.music})
+      if (this.music.public) {
+        this.updateMusicInAll({id: this.music.id, music: this.music})
+      }
     },
     deleteConfirm (id) {
       if (confirm('この楽曲を削除してよろしいですか?')) {
@@ -96,3 +109,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .header {
+    display: flex;
+  }
+</style>

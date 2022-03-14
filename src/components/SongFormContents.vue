@@ -134,6 +134,7 @@ import { mapGetters } from 'vuex'
         this.$set(this.music, 'user_id', this.uid)
         this.$set(this.music, 'created_date', Date.now())
         this.$set(this.music, 'date', null)
+        this.$set(this.music, 'public', true)
         const storageImage = firebase.storage().ref(`users/${this.uid}/images/` + this.file_image.name)
         const storageAudio = firebase.storage().ref(`users/${this.uid}/audios/` + this.file_audio.name)
         const that = this
