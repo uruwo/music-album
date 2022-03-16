@@ -11,14 +11,18 @@
       </div>
     </div>
     <v-card-text class="pb-0">
-      <v-textarea
-        background-color="grey darken-4"
-        v-model="music.comment"
-        auto-grow
-        clearable
-        clear-icon="mdi-close-circle"
-        placeholder="自由にご記述ください"
-        rows="10"></v-textarea>
+      <v-form ref="form">
+        <v-textarea
+          background-color="grey darken-4"
+          v-model="music.comment"
+          auto-grow
+          clearable
+          clear-icon="mdi-close-circle"
+          placeholder="自由にご記述ください"
+          counter="255"
+          :rules="[text => text == undefined || text.length <= 255]"
+          rows="10"></v-textarea>
+      </v-form>
     </v-card-text>
     <v-card-actions>
       <v-btn
@@ -40,7 +44,7 @@
       <v-btn
         color="blue darken-1"
         text
-        @click="switchCommentState(); updateComment()"
+        @click="updateComment()"
       >
         保存
       </v-btn>
@@ -61,11 +65,15 @@ import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
-      music: {}
+      music: {},
+      comment: null,
+      public: false
     }
   },
   created () {
     this.music = this.$store.state.music_active
+    this.comment = this.music.comment
+    this.public = this.music.public
   },
   methods: {
     deleteMusicComment () {
@@ -78,6 +86,10 @@ export default {
       }
     },
     updateComment () {
+      if (!this.$refs.form.validate()) {
+        return
+      }
+      this.switchCommentState()
       if (!this.music.profile_name) {
         this.$set(this.music, 'profile_name', this.$store.state.profile.name)
         this.$set(this.music, 'profile_image', this.$store.state.profile.profile_image)
@@ -91,7 +103,11 @@ export default {
       this.updateMusic({id: this.music.id, music: this.music})
       this.updateCommentView({id: this.music.id, music: this.music})
       if (this.music.public) {
-        this.updateMusicInAll({id: this.music.id, music: this.music})
+        if (!this.comment || !this.public) {
+          this.addMusicInAll(this.music)
+        } else {
+          this.updateMusicInAll({id: this.music.id, music: this.music})
+        }
       }
     },
     deleteConfirm (id) {
@@ -102,7 +118,7 @@ export default {
         this.switchCommentState()
       }
     },
-    ...mapActions(['switchCommentState','updateMusic', 'deleteComment','updateMusicInAll', 'deleteCommentInAll', 'deleteLikedComment', 'updateCommentView', 'deleteMusic'])
+    ...mapActions(['switchCommentState','updateMusic', 'deleteComment','updateMusicInAll', 'deleteCommentInAll', 'deleteLikedComment', 'updateCommentView', 'deleteMusic', 'addMusicInAll'])
   },
   computed: {
     ...mapGetters(['uid'])

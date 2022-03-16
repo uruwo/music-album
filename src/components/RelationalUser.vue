@@ -1,5 +1,5 @@
 <template>
-  <v-card width="600" :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]" min-height="100">
+  <v-card width="700" :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]" min-height="100">
     <v-card-title class="subtitle-1 py-3" v-if="this.$route.path.includes('followee')">{{ profile.name }}さんがフォロー</v-card-title>
     <v-card-title class="subtitle-1 py-3" v-else>{{ profile.name }}さんのフォロワー</v-card-title>
     <v-divider></v-divider>
@@ -9,7 +9,7 @@
     >
       <div class="flex mt-2 ml-2">
         <div>
-          <v-avatar tile rounded="sm" @click="watchProfile(user)">
+          <v-avatar tile rounded="sm" @click="watchProfile(user)" size="60">
             <v-img :src="user.profile_image" aspect-ratio="1"></v-img>
           </v-avatar>
         </div>

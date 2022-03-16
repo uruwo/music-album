@@ -1,7 +1,7 @@
 <template>
   <div :class="[{'media': $vuetify.breakpoint.xs}, 'container']">
     <MyStatus></MyStatus>
-    <v-card width="600" :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]" min-height="100">
+    <v-card width="700" :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]" min-height="100">
       <v-row>
         <v-col class="d-none d-sm-flex">
           <v-card-title class="subtitle-1 py-3">みんなの感想</v-card-title>
@@ -73,6 +73,7 @@
                   v-model="music.comment"
                   loading="false"
                   readonly
+                  auto-grow
                 >
                 </v-textarea>
               </v-card-text>
