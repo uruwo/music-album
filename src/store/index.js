@@ -105,11 +105,12 @@ export default new Vuex.Store({
     },
     updateMusicInAll (state, {id, music}) {
       const index = state.all_album.findIndex(music => music.id === id)
-      if (index === -1) {
-        state.all_album.unshift(music)
-      } else {
+      if (index !== -1) {
         state.all_album[index] = music
       }
+    },
+    addMusicInAll (state, music) {
+      state.all_album.unshift(music)
     },
     updateCommentImage (state, {id, image_url}) {
       const index = state.all_album.findIndex(music => music.id === id)
@@ -358,6 +359,9 @@ export default new Vuex.Store({
     },
     updateMusicInAll ({ commit }, {id, music}) {
       commit('updateMusicInAll', { id, music })
+    },
+    addMusicInAll ({ commit }, music) {
+      commit('addMusicInAll', music)
     },
     updateProfile ({ getters, commit }, {id, profile}) {
       if (getters.uid) {

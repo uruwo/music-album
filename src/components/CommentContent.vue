@@ -20,7 +20,7 @@
           clear-icon="mdi-close-circle"
           placeholder="自由にご記述ください"
           counter="255"
-          :rules="[text => text.length <= 255]"
+          :rules="[text => text == undefined || text.length <= 255]"
           rows="10"></v-textarea>
       </v-form>
     </v-card-text>
@@ -65,11 +65,15 @@ import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
-      music: {}
+      music: {},
+      comment: null,
+      public: false
     }
   },
   created () {
     this.music = this.$store.state.music_active
+    this.comment = this.music.comment
+    this.public = this.music.public
   },
   methods: {
     deleteMusicComment () {
@@ -99,7 +103,11 @@ export default {
       this.updateMusic({id: this.music.id, music: this.music})
       this.updateCommentView({id: this.music.id, music: this.music})
       if (this.music.public) {
-        this.updateMusicInAll({id: this.music.id, music: this.music})
+        if (!this.comment || !this.public) {
+          this.addMusicInAll(this.music)
+        } else {
+          this.updateMusicInAll({id: this.music.id, music: this.music})
+        }
       }
     },
     deleteConfirm (id) {
@@ -110,7 +118,7 @@ export default {
         this.switchCommentState()
       }
     },
-    ...mapActions(['switchCommentState','updateMusic', 'deleteComment','updateMusicInAll', 'deleteCommentInAll', 'deleteLikedComment', 'updateCommentView', 'deleteMusic'])
+    ...mapActions(['switchCommentState','updateMusic', 'deleteComment','updateMusicInAll', 'deleteCommentInAll', 'deleteLikedComment', 'updateCommentView', 'deleteMusic', 'addMusicInAll'])
   },
   computed: {
     ...mapGetters(['uid'])
