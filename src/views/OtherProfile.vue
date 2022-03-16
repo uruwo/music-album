@@ -220,7 +220,7 @@ export default {
     width: 100%;
   }
   .card-xs {
-    width: 600px;
+    width: 700px;
   }
   .card-sm-up {
     width: 300px;
