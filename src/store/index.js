@@ -32,7 +32,8 @@ export default new Vuex.Store({
     my_follower: [],
     last_comment: null,
     api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment',
-    api_follow: 'https://fr93ff6r0j.execute-api.ap-northeast-1.amazonaws.com/follow-function'
+    api_follow: 'https://fr93ff6r0j.execute-api.ap-northeast-1.amazonaws.com/follow-function',
+    loading: false
   },
   mutations: {
     setLoginUser (state, user) {
@@ -83,6 +84,12 @@ export default new Vuex.Store({
       if (music.comment) {
         state.all_album.push(music)
       }
+    },
+    startLoading (state) {
+      state.loading = true
+    },
+    stopLoading (state) {
+      state.loading = false
     },
     setLastComment (state, comment) {
       state.last_comment = comment
@@ -231,6 +238,12 @@ export default new Vuex.Store({
         commit('addAllMusic', { id: doc.id, music})
         })
       }
+    },
+    startLoading ({ commit }) {
+      commit('startLoading')
+    },
+    stopLoading ({ commit }) {
+      commit('stopLoading')
     },
     // addFollowee ({ getters, commit }, user_id) {
     //   axios.post('http://52.69.186.157:8000/follows/', {
@@ -422,6 +435,7 @@ export default new Vuex.Store({
     uid: state => state.login_user ? state.login_user.uid : null,
     playerBar: state => {
       return state.player_bar
-    }
+    },
+    album: state => state.album
   }
 })
