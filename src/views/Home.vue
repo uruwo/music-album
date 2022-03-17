@@ -27,10 +27,29 @@
         <v-img
           :src="create"
           aspect-ratio="1"
-          class="grey lighten-2"
         >
         </v-img>
         <p></p>
+      </v-col>
+      <v-col class="child-flex pa-2" cols="6" sm="3" md="2" v-if="$store.state.loading">
+        <v-img
+          aspect-ratio="1"
+        >
+          <template v-slot>
+            <v-row
+              class="fill-height ma-0"
+              align="center"
+              justify="center"
+            >
+            <v-overlay :absolute="true">
+              <v-progress-circular
+                indeterminate
+                color="grey lighten-5"
+              ></v-progress-circular>
+            </v-overlay>
+            </v-row>
+          </template>
+        </v-img>
       </v-col>
       <v-col
         v-for="(music, index) in filteredAlbum"
@@ -42,7 +61,6 @@
           :lazy-src="music.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? music.image_url: 'undefined.jpeg'"
           :src="music.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? music.image_url: 'undefined.jpeg'"
           aspect-ratio="1"
-          class="grey lighten-2"
           @mouseover="mouseHover(index)"
           @mouseleave="mouseLeave"
           @click="setMusicActive(music); switchCommentState()"
@@ -91,6 +109,14 @@ export default {
         this.filteredAlbum = this.album
         this.putFilteredAlbum(this.filteredAlbum)
       }
+    },
+    myAlbum () {
+      this.stopLoading()
+    }
+  },
+  computed: {
+    myAlbum () {
+      return this.$store.getters.album
     }
   },
   methods: {
@@ -128,7 +154,7 @@ export default {
       this.switchBarContent(music)
       this.switchPlayerBar()
     },
-    ...mapActions(['switchDialog','switchDialogUpdate','setMusicTemp','switchPlayerBar','switchBarContent','switchCommentState','setMusicActive','putFilteredAlbum'])
+    ...mapActions(['switchDialog','switchDialogUpdate','setMusicTemp','switchPlayerBar','switchBarContent','switchCommentState','setMusicActive','putFilteredAlbum', 'stopLoading'])
   }
 }
 </script>

@@ -131,6 +131,7 @@ import { mapGetters } from 'vuex'
           this.file_image = ''
         }
         this.switchDialog()
+        this.startLoading()
         this.$set(this.music, 'user_id', this.uid)
         this.$set(this.music, 'created_date', Date.now())
         this.$set(this.music, 'date', null)
@@ -168,7 +169,7 @@ import { mapGetters } from 'vuex'
           this.show = true
         })
       },
-      ...mapActions(['switchDialog','addMusic'])
+      ...mapActions(['switchDialog','addMusic', 'startLoading'])
     },
     computed: {
       ...mapGetters(['uid'])
