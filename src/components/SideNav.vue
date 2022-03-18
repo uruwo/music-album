@@ -3,6 +3,9 @@
     <v-list nav>
       <v-list-item-group>
         <v-list-item to="/home">
+          <v-list-item-title>ホーム</v-list-item-title>
+        </v-list-item>
+        <v-list-item to="/albums">
           <v-list-item-title>アルバム</v-list-item-title>
         </v-list-item>
         <v-list-item to="/profile/comment">

@@ -7,6 +7,8 @@
     <v-content>
       <SongForm></SongForm>
       <UpdateForm></UpdateForm>
+      <AlbumForm></AlbumForm>
+      <UpdateAlbum></UpdateAlbum>
       <ProfileComment></ProfileComment>
       <PlayerBar v-if="$store.state.login_user"></PlayerBar>
       <CommentField></CommentField>
@@ -28,6 +30,8 @@ import UpdateForm from './components/UpdateForm.vue'
 import PlayerBar from './components/PlayerBar.vue'
 import CommentField from './components/CommentField.vue'
 import ProfileComment from './components/ProfileComment.vue'
+import AlbumForm from './components/AlbumForm.vue'
+import UpdateAlbum from './components/UpdateAlbum.vue'
 import { mapActions } from 'vuex'
 import { mapGetters } from 'vuex'
 
@@ -40,13 +44,16 @@ export default {
     UpdateForm,
     PlayerBar,
     CommentField,
-    ProfileComment
+    ProfileComment,
+    AlbumForm,
+    UpdateAlbum
   },
   created () {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.setLoginUser(user)
         this.fetchAlbum()
+        this.fetchAlbums()
         this.fetchProfile()
         this.fetchAllAlbum()
         this.fetchFavoriteComments()
@@ -63,7 +70,7 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['setLoginUser','deleteLoginUser','fetchAlbum','fetchProfile', 'fetchAllAlbum', 'fetchFavoriteComments', 'fetchLikedComments', 'fetchFollowee', 'fetchFollower'])
+    ...mapActions(['setLoginUser','deleteLoginUser','fetchAlbum','fetchProfile', 'fetchAllAlbum', 'fetchFavoriteComments', 'fetchLikedComments', 'fetchFollowee', 'fetchFollower', 'fetchAlbums'])
   },
   computed: {
     ...mapGetters(['photoURL'])
