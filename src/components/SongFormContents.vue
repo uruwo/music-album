@@ -40,6 +40,22 @@
                 persistent-hint
               ></v-text-field>
             </v-col>
+            <v-col cols="6" sm="8" class="pt-0" v-if="!$route.params.album_id">
+              <v-select
+                v-model="album_id"
+                :items="albums"
+                item-text="title"
+                item-value="id"
+                :menu-props="{ maxHeight: '200' }"
+                multiple
+                chips
+                label="アルバムを選択"
+                prepend-icon="mdi-plus-box-multiple">
+              </v-select>
+            </v-col>
+            <v-col cols="6" sm="4" class="mt-2" v-if="!$route.params.album_id">
+              <v-btn color="#555" @click="pushAlbums()">アルバムを作成</v-btn>
+            </v-col>
           </v-row>
         </v-form>
       </v-container>
@@ -77,13 +93,23 @@ import { mapGetters } from 'vuex'
     data () {
       return {
         music: {},
+        album_id: [],
+        albums: [],
         file_image: null,
         file_audio: '',
         show: true,
         overlay: false,
       }
     },
+    created () {
+      this.albums = this.$store.state.albums
+    },
     methods: {
+      pushAlbums () {
+        this.$router.push({name: 'Albums'})
+        this.scrollTop()
+        this.switchDialog()
+      },
       scrollTop () {
         window.scrollTo({
           top: 0,
@@ -136,6 +162,11 @@ import { mapGetters } from 'vuex'
         this.$set(this.music, 'created_date', Date.now())
         this.$set(this.music, 'date', null)
         this.$set(this.music, 'public', true)
+        if (this.$route.params.album_id) {
+          this.$set(this.music, 'album_id', [this.$route.params.album_id])
+        } else {
+          this.$set(this.music, 'album_id', this.album_id)
+        }
         const storageImage = firebase.storage().ref(`users/${this.uid}/images/` + this.file_image.name)
         const storageAudio = firebase.storage().ref(`users/${this.uid}/audios/` + this.file_audio.name)
         const that = this

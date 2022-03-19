@@ -61,7 +61,7 @@
           :lazy-src="album.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? album.image_url: 'undefined.jpeg'"
           :src="album.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? album.image_url: 'undefined.jpeg'"
           aspect-ratio="1"
-          @click="$router.puth({name: 'Album', params: {album_id: album.id}})"
+          @click="$router.push({name: 'Album', params: {album_id: album.id}})"
           @click.right.prevent="switchAlbumUpdate(); setAlbumTemp(album)"
         >
         </v-img>

@@ -93,6 +93,10 @@ export default new Vuex.Store({
       album.id = id
       state.albums.unshift(album)
     },
+    putInAlbum (state, {id, music_id}) {
+      const index = state.albums.findIndex(album => album.id === id)
+      state.albums[index].music_id.push(music_id)
+    },
     addAllMusic (state, {id, music}) {
       music.id = id
       if (music.user_id !== state.login_user.uid) {
@@ -513,6 +517,7 @@ export default new Vuex.Store({
       return state.player_bar
     },
     album: state => state.album,
-    albums: state => state.albums
+    albums: state => state.albums,
+    music_tmp: state => state.music_tmp.album_id
   }
 })
