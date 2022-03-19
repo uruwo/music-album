@@ -25,6 +25,9 @@
     <v-row>
       <v-col @click="switchDialog" class="child-flex pa-2" cols="6" sm="3" md="2">
         <v-img
+          @mouseover="hover_creater = true"
+          @mouseleave="hover_creater = false"
+          class="hover"
           :src="create"
           aspect-ratio="1"
         >
@@ -61,6 +64,7 @@
           :lazy-src="music.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? music.image_url: undefined_image"
           :src="music.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? music.image_url: undefined_image"
           aspect-ratio="1"
+          class="hover"
           @mouseover="mouseHover(index)"
           @mouseleave="mouseLeave"
           @click="setMusicActive(music); switchCommentState()"
@@ -97,6 +101,7 @@ export default {
       album: [],
       filteredAlbum: [],
       audio: new Audio(),
+      hover_creater: false
     }
   },
   created () {
@@ -169,6 +174,7 @@ export default {
     mouseLeave () {
       setTimeout(() => {
         this.hoverFlag = false
+        this.hoverIndex = null
       }, 100)
     },
     play (music) {
@@ -188,5 +194,9 @@ export default {
   }
   .container {
     max-width: 1200px;
+  }
+  .hover {
+    opacity: 0.9;
+    cursor: pointer;
   }
 </style>

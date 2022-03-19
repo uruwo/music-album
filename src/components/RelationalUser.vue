@@ -10,7 +10,7 @@
       <div class="flex mt-2 ml-2">
         <div>
           <v-avatar tile rounded="sm" @click="watchProfile(user)" size="60">
-            <v-img :src="user.profile_image" aspect-ratio="1"></v-img>
+            <v-img :src="user.profile_image" aspect-ratio="1" class="hover"></v-img>
           </v-avatar>
         </div>
         <div class="flex-grow">

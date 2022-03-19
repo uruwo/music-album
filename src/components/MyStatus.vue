@@ -11,7 +11,7 @@
         </v-list-item-title>
         <input style="display: none" ref="input" type="file" accept="image/*" @change="fileUpload">
         <v-list-item-title class="mb-2">
-          <v-img width="128" :src="profileImage" aspect-ratio="1" class="mx-auto" @click="$refs.input.click(); setProfile()"></v-img>
+          <v-img width="128" :src="profileImage" aspect-ratio="1" class="mx-auto hover" @click="$refs.input.click(); setProfile()"></v-img>
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
@@ -215,5 +215,11 @@ export default {
   }
   .v-list {
     width: 100%;
+  }
+</style>
+
+<style>
+  .hover {
+    cursor: pointer;
   }
 </style>
