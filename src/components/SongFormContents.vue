@@ -40,7 +40,7 @@
                 persistent-hint
               ></v-text-field>
             </v-col>
-            <v-col cols="6" sm="8" class="pt-0" v-if="!$route.params.album_id">
+            <v-col cols="8" class="pt-0" v-if="!$route.params.album_id && $vuetify.breakpoint.smAndUp">
               <v-select
                 v-model="album_id"
                 :items="albums"
@@ -53,7 +53,7 @@
                 prepend-icon="mdi-plus-box-multiple">
               </v-select>
             </v-col>
-            <v-col cols="6" sm="4" class="mt-2" v-if="!$route.params.album_id">
+            <v-col cols="4" class="mt-2" v-if="!$route.params.album_id && $vuetify.breakpoint.smAndUp">
               <v-btn color="#555" @click="pushAlbums()">アルバムを作成</v-btn>
             </v-col>
           </v-row>
