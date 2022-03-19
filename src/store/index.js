@@ -249,6 +249,9 @@ export default new Vuex.Store({
         await firebase.firestore().collection(`users/${uid}/album`).get().then(snapshot => snapshot.forEach(doc => {
           firebase.firestore().collection(`users/${uid}/album`).doc(doc.id).delete()
         }))
+        await firebase.firestore().collection(`users/${uid}/albums`).get().then(snapshot => snapshot.forEach(doc => {
+          firebase.firestore().collection(`users/${uid}/albums`).doc(doc.id).delete()
+        }))
       }
       firebase.auth().signOut()
     },
