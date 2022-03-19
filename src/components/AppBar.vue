@@ -10,7 +10,8 @@
       <v-btn class="visible" text @click="logout">ログアウト</v-btn>
     </v-toolbar-items>
     <v-tabs v-if="$store.state.login_user" right optional>
-      <v-tab to="/home">アルバム</v-tab>
+      <v-tab to="/home">ホーム</v-tab>
+      <v-tab to="/albums">アルバム</v-tab>
       <v-tab to="/profile/comment">マイページ</v-tab>
       <v-tab to="/comments">みんなの感想</v-tab>
     </v-tabs>

@@ -7,6 +7,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     album: [],
+    albums: [],
     commented_album: [],
     all_album: [],
     login_user: null,
@@ -14,11 +15,15 @@ export default new Vuex.Store({
     dialog: false,
     dialog_update: false,
     dialog_profile: false,
+    dialog_album: false,
+    album_update: false,
     music_tmp: {},
+    album_tmp: {},
     player_bar: false,
     key: 0,
     keyForm: 0,
     keyNewForm: 0,
+    album_key: 0,
     music_active: {},
     isPlay: false,
     comment: false,
@@ -33,7 +38,8 @@ export default new Vuex.Store({
     last_comment: null,
     api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment',
     api_follow: 'https://fr93ff6r0j.execute-api.ap-northeast-1.amazonaws.com/follow-function',
-    loading: false
+    loading: false,
+    loading_album: false
   },
   mutations: {
     setLoginUser (state, user) {
@@ -57,6 +63,14 @@ export default new Vuex.Store({
       state.dialog_profile = !state.dialog_profile
       state.profile_key++
     },
+    switchAlbumDialog (state) {
+      state.dialog_album = !state.dialog_album
+      state.album_key++
+    },
+    switchAlbumUpdate (state) {
+      state.album_update = !state.album_update
+      state.album_key++
+    },
     addMusic (state, {id, music}) {
       music.id = id
       state.album.unshift(music)
@@ -75,6 +89,14 @@ export default new Vuex.Store({
         })
       }
     },
+    addAlbum (state, {id, album}) {
+      album.id = id
+      state.albums.unshift(album)
+    },
+    putInAlbum (state, {id, music_id}) {
+      const index = state.albums.findIndex(album => album.id === id)
+      state.albums[index].music_id.push(music_id)
+    },
     addAllMusic (state, {id, music}) {
       music.id = id
       if (music.user_id !== state.login_user.uid) {
@@ -91,6 +113,12 @@ export default new Vuex.Store({
     stopLoading (state) {
       state.loading = false
     },
+    startLoadingAlbum (state) {
+      state.loading_album = true
+    },
+    stopLoadingAlbum (state) {
+      state.loading_album = false
+    },
     setLastComment (state, comment) {
       state.last_comment = comment
     },
@@ -101,6 +129,10 @@ export default new Vuex.Store({
     updateMusic (state, {id, music}) {
       const index = state.album.findIndex( music => music.id === id)
       state.album[index] = music
+    },
+    updateAlbum (state, {id, album}) {
+      const index = state.albums.findIndex( album => album.id === id)
+      state.albums[index] = album
     },
     updateComment (state, {id, music}) {
       const index = state.commented_album.findIndex(music => music.id === id)
@@ -133,6 +165,10 @@ export default new Vuex.Store({
     deleteMusic (state, {id}) {
       const index = state.album.findIndex( music => music.id === id)
       state.album.splice(index, 1)
+    },
+    deleteAlbum (state, {id}) {
+      const index = state.albums.findIndex( album => album.id === id)
+      state.albums.splice(index, 1)
     },
     deleteCommentInAll (state, {id}) {
       const index = state.all_album.findIndex(music => music.id === id)
@@ -176,6 +212,9 @@ export default new Vuex.Store({
     },
     setMusicTemp (state, music) {
       state.music_tmp = music
+    },
+    setAlbumTemp (state, album) {
+      state.album_tmp = album
     },
     switchPlayerBar (state) {
       state.player_bar = true
@@ -231,6 +270,12 @@ export default new Vuex.Store({
     switchDialogProfile ({commit}) {
       commit('switchDialogProfile')
     },
+    switchAlbumDialog ({commit}) {
+      commit('switchAlbumDialog')
+    },
+    switchAlbumUpdate ({commit}) {
+      commit('switchAlbumUpdate')
+    },
     addMusic ({ getters, commit }, music) {
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).add(music).then(doc => {
@@ -239,11 +284,24 @@ export default new Vuex.Store({
         })
       }
     },
+    addAlbum ({ getters, commit }, album) {
+      if (getters.uid) {
+        firebase.firestore().collection(`users/${getters.uid}/albums`).add(album).then(doc => {
+        commit('addAlbum', { id: doc.id, album })
+        })
+      }
+    },
     startLoading ({ commit }) {
       commit('startLoading')
     },
     stopLoading ({ commit }) {
       commit('stopLoading')
+    },
+    startLoadingAlbum ({ commit }) {
+      commit('startLoadingAlbum')
+    },
+    stopLoadingAlbum ({ commit }) {
+      commit('stopLoadingAlbum')
     },
     // addFollowee ({ getters, commit }, user_id) {
     //   axios.post('http://52.69.186.157:8000/follows/', {
@@ -325,6 +383,11 @@ export default new Vuex.Store({
         snapshot.forEach(doc => commit('addMusic', { id: doc.id, music: doc.data() }))
       })
     },
+    fetchAlbums ({ getters, commit }) {
+      firebase.firestore().collection(`users/${getters.uid}/albums`).orderBy("created_date").get().then(snapshot => {
+        snapshot.forEach(doc => commit('addAlbum', { id: doc.id, album: doc.data() }))
+      })
+    },
     fetchAllAlbum ({ commit },) {
       firebase.firestore().collectionGroup('album').where("date", "!=", null).where("public", "==", true).orderBy("date", "desc").limit(5).get().then(snapshot => {
         snapshot.forEach(doc => commit('addAllMusic', {id: doc.id, music: doc.data()}))
@@ -354,6 +417,13 @@ export default new Vuex.Store({
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update(music).then(() => {
         commit('updateMusic', { id, music })
+        })
+      }
+    },
+    updateAlbum ({ getters, commit }, {id, album}) {
+      if (getters.uid) {
+        firebase.firestore().collection(`users/${getters.uid}/albums`).doc(id).update(album).then(() => {
+        commit('updateMusic', { id, album })
         })
       }
     },
@@ -391,6 +461,13 @@ export default new Vuex.Store({
         })
       }
     },
+    deleteAlbum ({ getters, commit }, {id}) {
+      if (getters.uid) {
+        firebase.firestore().collection(`users/${getters.uid}/albums`).doc(id).delete().then(() => {
+        commit('deleteAlbum', { id })
+        })
+      }
+    },
     deleteCommentInAll ({ commit }, {id}) {
       commit('deleteCommentInAll', {id})
     },
@@ -409,6 +486,9 @@ export default new Vuex.Store({
     },
     setMusicTemp ({commit}, music) {
       commit('setMusicTemp', music)
+    },
+    setAlbumTemp ({commit}, album) {
+      commit('setAlbumTemp', album)
     },
     switchPlayerBar ({commit}) {
       commit('switchPlayerBar')
@@ -436,6 +516,8 @@ export default new Vuex.Store({
     playerBar: state => {
       return state.player_bar
     },
-    album: state => state.album
+    album: state => state.album,
+    albums: state => state.albums,
+    music_tmp: state => state.music_tmp.album_id
   }
 })

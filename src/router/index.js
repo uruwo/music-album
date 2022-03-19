@@ -14,6 +14,8 @@ import FavoriteComment from '../views/FavoriteComment.vue'
 import Top from '../views/Top.vue'
 import Artists from '../views/Artists.vue'
 import Titles from '../views/Titles.vue'
+import Albums from '../views/Albums.vue'
+import Album from '../views/Album.vue'
 
 Vue.use(VueRouter)
 
@@ -37,6 +39,16 @@ const routes = [
     path: '/home',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/albums',
+    name: 'Albums',
+    component: Albums
+  },
+  {
+    path: '/album/:album_id?',
+    name: 'Album',
+    component: Album
   },
   {
     path: '/profile',
