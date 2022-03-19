@@ -25,6 +25,7 @@
     <v-row>
       <v-col @click="switchAlbumDialog" class="child-flex pa-2" cols="6" sm="3" md="2">
         <v-img
+          class="hover"
           :src="create"
           aspect-ratio="1"
         >
@@ -58,6 +59,9 @@
         cols="6" sm="3" md="2"
       >
         <v-img
+          @mouseover="hover(index)"
+          @mouseleave="leave()"
+          :class="{hover: hover_index === index}"
           :lazy-src="album.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? album.image_url: 'undefined.jpeg'"
           :src="album.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? album.image_url: 'undefined.jpeg'"
           aspect-ratio="1"
@@ -80,6 +84,8 @@ export default {
       create: 'song-images/create-song.jpg',
       albums: [],
       filteredAlbums: [],
+      hover_index: null,
+      hover_creater: false
     }
   },
   created () {
@@ -102,6 +108,12 @@ export default {
     }
   },
   methods: {
+    hover (index) {
+      this.hover_index = index
+    },
+    leave () {
+      this.hover_index = null
+    },
     clearKeyword () {
       this.keyword = ''
       this.blur()
@@ -135,5 +147,9 @@ export default {
   }
   .v-image {
     border-radius: 10px;
+  }
+  .hover {
+    opacity: 0.9;
+    cursor: pointer;
   }
 </style>
