@@ -1,7 +1,8 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="9" sm="5">
+      <v-spacer v-if="album_id"></v-spacer>
+      <v-col cols="9" sm="5" v-if="!album_id">
         <v-text-field
         v-model="keyword"
         label="曲名・アーティスト名"
@@ -21,6 +22,13 @@
         </template>
         </v-text-field>
       </v-col>
+      <v-col class="mt-16 text-center" v-else>
+        <v-chip outlined class="mt-2 mb-3 px-10" label large disabled color="grey lighten-1">
+          <v-icon left>mdi-music-box-multiple-outline</v-icon>
+          {{ album_title }}
+        </v-chip>
+      </v-col>
+      <v-spacer></v-spacer>
     </v-row>
     <v-row>
       <v-col @click="switchDialog" class="child-flex pa-2" cols="6" sm="3" md="2">
@@ -101,12 +109,16 @@ export default {
       album: [],
       filteredAlbum: [],
       audio: new Audio(),
-      hover_creater: false
+      hover_creater: false,
+      album_title: '',
+      album_id: ''
     }
   },
   created () {
     if (this.$route.params.album_id) {
-      this.album = this.$store.state.album.filter(music => music.album_id.includes(this.$route.params.album_id))
+      this.album_id = this.$route.params.album_id
+      this.album = this.$store.state.album.filter(music => music.album_id.includes(this.album_id))
+      this.album_title = this.$store.state.albums.filter(album => album.id === this.album_id)[0].title
     } else {
       this.album = this.$store.state.album
     }
@@ -122,17 +134,20 @@ export default {
     },
     myAlbum () {
       this.stopLoading()
-      if (this.$route.params.album_id) {
+      if (this.album_id) {
         this.reloadAlbum()
       }
     },
     music_tmp () {
-      if (this.$route.params.album_id) {
+      if (this.album_id) {
         this.reloadAlbum()
       }
     },
     myAlbums () {
       this.stopLoadingAlbum()
+      if (this.album_id) {
+        this.reloadAlbums()
+      }
     }
   },
   computed: {
@@ -148,9 +163,12 @@ export default {
   },
   methods: {
     reloadAlbum () {
-      this.album = this.$store.state.album.filter(music => music.album_id.includes(this.$route.params.album_id))
+      this.album = this.$store.state.album.filter(music => music.album_id.includes(this.album_id))
       this.filteredAlbum = this.album
       this.putFilteredAlbum(this.album)
+    },
+    reloadAlbums () {
+      this.album_title = this.$store.state.albums.filter(album => album.id === this.album_id)[0].title
     },
     clearKeyword () {
       this.keyword = ''
@@ -204,5 +222,8 @@ export default {
   .hover {
     opacity: 0.9;
     cursor: pointer;
+  }
+  .v-chip--disabled {
+    opacity: 1;
   }
 </style>
