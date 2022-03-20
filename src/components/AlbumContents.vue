@@ -130,6 +130,9 @@ export default {
       if (this.$route.params.album_id) {
         this.reloadAlbum()
       }
+    },
+    myAlbums () {
+      this.stopLoadingAlbum()
     }
   },
   computed: {
@@ -138,6 +141,9 @@ export default {
     },
     music_tmp () {
       return this.$store.getters.music_tmp
+    },
+    myAlbums () {
+      return this.$store.getters.albums
     }
   },
   methods: {
@@ -181,7 +187,7 @@ export default {
       this.switchBarContent(music)
       this.switchPlayerBar()
     },
-    ...mapActions(['switchDialog','switchDialogUpdate','setMusicTemp','switchPlayerBar','switchBarContent','switchCommentState','setMusicActive','putFilteredAlbum', 'stopLoading'])
+    ...mapActions(['switchDialog','switchDialogUpdate','setMusicTemp','switchPlayerBar','switchBarContent','switchCommentState','setMusicActive','putFilteredAlbum', 'stopLoading', 'stopLoadingAlbum'])
   }
 }
 </script>
