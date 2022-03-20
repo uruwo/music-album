@@ -45,7 +45,7 @@
               </v-select>
             </v-col>
             <v-col cols="6" sm="4" class="mt-2" v-if="!$route.params.album_id">
-              <v-btn color="#555" @click="pushAlbums()">アルバムを作成</v-btn>
+              <v-btn color="#555" @click="switchAlbumDialog()">アルバムを作成</v-btn>
             </v-col>
           </v-row>
         </v-form>
@@ -107,11 +107,6 @@ import { mapGetters } from 'vuex'
       ...mapGetters(['uid'])
     },
     methods: {
-      pushAlbums () {
-        this.$router.push({name: 'Albums'})
-        this.scrollTop()
-        this.switchDialogUpdate()
-      },
       scrollTop () {
         window.scrollTo({
           top: 0,
@@ -177,7 +172,7 @@ import { mapGetters } from 'vuex'
           this.show = true
         })
       },
-      ...mapActions(['switchDialogUpdate','updateMusic','deleteMusic', 'deleteCommentInAll', 'deleteLikedComment'])
+      ...mapActions(['switchDialogUpdate','updateMusic','deleteMusic', 'deleteCommentInAll', 'deleteLikedComment', 'switchAlbumDialog'])
     }
   }
 </script>
