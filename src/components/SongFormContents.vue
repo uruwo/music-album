@@ -54,7 +54,7 @@
               </v-select>
             </v-col>
             <v-col cols="4" class="mt-2" v-if="!$route.params.album_id && $vuetify.breakpoint.smAndUp">
-              <v-btn color="#555" @click="pushAlbums()">アルバムを作成</v-btn>
+              <v-btn color="#555" @click="switchAlbumDialog()">アルバムを作成</v-btn>
             </v-col>
           </v-row>
         </v-form>
@@ -105,11 +105,6 @@ import { mapGetters } from 'vuex'
       this.albums = this.$store.state.albums
     },
     methods: {
-      pushAlbums () {
-        this.$router.push({name: 'Albums'})
-        this.scrollTop()
-        this.switchDialog()
-      },
       scrollTop () {
         window.scrollTo({
           top: 0,
@@ -200,7 +195,7 @@ import { mapGetters } from 'vuex'
           this.show = true
         })
       },
-      ...mapActions(['switchDialog','addMusic', 'startLoading'])
+      ...mapActions(['switchDialog','addMusic', 'startLoading', 'switchAlbumDialog'])
     },
     computed: {
       ...mapGetters(['uid'])
