@@ -22,8 +22,15 @@
         </template>
         </v-text-field>
       </v-col>
-      <v-col class="mt-16 text-center" v-else>
-        <v-chip outlined class="mt-2 mb-3 px-10" label large disabled color="grey lighten-1">
+      <v-col :class="[{'mt-2': $vuetify.breakpoint.xs}, {'mt-16': $vuetify.breakpoint.smAndUp}, 'text-center']" v-else>
+        <v-chip
+          outlined
+          class="mt-2 mb-3 px-10" 
+          label
+          large
+          disabled
+          color="grey lighten-1"
+        >
           <v-icon left>mdi-music-box-multiple-outline</v-icon>
           {{ album_title }}
         </v-chip>
