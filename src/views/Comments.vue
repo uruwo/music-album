@@ -16,13 +16,13 @@
             dense
             placeholder="曲名・アーティスト名"
             type="text"
-            @keyup.enter.exact="firstFilter"
+            @keyup.enter.exact="firstFilterFetch"
             >
             <template v-slot:append>
               <v-btn icon plain :ripple="false" @click="clearKeyword" v-if="keyword">
                 <v-icon color="grey darken-1">mdi-close-circle</v-icon>
               </v-btn>
-              <v-btn icon plain :ripple="false" @click="firstFilter">
+              <v-btn icon plain :ripple="false" @click="firstFilterFetch">
                 <v-icon color="grey darken-1">mdi-magnify</v-icon>
               </v-btn>
             </template>
@@ -98,6 +98,7 @@ import "firebase/storage"
 import firebase from 'firebase'
 import MyStatus from '../components/MyStatus.vue'
 import InfiniteLoading from 'vue-infinite-loading'
+import algoliasearch from 'algoliasearch'
 
 export default {
   components: {
@@ -109,8 +110,8 @@ export default {
       all_album: [],
       favorite_comment: [],
       keyword: '',
-      last_comment: null,
       infinite_id: 0,
+      page: 0,
     }
   },
   created () {
@@ -122,7 +123,7 @@ export default {
     keyword: function (newVal) {
       if (!newVal) {
         this.all_album = this.$store.state.all_album
-        this.last_comment = null
+        this.page = 0
         this.infinite_id += 1
       }
     }
@@ -132,22 +133,20 @@ export default {
       this.keyword = ''
       this.blur()
     },
-    firstFilter () {
+    firstFilterFetch () {
       this.blur()
-      this.last_comment = null
+      this.page = 0
       this.all_album = []
-      this.firstFilterFetch('artist')
-      this.firstFilterFetch('title')
-      setTimeout(() => {
-        this.infinite_id += 1
-      },1000)
-    },
-    firstFilterFetch (field) {
-      firebase.firestore().collectionGroup('album').where("date", "!=", null).where("public", "==", true).where(field, '==', this.keyword).orderBy('date', 'desc').limit(5).get().then(snapshot => {
-        if (snapshot.docs.length !== 0) {
-          this.last_comment = snapshot.docs[snapshot.docs.length - 1]
-          snapshot.forEach(doc => {
-            const music = doc.data()
+      const client = algoliasearch(process.env.VUE_APP_ALGOLIA_APPLICATION_ID, process.env.VUE_APP_ALGOLIA_API_KEY)
+      const index = client.initIndex(process.env.VUE_APP_ALGOLIA_INDEX_NAME)
+      index.search(this.keyword, {
+        page: this.page,
+        filters: `public=1 AND NOT date=0`
+      }).then(snapshot => {
+        if (snapshot.hits.length !== 0) {
+          this.page++
+          snapshot.hits.forEach(doc => {
+            const music = doc
             if (music.user_id !== this.uid) {
               delete music.audio_url
               delete music.image_url
@@ -156,6 +155,9 @@ export default {
           })
         }
       })
+      setTimeout(() => {
+        this.infinite_id += 1
+      },1000)
     },
     blur () {
       this.$refs.blurThis.blur()
@@ -179,7 +181,7 @@ export default {
       }
     },
     normalHandler ($state) {
-      firebase.firestore().collectionGroup('album').where("date", "!=", null).where("public", "==", true).orderBy("date", "desc").startAfter(this.$store.state.last_comment).limit(5).get().then(snapshot => {
+      firebase.firestore().collectionGroup('album').where("date", "!=", false).where("public", "==", true).orderBy("date", "desc").startAfter(this.$store.state.last_comment).limit(5).get().then(snapshot => {
         snapshot.forEach(doc => {
           const music = doc.data()
           if (music.user_id !== this.uid) {
@@ -199,24 +201,25 @@ export default {
       })
     },
     filterHandler ($state) {
-      this.nextFilterFetch('artist', $state)
-      this.nextFilterFetch('title', $state)
-    },
-    nextFilterFetch (field, $state) {
-      firebase.firestore().collectionGroup('album').where("date", "!=", null).where("public", "==", true).where(field, '==', this.keyword).orderBy('date', 'desc').startAfter(this.last_comment).limit(5).get().then(snapshot => {
-        if (snapshot.docs.length !== 0) {
-          snapshot.forEach(doc => {
-            const music = doc.data()
+      const client = algoliasearch(process.env.VUE_APP_ALGOLIA_APPLICATION_ID, process.env.VUE_APP_ALGOLIA_API_KEY)
+      const index = client.initIndex(process.env.VUE_APP_ALGOLIA_INDEX_NAME)
+      index.search(this.keyword, {
+        page: this.page,
+        filters: 'public=1 AND NOT date=0'
+      }).then(snapshot => {
+        if (snapshot.hits.length !== 0) {
+          snapshot.hits.forEach(doc => {
+            const music = doc
             if (music.user_id !== this.uid) {
               delete music.audio_url
               delete music.image_url
             }
             this.all_album.push(music)
           })
-          if (snapshot.docs.length === 5) {
+          if (snapshot.hits.length === 5) {
             setTimeout(() => {
               this.infinite_id += 1
-              this.last_comment = snapshot.docs[snapshot.docs.length - 1]
+              this.page++
               $state.loaded()
             }, 1000)
           } else {

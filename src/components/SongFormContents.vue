@@ -155,7 +155,7 @@ import { mapGetters } from 'vuex'
         this.startLoading()
         this.$set(this.music, 'user_id', this.uid)
         this.$set(this.music, 'created_date', Date.now())
-        this.$set(this.music, 'date', null)
+        this.$set(this.music, 'date', false)
         this.$set(this.music, 'public', true)
         if (this.$route.params.album_id) {
           this.$set(this.music, 'album_id', [this.$route.params.album_id])
