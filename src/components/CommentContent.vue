@@ -79,7 +79,7 @@ export default {
     deleteMusicComment () {
       if (confirm('この感想を削除してよろしいですか?')) {
         delete this.music.comment
-        this.music.date = null
+        this.music.date = false
         this.deleteComment({id: this.music.id})
         this.deleteCommentInAll({id: this.music.id})
         this.deleteLikedComment(this.music.id)

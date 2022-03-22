@@ -9,6 +9,11 @@ name: Deploy to Firebase Hosting on merge
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    env:
+      VUE_APP_ALGOLIA_API_KEY: ${{ secrets.VUE_APP_ALGOLIA_API_KEY }}
+      VUE_APP_ALGOLIA_APPLICATION_ID: ${{ secrets.VUE_APP_ALGOLIA_APPLICATION_ID }}
+      VUE_APP_ALGOLIA_INDEX_NAME: ${{ secrets.VUE_APP_ALGOLIA_INDEX_NAME }}
+      CI: false
     steps:
       - uses: actions/checkout@v2
       - run: npm ci && npm run build
