@@ -1,12 +1,14 @@
 <template>
   <div class="text-center">
     <v-bottom-sheet
-     ref="sheet"
      v-model="$store.state.player_bar"
      hide-overlay
      persistent
      no-click-animation
-     :retain-focus="false">
+     :retain-focus="false"
+     :key="$store.state.player_bar"
+     scrollable
+     >
       <BarContents :key="$store.state.key"></BarContents>
     </v-bottom-sheet>
   </div>
@@ -17,18 +19,6 @@ import BarContents from './BarContents.vue'
 export default {
   components: {
     BarContents
-  },
-  computed: {
-    bar() {
-      return this.$store.getters.playerBar
-    }
-  },
-  watch: {
-    bar() {
-      this.$nextTick(() => {
-        this.$refs.sheet.showScroll()
-      })
-    }
   }
 }
 </script>
