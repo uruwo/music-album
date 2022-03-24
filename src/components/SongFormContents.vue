@@ -115,12 +115,11 @@ import { mapGetters } from 'vuex'
         this.file_image = event
       },
       async inputAudioFile (event) {
-        this.overlay = true
-        this.file_audio = event
-        if (!event.name.includes('.m4a') && !event.name.includes('.mp3')) {
-          this.overlay = false
+        if (!event || (!event.name.includes('.m4a') && !event.name.includes('.mp3'))) {
           return
         }
+        this.overlay = true
+        this.file_audio = event
         const res_signed_url = await axios.get('https://1rmi1fy2z8.execute-api.ap-northeast-1.amazonaws.com/createPresignedUrl')
         const pre_signed_url = (JSON.parse(res_signed_url.data.body)).put_url
         const uuid = (JSON.parse(res_signed_url.data.body)).uuid
