@@ -140,8 +140,7 @@ import { mapGetters } from 'vuex'
         const audio_info = JSON.parse(res_audio_info.data.body)
         this.$set(this.music, 'title', audio_info.title)
         this.$set(this.music, 'artist', audio_info.artist)
-        const image_url = 'https://audio-tmp-bucket.s3.ap-northeast-1.amazonaws.com/image/' + audio_info.image_name
-        fetch(image_url).then(response => response.blob()).then(blob => new File([blob], audio_info.image_name)).then(file => this.file_image = file)
+        fetch('data:image/jpeg;base64,' + audio_info.image).then(response => response.blob()).then(blob => new File([blob], audio_info.album + '.jpeg')).then(file => this.file_image = file)
       },
       async fileUpload () {
         if (!this.$refs.form.validate()) {
