@@ -41,11 +41,13 @@ export default new Vuex.Store({
     api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment',
     api_follow: 'https://fr93ff6r0j.execute-api.ap-northeast-1.amazonaws.com/follow-function',
     loading: false,
-    loading_album: false
+    loading_album: false,
+    token: null
   },
   mutations: {
-    setLoginUser (state, user) {
+    async setLoginUser (state, user) {
       state.login_user = user
+      state.token = await firebase.auth().currentUser.getIdToken(true)
     },
     deleteLoginUser (state) {
       state.login_user = null

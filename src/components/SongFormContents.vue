@@ -120,7 +120,11 @@ import { mapGetters } from 'vuex'
         }
         this.overlay = true
         this.file_audio = event
-        const res_signed_url = await axios.get('https://1rmi1fy2z8.execute-api.ap-northeast-1.amazonaws.com/createPresignedUrl')
+        const res_signed_url = await axios.get('https://1rmi1fy2z8.execute-api.ap-northeast-1.amazonaws.com/createPresignedUrl', {
+          params: {
+            firebase_token: this.$store.state.token
+          }
+        })
         const pre_signed_url = (JSON.parse(res_signed_url.data.body)).put_url
         const uuid = (JSON.parse(res_signed_url.data.body)).uuid
         await axios.put(
