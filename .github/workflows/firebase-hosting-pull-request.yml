@@ -11,6 +11,7 @@ jobs:
       VUE_APP_ALGOLIA_API_KEY: ${{ secrets.VUE_APP_ALGOLIA_API_KEY }}
       VUE_APP_ALGOLIA_APPLICATION_ID: ${{ secrets.VUE_APP_ALGOLIA_APPLICATION_ID }}
       VUE_APP_ALGOLIA_INDEX_NAME: ${{ secrets.VUE_APP_ALGOLIA_INDEX_NAME }}
+      VUE_APP_ALGOLIA_REPLICA_INDEX_NAME: ${{ secrets.VUE_APP_ALGOLIA_REPLICA_INDEX_NAME}}
       CI: false
     steps:
       - uses: actions/checkout@v2
