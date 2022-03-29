@@ -78,7 +78,6 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import firebase from 'firebase'
 
 export default {
   data () {
@@ -109,14 +108,15 @@ export default {
     fetchFavoriteComments (favorite_comments) {
       for (const i in favorite_comments) {
         const favorite_comment = favorite_comments[i]
-        firebase.firestore().collectionGroup('album').where('public', '==', true).where('id', '==', favorite_comment).orderBy('date', 'desc').get().then(snapshot => snapshot.forEach(doc => {
-          const music = doc.data()
-          if (music.user_id !== this.uid) {
-            delete music.audio_url
-            delete music.image_url
-          }
-          this.album.push(music)
-        }))
+        this.$algolia_replica_index.search(favorite_comment, {
+          page: 0,
+          hitsPerPage: 50,
+          filters: 'public=1 AND NOT date=0'
+        }).then(snapshot =>
+          snapshot.hits.forEach(doc => {
+          this.album.push(doc)
+          })
+        )
       }
     },
     watchProfile (music) {

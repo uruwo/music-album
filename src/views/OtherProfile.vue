@@ -131,25 +131,18 @@ export default {
       this.deleteFollowee(user_id)
     },
     fetchData (user_id) {
-      firebase.firestore().collection(`users/${user_id}/profile`).get().then(snapshot => snapshot.forEach(doc => this.profile = doc.data()))
-      firebase.firestore().collection(`users/${user_id}/album`).get().then(
+      this.$algolia_replica_index.search(user_id, {
+        page: 0,
+        hitsPerPage: 50
+      }).then(
         snapshot => {
           this.album = []
-          snapshot.forEach(doc => this.album.push(doc.data()))
+          snapshot.hits.forEach(doc => this.album.push(doc))
         }
       )
-      // axios.get('http://52.69.186.157:8000/followee/' + user_id).then(
-      //   response => {
-      //     this.followee = []
-      //     response.data.forEach(item => this.followee.push(item.followee_id))
-      //   }
-      // )
-      // axios.get('http://52.69.186.157:8000/follower/' + user_id).then(
-      //   response => {
-      //     this.follower = []
-      //     response.data.forEach(item =>this.follower.push(item.follower_id))
-      //   }
-      // )
+
+      firebase.firestore().collection(`users/${user_id}/profile`).get().then(snapshot => snapshot.forEach(doc => this.profile = doc.data()))
+      
       axios.get(this.$store.state.api_follow + '/followee', {params: { user_id: user_id }}).then(
         response => {
           this.followee = []
