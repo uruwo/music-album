@@ -52,12 +52,9 @@
                 <v-spacer></v-spacer>
                 <div>
                   <v-card-title :class="[{ 'pr-10': $vuetify.breakpoint.smAndUp }, 'pl-0']">
-                    <v-btn icon @click="play(music)" v-if="music.audio_url && music.audio_url.match(/audios%2F(.+)\?/)[1] !== 'undefined'">
-                      <v-icon large>mdi-play-circle-outline</v-icon>
+                    <v-btn icon v-if="music.user_id === uid" class="d-none">
                     </v-btn>
-                    <v-btn icon v-else-if="music.audio_url && music.audio_url.match(/audios%2F(.+)\?/)[1] == 'undefined'" class="d-none">
-                    </v-btn>
-                    <v-btn icon @click="addLike({music_id: music.id, creater_id: music.user_id})" v-else-if="!music.audio_url && !favorite_comment.includes(music.id)">
+                    <v-btn icon @click="addLike({music_id: music.id, creater_id: music.user_id})" v-else-if="!favorite_comment.includes(music.id)">
                       <v-icon>mdi-thumb-up-outline</v-icon>
                     </v-btn>
                     <v-btn icon v-else @click="deleteLike(music.id)">
@@ -82,7 +79,7 @@
         </div>
         <v-divider></v-divider>
       </div>
-      <v-card min-height="2000px" v-if="!$store.state.last_comment"></v-card>
+      <v-card min-height="2000px" v-if="!$store.state.last_page"></v-card>
       <infinite-loading spinner="spiral" @infinite="infiniteHandler" :identifier="infinite_id">
         <template slot="no-more">No more message</template>
         <template slot="no-results">No more message</template>
@@ -95,10 +92,8 @@
 import { mapActions } from 'vuex'
 import { mapGetters } from 'vuex'
 import "firebase/storage"
-import firebase from 'firebase'
 import MyStatus from '../components/MyStatus.vue'
 import InfiniteLoading from 'vue-infinite-loading'
-import algoliasearch from 'algoliasearch'
 
 export default {
   components: {
@@ -137,21 +132,14 @@ export default {
       this.blur()
       this.page = 0
       this.all_album = []
-      const client = algoliasearch(process.env.VUE_APP_ALGOLIA_APPLICATION_ID, process.env.VUE_APP_ALGOLIA_API_KEY)
-      const index = client.initIndex(process.env.VUE_APP_ALGOLIA_INDEX_NAME)
-      index.search(this.keyword, {
+      this.$algolia_index.search(this.keyword, {
         page: this.page,
         filters: `public=1 AND NOT date=0`
       }).then(snapshot => {
         if (snapshot.hits.length !== 0) {
           this.page++
           snapshot.hits.forEach(doc => {
-            const music = doc
-            if (music.user_id !== this.uid) {
-              delete music.audio_url
-              delete music.image_url
-            }
-            this.all_album.push(music)
+            this.all_album.push(doc)
           })
         }
       })
@@ -181,39 +169,33 @@ export default {
       }
     },
     normalHandler ($state) {
-      firebase.firestore().collectionGroup('album').where("date", "!=", false).where("public", "==", true).orderBy("date", "desc").startAfter(this.$store.state.last_comment).limit(5).get().then(snapshot => {
-        snapshot.forEach(doc => {
-          const music = doc.data()
-          if (music.user_id !== this.uid) {
-            delete music.audio_url
-            delete music.image_url
-          }
+      this.$algolia_index.search('', {
+        page: this.$store.state.last_page,
+        filters: 'public=1 AND NOT date=0'
+      }).then(snapshot => {
+        snapshot.hits.forEach(doc => {
+          const music = doc
           this.all_album.push(music)
         })
-        if (snapshot.docs.length === 5) {
+        if (snapshot.hits.length === 5) {
           setTimeout(() => {
-            this.setLastComment(snapshot.docs[snapshot.docs.length - 1])
+            this.updateLastPage()
             $state.loaded()
           }, 1000)
         } else {
+          this.updateLastPage()
           $state.complete()
         }
       })
     },
     filterHandler ($state) {
-      const client = algoliasearch(process.env.VUE_APP_ALGOLIA_APPLICATION_ID, process.env.VUE_APP_ALGOLIA_API_KEY)
-      const index = client.initIndex(process.env.VUE_APP_ALGOLIA_INDEX_NAME)
-      index.search(this.keyword, {
+      this.$algolia_index.search(this.keyword, {
         page: this.page,
         filters: 'public=1 AND NOT date=0'
       }).then(snapshot => {
         if (snapshot.hits.length !== 0) {
           snapshot.hits.forEach(doc => {
             const music = doc
-            if (music.user_id !== this.uid) {
-              delete music.audio_url
-              delete music.image_url
-            }
             this.all_album.push(music)
           })
           if (snapshot.hits.length === 5) {
@@ -230,7 +212,7 @@ export default {
         }
       })
     },
-    ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike', 'setLastComment'])
+    ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike', 'updateLastPage'])
   },
   computed: {
     ...mapGetters(['uid'])

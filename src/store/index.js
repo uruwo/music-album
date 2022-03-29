@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import firebase from 'firebase'
 import axios from 'axios'
+import algoliasearch from 'algoliasearch'
+
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -35,7 +37,7 @@ export default new Vuex.Store({
     liked_comments: [],
     my_followee: [],
     my_follower: [],
-    last_comment: null,
+    last_page: null,
     api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment',
     api_follow: 'https://fr93ff6r0j.execute-api.ap-northeast-1.amazonaws.com/follow-function',
     loading: false,
@@ -99,10 +101,6 @@ export default new Vuex.Store({
     },
     addAllMusic (state, {id, music}) {
       music.id = id
-      if (music.user_id !== state.login_user.uid) {
-        delete music.audio_url
-        delete music.image_url
-      }
       if (music.comment) {
         state.all_album.push(music)
       }
@@ -119,8 +117,11 @@ export default new Vuex.Store({
     stopLoadingAlbum (state) {
       state.loading_album = false
     },
-    setLastComment (state, comment) {
-      state.last_comment = comment
+    setFirstPage (state) {
+      state.last_page = 1
+    },
+    updateLastPage (state) {
+      state.last_page++
     },
     addProfile (state, {id, profile}) {
       profile.id = id
@@ -306,30 +307,6 @@ export default new Vuex.Store({
     stopLoadingAlbum ({ commit }) {
       commit('stopLoadingAlbum')
     },
-    // addFollowee ({ getters, commit }, user_id) {
-    //   axios.post('http://52.69.186.157:8000/follows/', {
-    //   follower_id: getters.uid, followee_id: user_id})
-    //   commit('addFollowee', user_id)
-    // },
-    // deleteFollowee ({ getters, commit }, user_id) {
-    //   axios.delete('http://52.69.186.157:8000/follows/', {data: {
-    //   follower_id: getters.uid, followee_id: user_id}})
-    //   commit('deleteFollowee', user_id)
-    // },
-    // fetchFollowee ({ getters, commit }) {
-    //   axios.get('http://52.69.186.157:8000/followee/' + getters.uid).then(
-    //     response => {
-    //       response.data.forEach(item => commit('addFollowee', item.followee_id))
-    //     }
-    //   )
-    // },
-    // fetchFollower ({ getters, commit }) {
-    //   axios.get('http://52.69.186.157:8000/follower/' + getters.uid).then(
-    //     response => {
-    //       response.data.forEach(item => commit('addFollower', item.follower_id))
-    //     }
-    //   )
-    // },
     addFollowee ({ state, getters, commit }, user_id) {
       axios.post(state.api_follow, {
       follower_id: getters.uid, followee_id: user_id})
@@ -391,15 +368,21 @@ export default new Vuex.Store({
         snapshot.forEach(doc => commit('addAlbum', { id: doc.id, album: doc.data() }))
       })
     },
-    fetchAllAlbum ({ commit },) {
-      firebase.firestore().collectionGroup('album').where("date", "!=", false).where("public", "==", true).orderBy("date", "desc").limit(5).get().then(snapshot => {
-        snapshot.forEach(doc => commit('addAllMusic', {id: doc.id, music: doc.data()}))
-        const last_comment = snapshot.docs[snapshot.docs.length - 1]
-        commit('setLastComment', last_comment)
+    fetchAllAlbum ({ commit }) {
+      const client = algoliasearch(process.env.VUE_APP_ALGOLIA_APPLICATION_ID, process.env.VUE_APP_ALGOLIA_API_KEY)
+      const index = client.initIndex(process.env.VUE_APP_ALGOLIA_INDEX_NAME)
+      index.search('', {
+        page: 0,
+        filters: `public=1 AND NOT date=0`
+      }).then(snapshot => {
+        snapshot.hits.forEach(doc => {
+          commit('addAllMusic', {id: doc.id, music: doc})
+          commit('setFirstPage')
+        })
       })
     },
-    setLastComment ({ commit }, comment) {
-      commit('setLastComment', comment)
+    updateLastPage ({ commit }) {
+      commit('updateLastPage')
     },
     fetchProfile ({ getters, commit }) {
       firebase.firestore().collection(`users/${getters.uid}/profile`).get().then(snapshot => {
@@ -518,6 +501,7 @@ export default new Vuex.Store({
     uid: state => state.login_user ? state.login_user.uid : null,
     album: state => state.album,
     albums: state => state.albums,
-    music_tmp: state => state.music_tmp.album_id
+    music_tmp: state => state.music_tmp.album_id,
+    all_album: state => state.all_album
   }
 })

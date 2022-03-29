@@ -4,8 +4,13 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 import firebase from 'firebase'
+import algoliasearch from 'algoliasearch'
 
 Vue.config.productionTip = false
+
+const client = algoliasearch(process.env.VUE_APP_ALGOLIA_APPLICATION_ID, process.env.VUE_APP_ALGOLIA_API_KEY)
+Vue.prototype.$algolia_index = client.initIndex(process.env.VUE_APP_ALGOLIA_INDEX_NAME)
+Vue.prototype.$algolia_replica_index = client.initIndex(process.env.VUE_APP_ALGOLIA_REPLICA_INDEX_NAME)
 
 const firebaseConfig = {
   apiKey: "AIzaSyBybw4feKZyAyZ2NW2c92x-WQfDiVdF6xo",
