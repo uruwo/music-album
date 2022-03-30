@@ -1,7 +1,7 @@
 # Music Album
 You can checkout the app on https://music-album.com!
 
-<img width="720" src="https://user-images.githubusercontent.com/84354821/157818657-e1cd552f-a698-4bb3-b0ac-e1ee8a1451f2.gif">
+https://user-images.githubusercontent.com/84354821/160748888-55c8ffff-6155-4b3e-abbe-7ce61bfc479b.mp4
 
 # About
 This service allows you to record your music with your favorite images and comments Like an album.
@@ -33,7 +33,7 @@ npm run serve
 # Infrastructure
 This is the infrastructure configuration diagram for this app.
 
-<img width="450" src="https://user-images.githubusercontent.com/84354821/160646203-f4dc15cc-0bb9-4d71-837e-99fc4966141e.png">
+<img width="450" src="https://user-images.githubusercontent.com/84354821/160729282-5803aa13-43d3-49da-a1a6-ef66ceeeca2b.png">
 
 # Technologies used
 This app uses the following technologies.
@@ -44,3 +44,4 @@ This app uses the following technologies.
 * Nginx
 * MySQL
 * GitHub Actions
+* Algolia
