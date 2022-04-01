@@ -5,6 +5,9 @@
         <v-list-item to="/home">
           <v-list-item-title>ホーム</v-list-item-title>
         </v-list-item>
+        <v-list-item to="/explore">
+          <v-list-item-title>探索</v-list-item-title>
+        </v-list-item>
         <v-list-item to="/albums">
           <v-list-item-title>アルバム</v-list-item-title>
         </v-list-item>

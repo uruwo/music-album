@@ -42,9 +42,12 @@ export default new Vuex.Store({
     api_follow: 'https://fr93ff6r0j.execute-api.ap-northeast-1.amazonaws.com/follow-function',
     loading: false,
     loading_album: false,
-    token: null
+    spotify_playlist: []
   },
   mutations: {
+    fetchPlaylist (state, music) {
+      state.spotify_playlist.push(music)
+    },
     async setLoginUser (state, user) {
       state.login_user = user
       state.token = await firebase.auth().currentUser.getIdToken(true)
@@ -238,6 +241,46 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    fetchPlaylist ({ commit, getters }) {
+      const request = require('request')
+      const authOptions = {
+        url: 'https://accounts.spotify.com/api/token',
+        headers: {
+          'Authorization': 'Basic ' + process.env.VUE_APP_SPOTIFY_ENCODED_SECRET
+        },
+        form: {
+          grant_type: 'refresh_token',
+          refresh_token: process.env.VUE_APP_SPOTIFY_REFLESH_TOKEN
+        },
+        json: true
+      }
+      
+      request.post(authOptions, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+          const access_token = body.access_token
+          console.log(access_token)
+          const spotify = require('spotify-web-api-js')
+          const spotify_api = new spotify()
+    
+          spotify_api.setAccessToken(access_token)
+    
+          spotify_api.getPlaylistTracks('37i9dQZF1DXcUv9n7At27D').then(data => {
+            const items = data.items
+            console.log(items)
+            items.forEach(item => {
+              const music = {}
+              music.title = item.track.name
+              music.artist = item.track.artists[0].name
+              music.image_url = item.track.album.images[0].url
+              music.preview_url = item.track.preview_url
+              music.audio_url = music.preview_url
+              commit('fetchPlaylist', music)
+            })
+          })
+          axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: getters.uid, access_token: access_token})
+        }
+      })
+    },
     login () {
       const google_auth_provider = new firebase.auth.GoogleAuthProvider()
       firebase.auth().signInWithRedirect(google_auth_provider)

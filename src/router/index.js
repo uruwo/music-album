@@ -16,6 +16,7 @@ import Artists from '../views/Artists.vue'
 import Titles from '../views/Titles.vue'
 import Albums from '../views/Albums.vue'
 import Album from '../views/Album.vue'
+import Explore from '../views/Explore.vue'
 
 Vue.use(VueRouter)
 
@@ -39,6 +40,11 @@ const routes = [
     path: '/home',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/explore',
+    name: 'Explore',
+    component: Explore
   },
   {
     path: '/albums',
