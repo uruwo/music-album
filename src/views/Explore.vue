@@ -110,7 +110,6 @@ export default {
     },
     blur () {
       this.$refs.blurThis.blur()
-      this.infinite_id++
     },
     play (music, index) {
       this.is_play = index
