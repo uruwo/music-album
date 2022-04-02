@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container :class="[{'px-10': $vuetify.breakpoint.mdAndUp}]">
     <v-row>
       <v-col cols="9" sm="5">
         <v-text-field
@@ -7,7 +7,7 @@
         label="曲名・アーティスト名・アルバム名"
         type="text"
         :class="[{'mt-2': $vuetify.breakpoint.xs}, {'mt-16': $vuetify.breakpoint.smAndUp}]"
-        @blur="searchTracks()"
+        @blur="searchTracks(); pause()"
         ref="blurThis"
         @keyup.enter.exact="blur"
         >
@@ -54,20 +54,31 @@
         <p class="text-caption ma-0">{{ music.artist }}</p>
       </v-col>
     </v-row>
+    <infinite-loading spinner="spiral" @infinite="infiniteHandler" :identifier="infinite_id" v-if="keyword" class="mt-10">
+      <template slot="no-more">No more results</template>
+      <template slot="no-results">No more results</template>
+    </infinite-loading>
   </v-container>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import axios from 'axios'
+import InfiniteLoading from 'vue-infinite-loading'
 
 export default {
+  components: {
+    InfiniteLoading
+  },
   data() {
     return {
       keyword: '',
       music_list: [],
       audio: new Audio(),
-      is_play: null
+      is_play: null,
+      page: 0,
+      access_token: '',
+      infinite_id: 0
     }
   },
   created () {
@@ -102,26 +113,46 @@ export default {
       this.is_play = null
       this.audio.pause()
     },
-    searchTracks () {
-      this.pause()
-      if (this.keyword) {
-        this.music_list = []
-        axios.get('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {params: {user_id: this.uid}}).then(response => {
-          const access_token = JSON.parse(response.data.body)[0].access_token
-          try {
-            this.getTracks(access_token)
-          } catch {
-            this.updateAccessToken()
-          }
-        })
+    async infiniteHandler ($state) {
+      this.page++
+      const list_length_before = this.music_list.length
+      await this.getTracks(this.access_token)
+      if (this.music_list.length - list_length_before === 12) {
+        setTimeout(() => {
+          this.infinite_id++
+          $state.loaded()
+        }, 1000)
+      } else {
+        $state.complete()
       }
     },
-    getTracks (access_token) {
+    async searchTracks () {
+      this.page = 0
+      this.infinite_id++
+      if (this.keyword) {
+        this.music_list = []
+
+        if (!this.access_token) {
+          const response = await axios.get('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {params: {user_id: this.uid}})
+  
+          this.access_token = JSON.parse(response.data.body)[0].access_token
+        }
+
+        try {
+          this.getTracks(this.access_token)
+        } catch {
+          this.updateAccessToken()
+        }
+      }
+    },
+    async getTracks (access_token) {
       const spotify = require('spotify-web-api-js')
       const spotify_api = new spotify()
 
       spotify_api.setAccessToken(access_token)
-      spotify_api.searchTracks(this.keyword, {limit: 24}).then(data => {
+
+      try {
+        const data = await spotify_api.searchTracks(this.keyword, {limit: 12, offset: this.page * 12})
         const tracks = data.tracks.items
         tracks.forEach(track => {
           const music = {
@@ -133,9 +164,9 @@ export default {
           }
           this.music_list.push(music)
         })
-      }).catch(() => {
+      } catch {
         throw new Error(`Expired Access Token`)
-      })
+      }
     },
     updateAccessToken () {
       const request = require('request')
@@ -154,9 +185,9 @@ export default {
 
       request.post(authOptions, function(error, response, body) {
         if (!error && response.statusCode === 200) {
-          const access_token = body.access_token
-          this.getTracks(access_token)
-          axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: this.uid, access_token: access_token})
+          this.access_token = body.access_token
+          this.getTracks(this.access_token)
+          axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: this.uid, access_token: this.access_token})
         }
       })
     },
