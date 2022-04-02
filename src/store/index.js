@@ -263,7 +263,7 @@ export default new Vuex.Store({
     
           spotify_api.setAccessToken(access_token)
     
-          spotify_api.getPlaylistTracks('37i9dQZF1DXcUv9n7At27D').then(data => {
+          spotify_api.getPlaylistTracks('4duES3gDWrtRqL8GvvxCWw').then(data => {
             const items = data.items
             items.forEach(item => {
               const music = {
