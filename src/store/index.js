@@ -258,7 +258,6 @@ export default new Vuex.Store({
       request.post(authOptions, function(error, response, body) {
         if (!error && response.statusCode === 200) {
           const access_token = body.access_token
-          console.log(access_token)
           const spotify = require('spotify-web-api-js')
           const spotify_api = new spotify()
     
@@ -266,14 +265,14 @@ export default new Vuex.Store({
     
           spotify_api.getPlaylistTracks('37i9dQZF1DXcUv9n7At27D').then(data => {
             const items = data.items
-            console.log(items)
             items.forEach(item => {
-              const music = {}
-              music.title = item.track.name
-              music.artist = item.track.artists[0].name
-              music.image_url = item.track.album.images[0].url
-              music.preview_url = item.track.preview_url
-              music.audio_url = music.preview_url
+              const music = {
+                title: item.track.name,
+                artist: item.track.artists[0].name,
+                image_url: item.track.album.images[0].url,
+                preview_url: item.track.preview_url,
+                audio_url: item.track.preview_url
+              }
               commit('fetchPlaylist', music)
             })
           })
