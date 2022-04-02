@@ -33,7 +33,7 @@ npm run serve
 # Infrastructure
 This is the infrastructure configuration diagram for this app.
 
-<img width="450" src="https://user-images.githubusercontent.com/84354821/160729282-5803aa13-43d3-49da-a1a6-ef66ceeeca2b.png">
+<img width="470" src="https://user-images.githubusercontent.com/84354821/161396808-e4165b7b-64a3-4359-950e-4788947ba7ef.png">
 
 # Technologies used
 This app uses the following technologies.
