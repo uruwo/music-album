@@ -1,12 +1,16 @@
 <template>
   <v-container :class="[{'px-10': $vuetify.breakpoint.mdAndUp}]">
+    <div :class="[{'mt-3': $vuetify.breakpoint.xs}, {'mt-10': $vuetify.breakpoint.smAndUp}]">
+      <v-chip outlined class="mr-2" v-model="filter.track" @click="selectFilter('track')" filter>曲名</v-chip>
+      <v-chip outlined class="mr-2" v-model="filter.artist" @click="selectFilter('artist')" filter>アーティスト名</v-chip>
+      <v-chip outlined v-model="filter.album" @click="selectFilter('album')" filter>アルバム名</v-chip>
+    </div>
     <v-row>
       <v-col cols="9" sm="5">
         <v-text-field
+        class="pt-0"
         v-model="keyword"
-        label="曲名・アーティスト名・アルバム名"
         type="text"
-        :class="[{'mt-2': $vuetify.breakpoint.xs}, {'mt-16': $vuetify.breakpoint.smAndUp}]"
         @blur="searchTracks(); pause()"
         ref="blurThis"
         @keyup.enter.exact="blur"
@@ -79,7 +83,12 @@ export default {
       is_play: null,
       page: 0,
       access_token: '',
-      infinite_id: 0
+      infinite_id: 0,
+      filter: {
+        'track': false,
+        'artist': false,
+        'album': false
+      }
     }
   },
   created () {
@@ -104,6 +113,16 @@ export default {
     }
   },
   methods: {
+    selectFilter (field) {
+      const keys = Object.keys(this.filter)
+      keys.forEach(key => {
+        if (key !== field) {
+          this.filter[key] = false
+        }
+      })
+
+      this.filter[field] = !this.filter[field]
+    },
     clearKeyword () {
       this.keyword = ''
       this.blur()
@@ -124,7 +143,7 @@ export default {
       this.page++
       const list_length_before = this.music_list.length
       await this.getTracks(this.access_token)
-      if (this.music_list.length - list_length_before === 12) {
+      if (this.music_list.length - list_length_before === 24) {
         setTimeout(() => {
           this.infinite_id++
           $state.loaded()
@@ -135,7 +154,6 @@ export default {
     },
     async searchTracks () {
       this.page = 0
-      this.infinite_id++
       if (this.keyword) {
         this.music_list = []
 
@@ -151,6 +169,9 @@ export default {
           this.updateAccessToken()
         }
       }
+      setTimeout(() => {
+        this.infinite_id++
+      }, 1000)
     },
     async getTracks (access_token) {
       const spotify = require('spotify-web-api-js')
@@ -158,8 +179,11 @@ export default {
 
       spotify_api.setAccessToken(access_token)
 
+      const keys = Object.keys(this.filter)
+      const field = keys.filter(key => this.filter[key] === true)
+
       try {
-        const data = await spotify_api.searchTracks(this.keyword, {limit: 12, offset: this.page * 12})
+        const data = await spotify_api.searchTracks(`${field}:${this.keyword}`, {limit: 24, offset: this.page * 24})
         const tracks = data.tracks.items
         tracks.forEach(track => {
           const music = {
