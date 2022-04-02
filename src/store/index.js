@@ -23,8 +23,8 @@ export default new Vuex.Store({
     album_tmp: {},
     player_bar: false,
     key: 0,
-    keyForm: 0,
-    keyNewForm: 0,
+    key_form: 0,
+    key_new_form: 0,
     album_key: 0,
     music_active: {},
     isPlay: false,
@@ -42,9 +42,12 @@ export default new Vuex.Store({
     api_follow: 'https://fr93ff6r0j.execute-api.ap-northeast-1.amazonaws.com/follow-function',
     loading: false,
     loading_album: false,
-    token: null
+    spotify_playlist: []
   },
   mutations: {
+    fetchPlaylist (state, music) {
+      state.spotify_playlist.push(music)
+    },
     async setLoginUser (state, user) {
       state.login_user = user
       state.token = await firebase.auth().currentUser.getIdToken(true)
@@ -57,11 +60,11 @@ export default new Vuex.Store({
     },
     switchDialog (state) {
       state.dialog = !state.dialog
-      state.keyNewForm++
+      state.key_new_form++
     },
     switchDialogUpdate (state) {
       state.dialog_update = !state.dialog_update
-      state.keyForm++
+      state.key_form++
     },
     switchDialogProfile (state) {
       state.dialog_profile = !state.dialog_profile
@@ -238,6 +241,45 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    fetchPlaylist ({ commit, getters }) {
+      const request = require('request')
+      const authOptions = {
+        url: 'https://accounts.spotify.com/api/token',
+        headers: {
+          'Authorization': 'Basic ' + process.env.VUE_APP_SPOTIFY_ENCODED_SECRET
+        },
+        form: {
+          grant_type: 'refresh_token',
+          refresh_token: process.env.VUE_APP_SPOTIFY_REFLESH_TOKEN
+        },
+        json: true
+      }
+      
+      request.post(authOptions, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+          const access_token = body.access_token
+          const spotify = require('spotify-web-api-js')
+          const spotify_api = new spotify()
+    
+          spotify_api.setAccessToken(access_token)
+    
+          spotify_api.getPlaylistTracks('37i9dQZF1DXcUv9n7At27D').then(data => {
+            const items = data.items
+            items.forEach(item => {
+              const music = {
+                title: item.track.name,
+                artist: item.track.artists[0].name,
+                image_url: item.track.album.images[0].url,
+                preview_url: item.track.preview_url,
+                audio_url: item.track.preview_url
+              }
+              commit('fetchPlaylist', music)
+            })
+          })
+          axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: getters.uid, access_token: access_token})
+        }
+      })
+    },
     login () {
       const google_auth_provider = new firebase.auth.GoogleAuthProvider()
       firebase.auth().signInWithRedirect(google_auth_provider)

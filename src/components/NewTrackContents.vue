@@ -7,21 +7,6 @@
       <v-container>
         <v-form ref="form">
           <v-row>
-            <v-col cols="12" sm="6">
-              <v-file-input 
-                accept="audio/*" 
-                label="楽曲を選択" 
-                @change="inputAudioFile" 
-                v-if="show" 
-                small-chips 
-                prepend-icon="mdi-file-music-outline" 
-                hint="入力すると他の項目が自動入力されます"
-                persistent-hint
-                ></v-file-input>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-file-input accept="image/*" label="画像を選択" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline" v-model="file_image"></v-file-input>
-            </v-col>
             <v-col cols="12">
               <v-text-field
                 label="曲名"
@@ -40,7 +25,13 @@
                 persistent-hint
               ></v-text-field>
             </v-col>
-            <v-col cols="8" class="pt-0" v-if="!$route.params.album_id && $vuetify.breakpoint.smAndUp">
+            <v-col cols="12" sm="6">
+              <v-file-input accept="audio/*" label="楽曲を選択" :value="file_audio" @change="inputAudioFile" v-if="show" small-chips prepend-icon="mdi-file-music-outline"></v-file-input>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-file-input accept="image/*" label="画像を選択" :value="file_image" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline"></v-file-input>
+            </v-col>
+            <v-col cols="6" sm="8" class="pt-0">
               <v-select
                 v-model="album_id"
                 :items="albums"
@@ -53,7 +44,7 @@
                 prepend-icon="mdi-plus-box-multiple">
               </v-select>
             </v-col>
-            <v-col cols="4" class="mt-2" v-if="!$route.params.album_id && $vuetify.breakpoint.smAndUp">
+            <v-col cols="6" sm="4" class="mt-2" v-if="!$route.params.album_id">
               <v-btn color="#555" @click="switchAlbumDialog()">アルバムを作成</v-btn>
             </v-col>
           </v-row>
@@ -65,7 +56,7 @@
       <v-btn
         color="blue darken-1"
         text
-        @click="switchDialog(); scrollTop()"
+        @click="cancel(); scrollTop()"
       >
         キャンセル
       </v-btn>
@@ -77,32 +68,36 @@
         作成
       </v-btn>
     </v-card-actions>
-    <v-overlay :value="overlay" :absolute="true">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
   </v-card>
 </template>
 
 <script>
 import firebase from 'firebase'
 import "firebase/storage"
-import axios from 'axios'
 import { mapActions } from 'vuex'
 import { mapGetters } from 'vuex'
+
   export default {
     data () {
       return {
         music: {},
         album_id: [],
         albums: [],
-        file_image: null,
+        file_image: '',
         file_audio: '',
         show: true,
-        overlay: false,
       }
     },
     created () {
       this.albums = this.$store.state.albums
+      this.music = this.$store.state.music_tmp
+      const image_name = this.getUniqueStr() + '.jpeg'
+      const audio_name = this.music.audio_url ? this.getUniqueStr() + '.mp3' : 'undefined'
+      fetch(this.music.image_url).then(response => response.blob()).then(blob => new File([blob], image_name)).then(file => this.file_image = file)
+      fetch(this.music.audio_url).then(response => response.blob()).then(blob => new File([blob], audio_name)).then(file => this.file_audio = file)
+    },
+    computed: {
+      ...mapGetters(['uid'])
     },
     methods: {
       scrollTop () {
@@ -114,44 +109,20 @@ import { mapGetters } from 'vuex'
       inputImageFile (event) {
         this.file_image = event
       },
-      async inputAudioFile (event) {
-        if (!event || (!event.name.includes('.m4a') && !event.name.includes('.mp3'))) {
-          return
-        }
-        this.overlay = true
+      inputAudioFile (event) {
         this.file_audio = event
-        const res_signed_url = await axios.get('https://1rmi1fy2z8.execute-api.ap-northeast-1.amazonaws.com/createPresignedUrl', {
-          params: {
-            firebase_token: this.$store.state.token
-          }
-        })
-        const pre_signed_url = (JSON.parse(res_signed_url.data.body)).put_url
-        const uuid = (JSON.parse(res_signed_url.data.body)).uuid
-        await axios.put(
-          pre_signed_url,
-          event,
-          {
-            headers: {
-              'Content-Type': event.type
-            }
-          }
-        )
-        const res_audio_info = await axios.post('https://ij6adayafg.execute-api.ap-northeast-1.amazonaws.com/getAudioInfo', { uuid: uuid, name: event.name })
-        if (!res_audio_info.data.body) {
-          this.overlay = false
-          return
-        }
-        const audio_info = JSON.parse(res_audio_info.data.body)
-        this.$set(this.music, 'title', audio_info.title)
-        this.$set(this.music, 'artist', audio_info.artist)
-        fetch('data:image/jpeg;base64,' + audio_info.image).then(response => response.blob()).then(blob => new File([blob], audio_info.album + '.jpeg')).then(file => this.file_image = file)
+      },
+      cancel () {
+        this.switchDialog()
+      },
+      getUniqueStr(myStrong){
+        var strong = 1000;
+        if (myStrong) strong = myStrong;
+        return new Date().getTime().toString(16)  + Math.floor(strong*Math.random()).toString(16)
       },
       async fileUpload () {
         if (!this.$refs.form.validate()) {
           return
-        }
-        if (this.file_image === null) {
-          this.file_image = ''
         }
         this.switchDialog()
         this.startLoading()
@@ -159,11 +130,7 @@ import { mapGetters } from 'vuex'
         this.$set(this.music, 'created_date', Date.now())
         this.$set(this.music, 'date', false)
         this.$set(this.music, 'public', true)
-        if (this.$route.params.album_id) {
-          this.$set(this.music, 'album_id', [this.$route.params.album_id])
-        } else {
-          this.$set(this.music, 'album_id', this.album_id)
-        }
+        this.$set(this.music, 'album_id', this.album_id)
         const storageImage = firebase.storage().ref(`users/${this.uid}/images/` + this.file_image.name)
         const storageAudio = firebase.storage().ref(`users/${this.uid}/audios/` + this.file_audio.name)
         const that = this
@@ -197,15 +164,7 @@ import { mapGetters } from 'vuex'
           this.show = true
         })
       },
-      ...mapActions(['switchDialog','addMusic', 'startLoading', 'switchAlbumDialog'])
-    },
-    computed: {
-      ...mapGetters(['uid'])
-    },
-    watch: {
-      file_image () {
-        this.overlay = false
-      }
+      ...mapActions(['switchDialog', 'addMusic', 'switchAlbumDialog', 'startLoading'])
     }
   }
 </script>

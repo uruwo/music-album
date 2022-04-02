@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container :class="[{'px-10': $vuetify.breakpoint.mdAndUp}]">
     <v-row>
       <v-spacer v-if="album_id"></v-spacer>
       <v-col cols="9" sm="5" v-if="!album_id">

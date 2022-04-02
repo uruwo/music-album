@@ -11,6 +11,7 @@
     </v-toolbar-items>
     <v-tabs v-if="$store.state.login_user" right optional>
       <v-tab to="/home">ホーム</v-tab>
+      <v-tab to="/explore">探索</v-tab>
       <v-tab to="/albums">アルバム</v-tab>
       <v-tab to="/profile/comment">マイページ</v-tab>
       <v-tab to="/comments">みんなの感想</v-tab>
