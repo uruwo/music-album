@@ -34,6 +34,7 @@
           :src="music.image_url"
           aspect-ratio="1"
           class="hover"
+          @click="switchDialog(); setMusicTemp(music)"
         >
           <template>
             <v-row
@@ -41,10 +42,10 @@
               align="center"
               justify="center"
             >
-              <v-btn icon @click="play(music, index)" v-if="music.preview_url && index !== is_play">
+              <v-btn icon @click.stop="play(music, index)" v-if="music.preview_url && index !== is_play">
                 <v-icon x-large>mdi-play-circle-outline</v-icon>
               </v-btn>
-              <v-btn icon @click="pause()" v-if="index === is_play">
+              <v-btn icon @click.stop="pause()" v-if="index === is_play">
                 <v-icon x-large color="blue">mdi-stop-circle-outline</v-icon>
               </v-btn>
             </v-row>
@@ -62,7 +63,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import axios from 'axios'
 import InfiniteLoading from 'vue-infinite-loading'
 
@@ -89,11 +90,17 @@ export default {
       this.is_play = null
     })
   },
+  beforeDestroy () {
+    this.audio.pause()
+  },
   watch: {
     keyword: function (newVal) {
       if (!newVal) {
         this.music_list = this.$store.state.spotify_playlist
       }
+    },
+    myAlbum () {
+      this.stopLoading()
     }
   },
   methods: {
@@ -103,6 +110,7 @@ export default {
     },
     blur () {
       this.$refs.blurThis.blur()
+      this.infinite_id++
     },
     play (music, index) {
       this.is_play = index
@@ -191,8 +199,12 @@ export default {
         }
       })
     },
+    ...mapActions(['switchDialog', 'setMusicTemp', 'stopLoading'])
   },
   computed: {
+    myAlbum () {
+      return this.$store.getters.album
+    },
     ...mapGetters(['uid'])
   }
 }
