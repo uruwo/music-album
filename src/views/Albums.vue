@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container :class="[{'px-10': $vuetify.breakpoint.mdAndUp}]">
     <v-row>
       <v-col cols="9" sm="5">
         <v-text-field

@@ -23,8 +23,8 @@ export default new Vuex.Store({
     album_tmp: {},
     player_bar: false,
     key: 0,
-    keyForm: 0,
-    keyNewForm: 0,
+    key_form: 0,
+    key_new_form: 0,
     album_key: 0,
     music_active: {},
     isPlay: false,
@@ -60,11 +60,11 @@ export default new Vuex.Store({
     },
     switchDialog (state) {
       state.dialog = !state.dialog
-      state.keyNewForm++
+      state.key_new_form++
     },
     switchDialogUpdate (state) {
       state.dialog_update = !state.dialog_update
-      state.keyForm++
+      state.key_form++
     },
     switchDialogProfile (state) {
       state.dialog_profile = !state.dialog_profile

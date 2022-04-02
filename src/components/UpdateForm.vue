@@ -5,7 +5,7 @@
       persistent
       max-width="600px"
     >
-      <FormContents :key="$store.state.keyForm"></FormContents>
+      <FormContents :key="$store.state.key_form"></FormContents>
     </v-dialog>
   </v-row>
 </template>

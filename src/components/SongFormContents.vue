@@ -1,5 +1,5 @@
 <template>
-  <v-card :key="$store.state.keyNewForm">
+  <v-card>
     <v-card-title>
       <span class="text-h5">楽曲追加</span>
     </v-card-title>

@@ -92,7 +92,7 @@ import { mapGetters } from 'vuex'
       this.albums = this.$store.state.albums
       this.music = this.$store.state.music_tmp
       const image_name = this.getUniqueStr() + '.jpeg'
-      const audio_name = this.getUniqueStr() + '.mp3'
+      const audio_name = this.music.audio_url ? this.getUniqueStr() + '.mp3' : 'undefined'
       fetch(this.music.image_url).then(response => response.blob()).then(blob => new File([blob], image_name)).then(file => this.file_image = file)
       fetch(this.music.audio_url).then(response => response.blob()).then(blob => new File([blob], audio_name)).then(file => this.file_audio = file)
     },
