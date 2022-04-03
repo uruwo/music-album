@@ -270,8 +270,10 @@ export default new Vuex.Store({
                 title: item.track.name,
                 artist: item.track.artists[0].name,
                 image_url: item.track.album.images[0].url,
-                preview_url: item.track.preview_url,
-                audio_url: item.track.preview_url
+                preview_audio: item.track.preview_url,
+                preview_image: item.track.album.images[0].url,
+                audio_url: item.track.preview_url,
+                spotify_url: item.track.external_urls.spotify
               }
               commit('fetchPlaylist', music)
             })

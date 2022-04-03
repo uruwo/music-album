@@ -46,7 +46,7 @@
               align="center"
               justify="center"
             >
-              <v-btn icon @click.stop="play(music, index)" v-if="music.preview_url && index !== is_play">
+              <v-btn icon @click.stop="play(music, index)" v-if="music.preview_audio && index !== is_play">
                 <v-icon x-large>mdi-play-circle-outline</v-icon>
               </v-btn>
               <v-btn icon @click.stop="pause()" v-if="index === is_play">
@@ -190,8 +190,10 @@ export default {
             title: track.name,
             artist: track.artists[0].name,
             image_url: track.album.images[0].url,
-            preview_url: track.preview_url,
-            audio_url: track.preview_url
+            preview_image: track.album.images[0].url,
+            preview_audio: track.preview_url,
+            audio_url: track.preview_url,
+            spotify_url: track.external_urls.spotify
           }
           this.music_list.push(music)
         })
