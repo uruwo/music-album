@@ -110,6 +110,9 @@ export default {
     },
     myAlbum () {
       this.stopLoading()
+    },
+    myAlbums () {
+      this.stopLoadingAlbum()
     }
   },
   methods: {
@@ -224,11 +227,14 @@ export default {
         }
       })
     },
-    ...mapActions(['switchDialog', 'setMusicTemp', 'stopLoading'])
+    ...mapActions(['switchDialog', 'setMusicTemp', 'stopLoading', 'stopLoadingAlbum'])
   },
   computed: {
     myAlbum () {
       return this.$store.getters.album
+    },
+    myAlbums () {
+      return this.$store.getters.albums
     },
     ...mapGetters(['uid'])
   }
