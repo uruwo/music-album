@@ -44,18 +44,28 @@
           <p class="ml-2 mb-2">{{ $store.state.profile.name }}</p>
           <v-card color="grey darken-4" class="ma-2">
             <div class="flex">
+              <v-img
+                :src="music.image_url ? music.image_url : 'album.png'"
+                aspect-ratio="1"
+                max-width="60"
+                class="mt-3 mb-2 ml-4"
+              >
+              </v-img>
               <div>
                 <v-card-title class="subtitle-1 pt-2">{{ music.title }}</v-card-title>
                 <v-card-subtitle class="py-0">{{ music.artist }}</v-card-subtitle>
               </div>
               <v-spacer></v-spacer>
-              <div>
-                <v-card-title :class="[{ 'pr-10': $vuetify.breakpoint.smAndUp }, 'pl-0']">
-                  <v-btn icon @click="play(music)" v-if="music.audio_url.match(/audios%2F(.+)\?/)[1] !== 'undefined'">
-                    <v-icon large>mdi-play-circle-outline</v-icon>
-                  </v-btn>
-                </v-card-title>
-              </div>
+              <v-card-title class="mr-2">
+                <v-btn icon @click="play(music)" v-if="music.audio_url.match(/audios%2F(.+)\?/)[1] !== 'undefined'">
+                  <v-icon large>mdi-play-circle-outline</v-icon>
+                </v-btn>
+              </v-card-title>
+              <v-card-title class="pa-0 mr-6" v-if="music.spotify_url">
+                <v-btn icon @click="openSpotify(music.spotify_url)">
+                  <v-img src="../../public/spotify_icon.png" max-width="29"></v-img>
+                </v-btn>
+              </v-card-title>
             </div>
             <v-card-text class="pb-0 pt-0 mt-n2">
               <v-textarea
@@ -135,6 +145,9 @@ export default {
     play (music) {
       this.switchBarContent(music)
       this.switchPlayerBar()
+    },
+    openSpotify (url) {
+      window.open(url, '_blank')
     },
     updateComment (index) {
       const filteredMusic = this.filtered_album[index]
