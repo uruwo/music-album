@@ -40,21 +40,45 @@
           <p class="ml-2 mb-2">{{ music.profile_name }}</p>
           <v-card color="grey darken-4" class="ma-2">
             <div class="flex">
+              <v-img
+                :src="music.preview_image ? music.preview_image : require('../../public/album.png')"
+                aspect-ratio="1"
+                max-width="60"
+                class="mt-3 mb-2 ml-4"
+              >
+                <template>
+                  <v-row
+                    class="fill-height ma-0"
+                    align="center"
+                    justify="center"
+                  >
+                    <v-btn icon @click.stop="play_preview(music, index)" v-if="music.preview_audio && index !== is_play">
+                      <v-icon large class="preview">mdi-play-circle-outline</v-icon>
+                    </v-btn>
+                    <v-btn icon @click.stop="pause_preview()" v-if="index === is_play">
+                      <v-icon large color="blue">mdi-stop-circle-outline</v-icon>
+                    </v-btn>
+                  </v-row>
+                </template>
+              </v-img>
               <div>
                 <v-card-title class="subtitle-1 pt-2">{{ music.title }}</v-card-title>
                 <v-card-subtitle class="py-0">{{ music.artist }}</v-card-subtitle>
               </div>
               <v-spacer></v-spacer>
-              <div>
-                <v-card-title :class="[{ 'pr-10': $vuetify.breakpoint.smAndUp }, 'pl-0']">
-                  <v-btn icon @click="addLike({music_id: music.id, creater_id: music.user_id})" v-if="!$store.state.favorite_comment.includes(music.id)">
-                    <v-icon>mdi-thumb-up-outline</v-icon>
-                  </v-btn>
-                  <v-btn icon v-else @click="deleteLike(music.id)">
-                    <v-icon color="blue">mdi-thumb-up</v-icon>
-                  </v-btn>
-                </v-card-title>
-              </div>
+              <v-card-title class="mr-2">
+                <v-btn icon @click="addLike({music_id: music.id, creater_id: music.user_id})" v-if="!$store.state.favorite_comment.includes(music.id)">
+                  <v-icon>mdi-thumb-up-outline</v-icon>
+                </v-btn>
+                <v-btn icon v-else @click="deleteLike(music.id)">
+                  <v-icon color="blue">mdi-thumb-up</v-icon>
+                </v-btn>
+              </v-card-title>
+              <v-card-title class="pa-0 mr-6" v-if="music.spotify_url">
+                <v-btn icon @click="openSpotify(music.spotify_url)">
+                  <v-img src="../../public/spotify_icon.png" max-width="29"></v-img>
+                </v-btn>
+              </v-card-title>
             </div>
             <v-card-text class="pb-0 pt-0 mt-n2">
               <v-textarea
@@ -82,6 +106,8 @@ export default {
   data () {
     return {
       keyword: '',
+      is_play: null,
+      audio: new Audio()
     }
   },
   props: [
@@ -123,6 +149,18 @@ export default {
     },
     blur () {
       this.$refs.blurThis.blur()
+    },
+    play_preview (music, index) {
+      this.is_play = index
+      this.audio.src = music.preview_audio
+      this.audio.play()
+    },
+    pause_preview () {
+      this.is_play = null
+      this.audio.pause()
+    },
+    openSpotify (url) {
+      window.open(url, '_blank')
     },
     ...mapActions(['addLike', 'deleteLike'])
   }
