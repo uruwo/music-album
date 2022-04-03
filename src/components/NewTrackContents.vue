@@ -56,16 +56,16 @@
       <v-btn
         color="blue darken-1"
         text
-        @click="cancel(); scrollTop()"
+        @click="cancel()"
       >
         キャンセル
       </v-btn>
       <v-btn
         color="blue darken-1"
         text
-        @click="fileUpload(); scrollTop()"
+        @click="fileUpload()"
       >
-        作成
+        追加
       </v-btn>
     </v-card-actions>
   </v-card>
@@ -100,12 +100,6 @@ import { mapGetters } from 'vuex'
       ...mapGetters(['uid'])
     },
     methods: {
-      scrollTop () {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth"
-        })
-      },
       inputImageFile (event) {
         this.file_image = event
       },
