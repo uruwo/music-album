@@ -41,9 +41,12 @@
           <v-card color="grey darken-4" class="ma-2">
             <div class="flex">
               <v-img
+                :class="[{'d-none': $vuetify.breakpoint.xs}]"
                 :src="music.preview_image ? music.preview_image : require('../../public/album.png')"
                 aspect-ratio="1"
                 max-width="60"
+                min-width="60"
+                height="60"
                 class="mt-3 mb-2 ml-4"
               >
                 <template>

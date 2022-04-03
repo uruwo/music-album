@@ -23,6 +23,7 @@
 
 <script>
 import firebase from 'firebase'
+// import { getAdditionalUserInfo } from 'firebase/auth'
 import SideNav from './components/SideNav.vue'
 import AppBar from './components/AppBar.vue'
 import SongForm from './components/SongForm.vue'
@@ -61,9 +62,22 @@ export default {
         this.fetchFollowee()
         this.fetchFollower()
         this.fetchPlaylist()
-        if ( this.$router.currentRoute.name === 'Login') {
-          this.$router.push({name: 'Home'})
+
+        if (user.isAnonymous) {
+          this.$router.push({name: 'Explore'})
+          return
         }
+
+        firebase.auth().getRedirectResult().then(result => {
+          const is_new_user = result.additionalUserInfo.isNewUser
+          if (this.$router.currentRoute.name === 'Login') {
+            if (is_new_user) {
+              this.$router.push({name: 'Explore'})
+            } else {
+              this.$router.push({name: 'Home'})
+            }
+          }
+        })
       } else {
         this.deleteLoginUser()
         this.$router.push({name: 'Top'})
