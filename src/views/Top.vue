@@ -172,6 +172,16 @@ export default {
         },
       ],
     }
+  },
+  watch: {
+    uid () {
+      this.$router.push({name: 'Home'})
+    }
+  },
+  computed: {
+    uid () {
+      return this.$store.getters.uid
+    } 
   }
 }
 </script>
