@@ -1,7 +1,7 @@
 # Music Album
 You can checkout the app on https://music-album.com!
 
-https://user-images.githubusercontent.com/84354821/160748888-55c8ffff-6155-4b3e-abbe-7ce61bfc479b.mp4
+https://user-images.githubusercontent.com/84354821/161472932-3c68e127-fd61-4086-9920-1cb86f6d01d5.mp4
 
 # About
 This service allows you to record your music with your favorite images and comments Like an album.
