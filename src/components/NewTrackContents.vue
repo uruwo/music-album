@@ -31,7 +31,7 @@
             <v-col cols="12" sm="6">
               <v-file-input accept="image/*" label="画像を選択" :value="file_image" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline"></v-file-input>
             </v-col>
-            <v-col cols="6" sm="8" class="pt-0">
+            <v-col cols="6" sm="8" class="pt-0" v-if="$vuetify.breakpoint.smAndUp">
               <v-select
                 v-model="album_id"
                 :items="albums"
@@ -44,7 +44,7 @@
                 prepend-icon="mdi-plus-box-multiple">
               </v-select>
             </v-col>
-            <v-col cols="6" sm="4" class="mt-2" v-if="!$route.params.album_id">
+            <v-col cols="6" sm="4" class="mt-2" v-if="$vuetify.breakpoint.smAndUp">
               <v-btn color="#555" @click="switchAlbumDialog()">アルバムを作成</v-btn>
             </v-col>
           </v-row>
