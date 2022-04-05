@@ -34,8 +34,8 @@
         cols="6" sm="3" md="2"
       >
         <v-img
-          :lazy-src="music.image_url"
-          :src="music.image_url"
+          :lazy-src="music.preview_image"
+          :src="music.preview_image"
           aspect-ratio="1"
           class="hover"
           @click="switchDialog(); setMusicTemp(music)"
