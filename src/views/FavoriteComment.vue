@@ -203,4 +203,7 @@ export default {
   .flex-grow {
     flex-grow: 1;
   }
+  .preview {
+    opacity: 0.6;
+  }
 </style>
