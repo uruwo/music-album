@@ -43,7 +43,7 @@
           @mouseover="hover_creater = true"
           @mouseleave="hover_creater = false"
           class="hover"
-          :src="create"
+          :src="'../../song-images/create-song.jpg'"
           aspect-ratio="1"
         >
         </v-img>
@@ -76,8 +76,8 @@
         cols="6" sm="3" md="2"
       >
         <v-img
-          :lazy-src="music.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? music.image_url: undefined_image"
-          :src="music.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? music.image_url: undefined_image"
+          :lazy-src="music.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? music.image_url: '../../undefined.jpeg'"
+          :src="music.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? music.image_url: '../../undefined.jpeg'"
           aspect-ratio="1"
           class="hover"
           @mouseover="mouseHover(index)"
@@ -110,8 +110,6 @@ export default {
   data() {
     return {
       keyword: '',
-      create: 'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/create-song.jpg',
-      undefined_image: 'https://default-image-bucket.s3.ap-northeast-1.amazonaws.com/undefined.jpeg',
       hoverFlag: false,
       album: [],
       filteredAlbum: [],

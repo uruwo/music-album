@@ -100,8 +100,8 @@ import { mapGetters } from 'vuex'
       this.album_id = this.music.album_id
       const image_name = decodeURI(this.music.image_url.match(/images%2F(.+)\?/)[1])
       const audio_name = decodeURI(this.music.audio_url.match(/audios%2F(.+)\?/)[1])
-      fetch(this.file_image).then(response => response.blob()).then(blob => new File([blob], image_name)).then(file => this.file_image = file)
-      fetch(this.file_audio).then(response => response.blob()).then(blob => new File([blob], audio_name)).then(file => this.file_audio = file)
+      fetch(this.music.image_url).then(response => response.blob()).then(blob => new File([blob], image_name)).then(file => this.file_image = file)
+      fetch(this.music.audio_url).then(response => response.blob()).then(blob => new File([blob], audio_name)).then(file => this.file_audio = file)
     },
     computed: {
       ...mapGetters(['uid'])

@@ -23,7 +23,6 @@
 
 <script>
 import firebase from 'firebase'
-// import { getAdditionalUserInfo } from 'firebase/auth'
 import SideNav from './components/SideNav.vue'
 import AppBar from './components/AppBar.vue'
 import SongForm from './components/SongForm.vue'
@@ -69,7 +68,7 @@ export default {
         }
 
         firebase.auth().getRedirectResult().then(result => {
-          const is_new_user = result.additionalUserInfo.isNewUser
+          const is_new_user = result.additionalUserInfo?.isNewUser
           if (this.$router.currentRoute.name === 'Login') {
             if (is_new_user) {
               this.$router.push({name: 'Explore'})
