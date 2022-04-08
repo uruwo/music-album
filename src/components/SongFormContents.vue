@@ -121,9 +121,7 @@ import { mapGetters } from 'vuex'
         this.overlay = true
         this.file_audio = event
         const res_signed_url = await axios.get('https://1rmi1fy2z8.execute-api.ap-northeast-1.amazonaws.com/createPresignedUrl', {
-          params: {
-            firebase_token: this.$store.state.auth_token
-          }
+          headers: this.headers
         })
         const pre_signed_url = (JSON.parse(res_signed_url.data.body)).put_url
         const uuid = (JSON.parse(res_signed_url.data.body)).uuid
@@ -136,7 +134,7 @@ import { mapGetters } from 'vuex'
             }
           }
         )
-        const res_audio_info = await axios.post('https://ij6adayafg.execute-api.ap-northeast-1.amazonaws.com/getAudioInfo', { uuid: uuid, name: event.name })
+        const res_audio_info = await axios.post('https://ij6adayafg.execute-api.ap-northeast-1.amazonaws.com/getAudioInfo', { uuid: uuid, name: event.name }, {headers: this.headers})
         if (!res_audio_info.data.body) {
           this.overlay = false
           return
@@ -200,7 +198,7 @@ import { mapGetters } from 'vuex'
       ...mapActions(['switchDialog','addMusic', 'startLoading', 'switchAlbumDialog'])
     },
     computed: {
-      ...mapGetters(['uid'])
+      ...mapGetters(['uid', 'headers'])
     },
     watch: {
       file_image () {
