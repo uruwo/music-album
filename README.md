@@ -33,11 +33,12 @@ npm run serve
 # Infrastructure
 This is the infrastructure configuration diagram for this app.
 
-<img width="470" src="https://user-images.githubusercontent.com/84354821/161396808-e4165b7b-64a3-4359-950e-4788947ba7ef.png">
+<img width="470" src="https://user-images.githubusercontent.com/84354821/162356323-df9a40a2-a314-4d95-828b-5e68c73d2380.png">
 
 # Technologies used
 This app uses the following technologies.
 * Vue.js
+* Node.js
 * FastAPI
 * Firebase (Firestore Database, Storage, Hosting, Authentication)
 * AWS (EC2, RDS, DynamoDB, S3, API Gateway, Lambda)
