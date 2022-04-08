@@ -49,9 +49,10 @@ export default {
     UpdateAlbum
   },
   created () {
-    firebase.auth().onAuthStateChanged(user => {
+    firebase.auth().onAuthStateChanged(async user => {
       if (user) {
-        this.setLoginUser(user)
+        const access_token = await user.getIdToken()
+        this.setLoginUser({user: user, token:access_token})
         this.fetchAlbum()
         this.fetchAlbums()
         this.fetchProfile()
@@ -60,7 +61,7 @@ export default {
         this.fetchLikedComments()
         this.fetchFollowee()
         this.fetchFollower()
-        this.fetchPlaylist()
+        this.fetchPlaylist(access_token)
 
         if (user.isAnonymous) {
           this.$router.push({name: 'Explore'})

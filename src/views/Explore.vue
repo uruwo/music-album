@@ -161,8 +161,12 @@ export default {
         this.music_list = []
 
         if (!this.access_token) {
-          const response = await axios.get('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {params: {user_id: this.uid}})
-  
+          const headers = {
+            'Authorization': this.$store.state.auth_token
+          }
+          console.log(this.$store.state.auth_token)
+          const response = await axios.get(`https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token?user_id=${this.uid}`, {headers: headers})
+
           this.access_token = JSON.parse(response.data.body)[0].access_token
         }
 

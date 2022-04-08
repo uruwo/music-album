@@ -42,15 +42,16 @@ export default new Vuex.Store({
     api_follow: 'https://fr93ff6r0j.execute-api.ap-northeast-1.amazonaws.com/follow-function',
     loading: false,
     loading_album: false,
-    spotify_playlist: []
+    spotify_playlist: [],
+    auth_token: ''
   },
   mutations: {
     fetchPlaylist (state, music) {
       state.spotify_playlist.push(music)
     },
-    async setLoginUser (state, user) {
+    async setLoginUser (state, {user, token}) {
       state.login_user = user
-      state.token = await firebase.auth().currentUser.getIdToken(true)
+      state.auth_token = token
     },
     deleteLoginUser (state) {
       state.login_user = null
@@ -241,7 +242,7 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    fetchPlaylist ({ commit, getters }) {
+    fetchPlaylist ({ commit, getters }, auth_token) {
       const request = require('request')
       const authOptions = {
         url: 'https://accounts.spotify.com/api/token',
@@ -278,7 +279,12 @@ export default new Vuex.Store({
               commit('fetchPlaylist', music)
             })
           })
-          axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: getters.uid, access_token: access_token})
+
+          const headers = {
+            'Authorization': auth_token
+          }
+
+          axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: getters.uid, access_token: access_token}, {headers: headers})
         }
       })
     },
@@ -302,8 +308,8 @@ export default new Vuex.Store({
       }
       firebase.auth().signOut()
     },
-    setLoginUser ({ commit }, user) {
-      commit('setLoginUser', user)
+    setLoginUser ({ commit }, {user, token}) {
+      commit('setLoginUser', {user: user, token: token})
     },
     deleteLoginUser ({commit}) {
       commit('deleteLoginUser')
