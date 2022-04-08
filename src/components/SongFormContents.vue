@@ -122,7 +122,7 @@ import { mapGetters } from 'vuex'
         this.file_audio = event
         const res_signed_url = await axios.get('https://1rmi1fy2z8.execute-api.ap-northeast-1.amazonaws.com/createPresignedUrl', {
           params: {
-            firebase_token: this.$store.state.token
+            firebase_token: this.$store.state.auth_token
           }
         })
         const pre_signed_url = (JSON.parse(res_signed_url.data.body)).put_url
