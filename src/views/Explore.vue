@@ -161,11 +161,8 @@ export default {
         this.music_list = []
 
         if (!this.access_token) {
-          const headers = {
-            'Authorization': this.$store.state.auth_token
-          }
-          console.log(this.$store.state.auth_token)
-          const response = await axios.get(`https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token?user_id=${this.uid}`, {headers: headers})
+          const response = await axios.get('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token',
+          {params: {user_id: this.uid}, headers: this.headers})
 
           this.access_token = JSON.parse(response.data.body)[0].access_token
         }
@@ -227,7 +224,7 @@ export default {
         if (!error && response.statusCode === 200) {
           this.access_token = body.access_token
           this.getTracks(this.access_token)
-          axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: this.uid, access_token: this.access_token})
+          axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: this.uid, access_token: this.access_token}, {headers: this.headers})
         }
       })
     },
@@ -240,7 +237,7 @@ export default {
     myAlbums () {
       return this.$store.getters.albums
     },
-    ...mapGetters(['uid'])
+    ...mapGetters(['uid', 'headers'])
   }
 }
 </script>

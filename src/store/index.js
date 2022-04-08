@@ -242,7 +242,7 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    fetchPlaylist ({ commit, getters }, auth_token) {
+    fetchPlaylist ({ commit, getters }) {
       const request = require('request')
       const authOptions = {
         url: 'https://accounts.spotify.com/api/token',
@@ -280,11 +280,7 @@ export default new Vuex.Store({
             })
           })
 
-          const headers = {
-            'Authorization': auth_token
-          }
-
-          axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: getters.uid, access_token: access_token}, {headers: headers})
+          axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: getters.uid, access_token: access_token}, {headers: getters.headers})
         }
       })
     },
@@ -295,7 +291,7 @@ export default new Vuex.Store({
     async logout ({state, getters}) {
       if (state.login_user.isAnonymous) {
         const uid = getters.uid
-        axios.delete(state.api_follow + '/user', {data: {user_id: uid}})
+        axios.delete(state.api_follow + '/user', {data: {user_id: uid}, headers: getters.headers})
         await firebase.firestore().collection(`users/${uid}/profile`).get().then(snapshot => snapshot.forEach(doc => {
           firebase.firestore().collection(`users/${uid}/profile`).doc(doc.id).delete()
         }))
@@ -360,39 +356,37 @@ export default new Vuex.Store({
       commit('stopLoadingAlbum')
     },
     addFollowee ({ state, getters, commit }, user_id) {
-      axios.post(state.api_follow, {
-      follower_id: getters.uid, followee_id: user_id})
+      axios.post(state.api_follow, {follower_id: getters.uid, followee_id: user_id}, {headers: getters.headers})
       commit('addFollowee', user_id)
     },
     deleteFollowee ({ state, getters, commit }, user_id) {
-      axios.delete(state.api_follow, {data: {
-      follower_id: getters.uid, followee_id: user_id}})
+      axios.delete(state.api_follow, {data: {follower_id: getters.uid, followee_id: user_id}, headers: getters.headers})
       commit('deleteFollowee', user_id)
     },
     fetchFollowee ({ state, getters, commit }) {
-      axios.get(state.api_follow + '/followee', {params: { user_id: getters.uid }}).then(
+      axios.get(state.api_follow + '/followee', {params: { user_id: getters.uid }, headers: getters.headers}).then(
         response => {
           JSON.parse(response.data.body).forEach(item => commit('addFollowee', item.followee))
         }
       )
     },
     fetchFollower ({ state, getters, commit }) {
-      axios.get(state.api_follow + '/follower', {params: { user_id: getters.uid }}).then(
+      axios.get(state.api_follow + '/follower', {params: { user_id: getters.uid }, headers: getters.headers}).then(
         response => {
           JSON.parse(response.data.body).forEach(item => commit('addFollower', item.follower))
         }
       )
     },
     addLike ({ state, getters, commit }, {music_id, creater_id}) {
-      axios.post(state.api_like, { fan_id: getters.uid, music_id: music_id, creater_id: creater_id })
+      axios.post(state.api_like, { fan_id: getters.uid, music_id: music_id, creater_id: creater_id }, {headers: getters.headers})
       commit('addLike', music_id)
     },
     deleteLike ({ state, getters, commit }, music_id) {
-      axios.delete(state.api_like, {data: { user_id: getters.uid, music_id: music_id }})
+      axios.delete(state.api_like, {data: { user_id: getters.uid, music_id: music_id }, headers: getters.headers})
       commit('deleteLike', music_id)
     },
     fetchFavoriteComments ({ state, getters, commit }) {
-      axios.get(state.api_like, {params: { user_id: getters.uid }}).then(
+      axios.get(state.api_like, {params: { user_id: getters.uid }, headers: getters.headers}).then(
         response => {
           JSON.parse(response.data.body).forEach(item => commit('addLike', item.music_id))
         }
@@ -400,14 +394,14 @@ export default new Vuex.Store({
     },
     fetchLikedComments ({ state, getters, commit }) {
       axios.get(state.api_like + '/own-comment', {params: {
-      user_id: getters.uid}}).then(
+      user_id: getters.uid}, headers: getters.headers}).then(
         response => {
           JSON.parse(response.data.body).forEach(item => commit('addLikedComment', item.music_id))
         }
       )
     },
-    deleteLikedComment ({ state, commit }, id) {
-      axios.delete(state.api_like + '/own-comment', {data: {music_id: id}})
+    deleteLikedComment ({ state, getters, commit }, id) {
+      axios.delete(state.api_like + '/own-comment', {data: {music_id: id}, headers: getters.headers})
       commit('deleteLikedComment', id)
     },
     fetchAlbum ({ getters, commit }) {
@@ -554,6 +548,9 @@ export default new Vuex.Store({
     album: state => state.album,
     albums: state => state.albums,
     music_tmp: state => state.music_tmp.album_id,
-    all_album: state => state.all_album
+    all_album: state => state.all_album,
+    headers: state => {
+      return {'Authorization': state.auth_token}
+    }
   }
 })
