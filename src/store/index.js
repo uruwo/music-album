@@ -8,83 +8,70 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    album: [],
-    albums: [],
-    commented_album: [],
-    all_album: [],
     login_user: null,
-    drawer: false,
-    dialog: false,
-    dialog_update: false,
-    dialog_profile: false,
-    dialog_album: false,
-    album_update: false,
+    firebase_auth_token: '',
+
+    album: [],
+    filtered_album: [],
+    albums: [],
+    commented_tracks: [],
+    everyones_commented_tracks: [],
+
+    profile: {},
+
     music_tmp: {},
     album_tmp: {},
-    player_bar: false,
-    key: 0,
-    key_form: 0,
-    key_new_form: 0,
-    album_key: 0,
     music_active: {},
-    isPlay: false,
-    comment: false,
-    comment_key: 0,
-    filtered_album: [],
-    profile: {},
-    profile_key: 0,
+
+    drawer: false,
+
+    create_music_dialog: false,
+    update_music_dialog: false,
+    music_dialog_key: 0,
+    
+    create_album_dialog: false,
+    update_album_dialog: false,
+    album_dialog_key: 0,
+    
+    comment_dialog: false,
+    comment_dialog_key: 0,
+    
+    update_profile_dialog: false,
+    profile_dialog_key: 0,
+    
+    player_bar: false,
+    player_bar_content_key: 0,
+
     favorite_comment: [],
     liked_comments: [],
+    api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment',
+    
     my_followee: [],
     my_follower: [],
-    last_page: null,
-    api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment',
     api_follow: 'https://fr93ff6r0j.execute-api.ap-northeast-1.amazonaws.com/follow-function',
-    loading: false,
-    loading_album: false,
-    spotify_playlist: [],
-    auth_token: ''
+    
+    new_music_is_loading: false,
+    new_album_is_loading: false,
+    
+    last_page: null,
+    
+    spotify_playlist: []
   },
   mutations: {
-    fetchPlaylist (state, music) {
-      state.spotify_playlist.push(music)
-    },
     async setLoginUser (state, {user, token}) {
       state.login_user = user
-      state.auth_token = token
+      state.firebase_auth_token = token
     },
     deleteLoginUser (state) {
       state.login_user = null
     },
-    toggleSideMenu (state) {
-      state.drawer = !state.drawer
-    },
-    switchDialog (state) {
-      state.dialog = !state.dialog
-      state.key_new_form++
-    },
-    switchDialogUpdate (state) {
-      state.dialog_update = !state.dialog_update
-      state.key_form++
-    },
-    switchDialogProfile (state) {
-      state.dialog_profile = !state.dialog_profile
-      state.profile_key++
-    },
-    switchAlbumDialog (state) {
-      state.dialog_album = !state.dialog_album
-      state.album_key++
-    },
-    switchAlbumUpdate (state) {
-      state.album_update = !state.album_update
-      state.album_key++
-    },
+
     addMusic (state, {id, music}) {
       music.id = id
       state.album.unshift(music)
       if ('comment' in music) {
-        state.commented_album.unshift(music)
-        state.commented_album.sort((a,b) => {
+        state.commented_tracks.unshift(music)
+        state.commented_tracks.sort((a,b) => {
           const dateA = a.date
           const dateB = b.date
           if (dateA > dateB) {
@@ -97,112 +84,141 @@ export default new Vuex.Store({
         })
       }
     },
-    addAlbum (state, {id, album}) {
-      album.id = id
-      state.albums.unshift(album)
-    },
-    putInAlbum (state, {id, music_id}) {
-      const index = state.albums.findIndex(album => album.id === id)
-      state.albums[index].music_id.push(music_id)
-    },
-    addAllMusic (state, {id, music}) {
-      music.id = id
-      if (music.comment) {
-        state.all_album.push(music)
-      }
-    },
-    startLoading (state) {
-      state.loading = true
-    },
-    stopLoading (state) {
-      state.loading = false
-    },
-    startLoadingAlbum (state) {
-      state.loading_album = true
-    },
-    stopLoadingAlbum (state) {
-      state.loading_album = false
-    },
-    setFirstPage (state) {
-      state.last_page = 1
-    },
-    updateLastPage (state) {
-      state.last_page++
-    },
-    addProfile (state, {id, profile}) {
-      profile.id = id
-      state.profile = profile
-    },
+
     updateMusic (state, {id, music}) {
       const index = state.album.findIndex( music => music.id === id)
       state.album[index] = music
-    },
-    updateAlbum (state, {id, album}) {
-      const index = state.albums.findIndex( album => album.id === id)
-      state.albums[index] = album
-    },
-    updateComment (state, {id, music}) {
-      const index = state.commented_album.findIndex(music => music.id === id)
-      if (index === -1) {
-        state.commented_album.unshift(music)
-      } else {
-        state.commented_album[index] = music
-      }
-    },
-    updateMusicInAll (state, {id, music}) {
-      const index = state.all_album.findIndex(music => music.id === id)
-      if (index !== -1) {
-        state.all_album[index] = music
-      }
-    },
-    addMusicInAll (state, music) {
-      state.all_album.unshift(music)
-    },
-    updateCommentImage (state, {id, image_url}) {
-      const index = state.all_album.findIndex(music => music.id === id)
-      state.all_album[index].profile_image = image_url
-    },
-    updateCommentUser (state, {id, user_name}) {
-      const index = state.all_album.findIndex(music => music.id === id)
-      state.all_album[index].profile_name = user_name
-    },
-    updateProfile (state, profile) {
-      state.profile = profile
     },
     deleteMusic (state, {id}) {
       const index = state.album.findIndex( music => music.id === id)
       state.album.splice(index, 1)
     },
+
+    putFilteredAlbum (state, album) {
+      state.filtered_album = album
+    },
+    
+    addAlbum (state, {id, album}) {
+      album.id = id
+      state.albums.unshift(album)
+    },
+    updateAlbum (state, {id, album}) {
+      const index = state.albums.findIndex( album => album.id === id)
+      state.albums[index] = album
+    },
     deleteAlbum (state, {id}) {
       const index = state.albums.findIndex( album => album.id === id)
       state.albums.splice(index, 1)
     },
-    deleteCommentInAll (state, {id}) {
-      const index = state.all_album.findIndex(music => music.id === id)
-      if (index !== -1) {
-        state.all_album.splice(index, 1)
+    
+    addMusicToEveryones (state, {id, music}) {
+      music.id = id
+      if (music.comment) {
+        state.everyones_commented_tracks.push(music)
       }
     },
+    updateMusicInEveryones (state, {id, music}) {
+      const index = state.everyones_commented_tracks.findIndex(music => music.id === id)
+      if (index !== -1) {
+        state.everyones_commented_tracks[index] = music
+      }
+    },
+    deleteMusicInEveryones (state, {id}) {
+      const index = state.everyones_commented_tracks.findIndex(music => music.id === id)
+      if (index !== -1) {
+        state.everyones_commented_tracks.splice(index, 1)
+      }
+    },
+    addTmpMusicToEveryones (state, music) {
+      state.everyones_commented_tracks.unshift(music)
+    },
+  
+    updateComment (state, {id, music}) {
+      const index = state.commented_tracks.findIndex(music => music.id === id)
+      if (index === -1) {
+        state.commented_tracks.unshift(music)
+      } else {
+        state.commented_tracks[index] = music
+      }
+    },
+    deleteCommentView (state, {id}) {
+      const index = state.commented_tracks.findIndex( music => music.id === id)
+      if (index !== -1) {
+        state.commented_tracks.splice(index, 1)
+      }
+    },
+
     deleteComment (state, {id}) {
       const index = state.album.findIndex( music => music.id === id)
       delete state.album[index].comment
     },
-    deleteCommentView (state, {id}) {
-      const index = state.commented_album.findIndex( music => music.id === id)
-      if (index !== -1) {
-        state.commented_album.splice(index, 1)
-      }
+    
+    addProfile (state, {id, profile}) {
+      profile.id = id
+      state.profile = profile
     },
-    addFollowee (state, user_id) {
-      state.my_followee.push(user_id)
+    updateProfile (state, profile) {
+      state.profile = profile
     },
-    deleteFollowee (state, user_id) {
-      const index = state.my_followee.findIndex(id => id === user_id)
-      state.my_followee.splice(index, 1)
+    updateCommentImage (state, {id, image_url}) {
+      const index = state.everyones_commented_tracks.findIndex(music => music.id === id)
+      state.everyones_commented_tracks[index].profile_image = image_url
     },
-    addFollower (state, user_id) {
-      state.my_follower.push(user_id)
+    updateCommentUserName (state, {id, user_name}) {
+      const index = state.everyones_commented_tracks.findIndex(music => music.id === id)
+      state.everyones_commented_tracks[index].profile_name = user_name
     },
+
+    setMusicTemp (state, music) {
+      state.music_tmp = music
+    },
+    setAlbumTemp (state, album) {
+      state.album_tmp = album
+    },
+    setMusicActive (state, music) {
+      state.music_active = music
+    },
+
+    toggleSideMenu (state) {
+      state.drawer = !state.drawer
+    },
+
+    switchCreateMusicDialog (state) {
+      state.create_music_dialog = !state.create_music_dialog
+      state.music_dialog_key++
+    },
+    switchUpdateMusicDialog (state) {
+      state.update_music_dialog = !state.update_music_dialog
+      state.music_dialog_key++
+    },
+
+    switchCreateAlbumDialog (state) {
+      state.create_album_dialog = !state.create_album_dialog
+      state.album_dialog_key++
+    },
+    switchUpdateAlbumDialog (state) {
+      state.update_album_dialog = !state.update_album_dialog
+      state.album_dialog_key++
+    },
+    
+    switchCommentDialog (state) {
+      state.comment_dialog = !state.comment_dialog
+      state.comment_dialog_key++
+    },
+    
+    switchProfileDialog (state) {
+      state.update_profile_dialog = !state.update_profile_dialog
+      state.profile_dialog_key++
+    },
+    
+    switchPlayerBar (state) {
+      state.player_bar = true
+    },
+    switchPlayerBarContent (state, music) {
+      state.music_active = music
+      state.player_bar_content_key++
+    },
+    
     addLike (state, music_id) {
       state.favorite_comment.push(music_id)
     },
@@ -217,33 +233,332 @@ export default new Vuex.Store({
       const array = state.liked_comments.filter(comment => comment !== music_id)
       state.liked_comments = array
     },
-    setMusicTemp (state, music) {
-      state.music_tmp = music
+
+    addFollowee (state, user_id) {
+      state.my_followee.push(user_id)
     },
-    setAlbumTemp (state, album) {
-      state.album_tmp = album
+    deleteFollowee (state, user_id) {
+      const index = state.my_followee.findIndex(id => id === user_id)
+      state.my_followee.splice(index, 1)
     },
-    switchPlayerBar (state) {
-      state.player_bar = true
+    addFollower (state, user_id) {
+      state.my_follower.push(user_id)
     },
-    switchBarContent (state, music) {
-      state.music_active = music
-      state.key++
+
+    startLoadingNewMusic (state) {
+      state.new_music_is_loading = true
     },
-    switchCommentState (state) {
-      state.comment = !state.comment
-      state.comment_key++
+    stopLoadingNewMusic (state) {
+      state.new_music_is_loading = false
     },
-    setMusicActive (state, music) {
-      state.music_active = music
+    startLoadingNewAlbum (state) {
+      state.new_album_is_loading = true
     },
-    putFilteredAlbum (state, album) {
-      state.filtered_album = album
-    }
+    stopLoadingNewAlbum (state) {
+      state.new_album_is_loading = false
+    },
+    
+    setFirstPage (state) {
+      state.last_page = 1
+    },
+    updateLastPage (state) {
+      state.last_page++
+    },
+    
+    fetchPlaylist (state, music) {
+      state.spotify_playlist.push(music)
+    },
   },
   actions: {
+    login () {
+      const google_auth_provider = new firebase.auth.GoogleAuthProvider()
+      firebase.auth().signInWithRedirect(google_auth_provider)
+    },
+
+    async logout ({state, getters}) {
+      if (state.login_user.isAnonymous) {
+        const uid = getters.uid
+
+        axios.delete(state.api_follow + '/user', {data: {user_id: uid}, headers: getters.headers})
+
+        await firebase.firestore().collection(`users/${uid}/profile`).get().then(snapshot => snapshot.forEach(doc => {
+          firebase.firestore().collection(`users/${uid}/profile`).doc(doc.id).delete()
+        }))
+
+        await firebase.firestore().collection(`users/${uid}/album`).get().then(snapshot => snapshot.forEach(doc => {
+          firebase.firestore().collection(`users/${uid}/album`).doc(doc.id).delete()
+        }))
+
+        await firebase.firestore().collection(`users/${uid}/albums`).get().then(snapshot => snapshot.forEach(doc => {
+          firebase.firestore().collection(`users/${uid}/albums`).doc(doc.id).delete()
+        }))
+      }
+
+      firebase.auth().signOut()
+    },
+
+    setLoginUser ({ commit }, {user, token}) {
+      commit('setLoginUser', {user: user, token: token})
+    },
+    deleteLoginUser ({commit}) {
+      commit('deleteLoginUser')
+    },
+
+    
+    addMusic ({ getters, commit }, music) {
+      if (getters.uid) {
+        firebase.firestore().collection(`users/${getters.uid}/album`).add(music).then(doc => {
+          commit('addMusic', { id: doc.id, music })
+          commit('addMusicToEveryones', { id: doc.id, music})
+        })
+      }
+    },
+    fetchMusic ({ getters, commit }) {
+      firebase.firestore().collection(`users/${getters.uid}/album`).orderBy("created_date").get().then(snapshot => {
+        snapshot.forEach(doc => commit('addMusic', { id: doc.id, music: doc.data() }))
+      })
+    },
+    updateMusic ({ getters, commit }, {id, music}) {
+      if (getters.uid) {
+        firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update(music).then(() => {
+          commit('updateMusic', { id, music })
+        })
+      }
+    },
+    deleteMusic ({ getters, commit }, {id}) {
+      if (getters.uid) {
+        firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).delete().then(() => {
+          commit('deleteMusic', { id })
+          commit('deleteCommentView', { id })
+        })
+      }
+    },
+    
+    putFilteredAlbum ({commit}, album) {
+      commit('putFilteredAlbum', album)
+    },
+    
+    addAlbum ({ getters, commit }, album) {
+      if (getters.uid) {
+        firebase.firestore().collection(`users/${getters.uid}/albums`).add(album).then(doc => {
+          commit('addAlbum', { id: doc.id, album })
+        })
+      }
+    },
+    fetchAlbums ({ getters, commit }) {
+      firebase.firestore().collection(`users/${getters.uid}/albums`).orderBy("created_date").get().then(snapshot => {
+        snapshot.forEach(doc => commit('addAlbum', { id: doc.id, album: doc.data() }))
+      })
+    },
+    updateAlbum ({ getters, commit }, {id, album}) {
+      if (getters.uid) {
+        firebase.firestore().collection(`users/${getters.uid}/albums`).doc(id).update(album).then(() => {
+          commit('updateMusic', { id, album })
+        })
+      }
+    },
+    deleteAlbum ({ getters, commit }, {id}) {
+      if (getters.uid) {
+        firebase.firestore().collection(`users/${getters.uid}/albums`).doc(id).delete().then(() => {
+          commit('deleteAlbum', { id })
+        })
+      }
+    },
+    
+    updateCommentView ({ commit }, {id, music}) {
+      commit('updateComment', { id, music })
+    },
+    deleteComment ({ getters, commit }, {id}) {
+      if (getters.uid) {
+        firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update(
+          {
+            comment: firebase.firestore.FieldValue.delete(),
+            date: false
+          }
+        ).then(() => {
+          commit('deleteComment', { id })
+          commit('deleteCommentView', { id })
+        })
+      }
+    },
+    
+    fetchEveryonesCommentedTracks ({ commit }) {
+      const client = algoliasearch(process.env.VUE_APP_ALGOLIA_APPLICATION_ID, process.env.VUE_APP_ALGOLIA_API_KEY)
+      const index = client.initIndex(process.env.VUE_APP_ALGOLIA_INDEX_NAME)
+      
+      index.search('', {
+        page: 0,
+        filters: `public=1 AND NOT date=0`
+      }).then(snapshot => {
+        snapshot.hits.forEach(doc => {
+          commit('addMusicToEveryones', {id: doc.id, music: doc})
+          commit('setFirstPage')
+        })
+      })
+    },
+
+    updateMusicInEveryones ({ commit }, {id, music}) {
+      commit('updateMusicInEveryones', { id, music })
+    },
+    deleteMusicInEveryones ({ commit }, {id}) {
+      commit('deleteMusicInEveryones', {id})
+    },
+    addTmpMusicToEveryones ({ commit }, music) {
+      commit('addTmpMusicToEveryones', music)
+    },
+    
+    fetchProfile ({ getters, commit }) {
+      firebase.firestore().collection(`users/${getters.uid}/profile`).get().then(snapshot => {
+        if (snapshot.docs.length !== 0) {
+          snapshot.forEach(doc => commit('addProfile', { id: doc.id, profile: doc.data() }))
+        } else {
+          const default_profile = {
+            name: 'ユーザー',
+            profile_image: '../../default_user_icon.png',
+            comment: 'Write something you want to appeal.',
+            user_id: getters.uid
+          }
+          firebase.firestore().collection(`users/${getters.uid}/profile`).add(default_profile).then(doc => commit('addProfile', { id: doc.id, profile: default_profile }))
+        }
+      })
+    },
+    updateProfile ({ getters, commit }, {id, profile}) {
+      if (getters.uid) {
+        firebase.firestore().collection(`users/${getters.uid}/profile`).doc(id).update(profile).then(() => {
+          commit('updateProfile', profile)
+        })
+      }
+    },
+    updateCommentImage ({ getters, commit }, {id, image_url}) {
+      firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).set({profile_image: image_url}, {merge: true}).then(() => {
+        commit('updateCommentImage', { id, image_url})
+      })
+    },
+    updateCommentUserName ({ getters, commit }, {id, user_name}) {
+      firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).set({profile_name: user_name}, {merge: true}).then(() => {
+        commit('updateCommentUserName', { id, user_name })
+      })
+    },
+    
+    setMusicTemp ({commit}, music) {
+      commit('setMusicTemp', music)
+    },
+    setAlbumTemp ({commit}, album) {
+      commit('setAlbumTemp', album)
+    },
+    setMusicActive ({commit}, music) {
+      commit('setMusicActive', music)
+    },
+    
+    toggleSideMenu ({commit}) {
+      commit('toggleSideMenu')
+    },
+
+    switchCreateMusicDialog ({commit}) {
+      commit('switchCreateMusicDialog')
+    },
+    switchUpdateMusicDialog ({commit}) {
+      commit('switchUpdateMusicDialog')
+    },
+
+    switchCreateAlbumDialog ({commit}) {
+      commit('switchCreateAlbumDialog')
+    },
+    switchUpdateAlbumDialog ({commit}) {
+      commit('switchUpdateAlbumDialog')
+    },
+
+    switchCommentDialog ({commit}) {
+      commit('switchCommentDialog')
+    },
+
+    switchProfileDialog ({commit}) {
+      commit('switchProfileDialog')
+    },
+    
+    switchPlayerBar ({commit}) {
+      commit('switchPlayerBar')
+    },
+    switchPlayerBarContent ({commit}, music) {
+      commit('switchPlayerBarContent', music)
+    },
+
+    addLike ({ state, getters, commit }, {music_id, creater_id}) {
+      axios.post(state.api_like, { fan_id: getters.uid, music_id: music_id, creater_id: creater_id }, {headers: getters.headers})
+      
+      commit('addLike', music_id)
+    },
+    deleteLike ({ state, getters, commit }, music_id) {
+      axios.delete(state.api_like, {data: { user_id: getters.uid, music_id: music_id }, headers: getters.headers})
+      
+      commit('deleteLike', music_id)
+    },
+    fetchFavoriteComments ({ state, getters, commit }) {
+      axios.get(state.api_like, {params: { user_id: getters.uid }, headers: getters.headers}).then(
+        response => {
+          JSON.parse(response.data.body).forEach(item => commit('addLike', item.music_id))
+        }
+      )
+    },
+    fetchLikedComments ({ state, getters, commit }) {
+      axios.get(state.api_like + '/own-comment', {params: {
+      user_id: getters.uid}, headers: getters.headers}).then(
+        response => {
+          JSON.parse(response.data.body).forEach(item => commit('addLikedComment', item.music_id))
+        }
+      )
+    },
+    deleteLikedComment ({ state, getters, commit }, id) {
+      axios.delete(state.api_like + '/own-comment', {data: {music_id: id}, headers: getters.headers})
+
+      commit('deleteLikedComment', id)
+    },
+
+    
+    addFollowee ({ state, getters, commit }, user_id) {
+      axios.post(state.api_follow, {follower_id: getters.uid, followee_id: user_id}, {headers: getters.headers})
+      commit('addFollowee', user_id)
+    },
+    deleteFollowee ({ state, getters, commit }, user_id) {
+      axios.delete(state.api_follow, {data: {follower_id: getters.uid, followee_id: user_id}, headers: getters.headers})
+      commit('deleteFollowee', user_id)
+    },
+    fetchFollowee ({ state, getters, commit }) {
+      axios.get(state.api_follow + '/followee', {params: { user_id: getters.uid }, headers: getters.headers}).then(
+        response => {
+          JSON.parse(response.data.body).forEach(item => commit('addFollowee', item.followee))
+        }
+      )
+    },
+    fetchFollower ({ state, getters, commit }) {
+      axios.get(state.api_follow + '/follower', {params: { user_id: getters.uid }, headers: getters.headers}).then(
+        response => {
+          JSON.parse(response.data.body).forEach(item => commit('addFollower', item.follower))
+        }
+      )
+    },
+
+    
+    startLoadingNewMusic ({ commit }) {
+      commit('startLoadingNewMusic')
+    },
+    stopLoadingNewMusic ({ commit }) {
+      commit('stopLoadingNewMusic')
+    },
+    startLoadingNewAlbum ({ commit }) {
+      commit('startLoadingNewAlbum')
+    },
+    stopLoadingNewAlbum ({ commit }) {
+      commit('stopLoadingNewAlbum')
+    },
+
+    updateLastPage ({ commit }) {
+      commit('updateLastPage')
+    },
+    
     fetchPlaylist ({ commit, getters }) {
       const request = require('request')
+      
       const authOptions = {
         url: 'https://accounts.spotify.com/api/token',
         headers: {
@@ -283,274 +598,23 @@ export default new Vuex.Store({
           axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: getters.uid, access_token: access_token}, {headers: getters.headers})
         }
       })
-    },
-    login () {
-      const google_auth_provider = new firebase.auth.GoogleAuthProvider()
-      firebase.auth().signInWithRedirect(google_auth_provider)
-    },
-    async logout ({state, getters}) {
-      if (state.login_user.isAnonymous) {
-        const uid = getters.uid
-        axios.delete(state.api_follow + '/user', {data: {user_id: uid}, headers: getters.headers})
-        await firebase.firestore().collection(`users/${uid}/profile`).get().then(snapshot => snapshot.forEach(doc => {
-          firebase.firestore().collection(`users/${uid}/profile`).doc(doc.id).delete()
-        }))
-        await firebase.firestore().collection(`users/${uid}/album`).get().then(snapshot => snapshot.forEach(doc => {
-          firebase.firestore().collection(`users/${uid}/album`).doc(doc.id).delete()
-        }))
-        await firebase.firestore().collection(`users/${uid}/albums`).get().then(snapshot => snapshot.forEach(doc => {
-          firebase.firestore().collection(`users/${uid}/albums`).doc(doc.id).delete()
-        }))
-      }
-      firebase.auth().signOut()
-    },
-    setLoginUser ({ commit }, {user, token}) {
-      commit('setLoginUser', {user: user, token: token})
-    },
-    deleteLoginUser ({commit}) {
-      commit('deleteLoginUser')
-    },
-    toggleSideMenu ({commit}) {
-      commit('toggleSideMenu')
-    },
-    switchDialog ({commit}) {
-      commit('switchDialog')
-    },
-    switchDialogUpdate ({commit}) {
-      commit('switchDialogUpdate')
-    },
-    switchDialogProfile ({commit}) {
-      commit('switchDialogProfile')
-    },
-    switchAlbumDialog ({commit}) {
-      commit('switchAlbumDialog')
-    },
-    switchAlbumUpdate ({commit}) {
-      commit('switchAlbumUpdate')
-    },
-    addMusic ({ getters, commit }, music) {
-      if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/album`).add(music).then(doc => {
-        commit('addMusic', { id: doc.id, music })
-        commit('addAllMusic', { id: doc.id, music})
-        })
-      }
-    },
-    addAlbum ({ getters, commit }, album) {
-      if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/albums`).add(album).then(doc => {
-        commit('addAlbum', { id: doc.id, album })
-        })
-      }
-    },
-    startLoading ({ commit }) {
-      commit('startLoading')
-    },
-    stopLoading ({ commit }) {
-      commit('stopLoading')
-    },
-    startLoadingAlbum ({ commit }) {
-      commit('startLoadingAlbum')
-    },
-    stopLoadingAlbum ({ commit }) {
-      commit('stopLoadingAlbum')
-    },
-    addFollowee ({ state, getters, commit }, user_id) {
-      axios.post(state.api_follow, {follower_id: getters.uid, followee_id: user_id}, {headers: getters.headers})
-      commit('addFollowee', user_id)
-    },
-    deleteFollowee ({ state, getters, commit }, user_id) {
-      axios.delete(state.api_follow, {data: {follower_id: getters.uid, followee_id: user_id}, headers: getters.headers})
-      commit('deleteFollowee', user_id)
-    },
-    fetchFollowee ({ state, getters, commit }) {
-      axios.get(state.api_follow + '/followee', {params: { user_id: getters.uid }, headers: getters.headers}).then(
-        response => {
-          JSON.parse(response.data.body).forEach(item => commit('addFollowee', item.followee))
-        }
-      )
-    },
-    fetchFollower ({ state, getters, commit }) {
-      axios.get(state.api_follow + '/follower', {params: { user_id: getters.uid }, headers: getters.headers}).then(
-        response => {
-          JSON.parse(response.data.body).forEach(item => commit('addFollower', item.follower))
-        }
-      )
-    },
-    addLike ({ state, getters, commit }, {music_id, creater_id}) {
-      axios.post(state.api_like, { fan_id: getters.uid, music_id: music_id, creater_id: creater_id }, {headers: getters.headers})
-      commit('addLike', music_id)
-    },
-    deleteLike ({ state, getters, commit }, music_id) {
-      axios.delete(state.api_like, {data: { user_id: getters.uid, music_id: music_id }, headers: getters.headers})
-      commit('deleteLike', music_id)
-    },
-    fetchFavoriteComments ({ state, getters, commit }) {
-      axios.get(state.api_like, {params: { user_id: getters.uid }, headers: getters.headers}).then(
-        response => {
-          JSON.parse(response.data.body).forEach(item => commit('addLike', item.music_id))
-        }
-      )
-    },
-    fetchLikedComments ({ state, getters, commit }) {
-      axios.get(state.api_like + '/own-comment', {params: {
-      user_id: getters.uid}, headers: getters.headers}).then(
-        response => {
-          JSON.parse(response.data.body).forEach(item => commit('addLikedComment', item.music_id))
-        }
-      )
-    },
-    deleteLikedComment ({ state, getters, commit }, id) {
-      axios.delete(state.api_like + '/own-comment', {data: {music_id: id}, headers: getters.headers})
-      commit('deleteLikedComment', id)
-    },
-    fetchAlbum ({ getters, commit }) {
-      firebase.firestore().collection(`users/${getters.uid}/album`).orderBy("created_date").get().then(snapshot => {
-        snapshot.forEach(doc => commit('addMusic', { id: doc.id, music: doc.data() }))
-      })
-    },
-    fetchAlbums ({ getters, commit }) {
-      firebase.firestore().collection(`users/${getters.uid}/albums`).orderBy("created_date").get().then(snapshot => {
-        snapshot.forEach(doc => commit('addAlbum', { id: doc.id, album: doc.data() }))
-      })
-    },
-    fetchAllAlbum ({ commit }) {
-      const client = algoliasearch(process.env.VUE_APP_ALGOLIA_APPLICATION_ID, process.env.VUE_APP_ALGOLIA_API_KEY)
-      const index = client.initIndex(process.env.VUE_APP_ALGOLIA_INDEX_NAME)
-      index.search('', {
-        page: 0,
-        filters: `public=1 AND NOT date=0`
-      }).then(snapshot => {
-        snapshot.hits.forEach(doc => {
-          commit('addAllMusic', {id: doc.id, music: doc})
-          commit('setFirstPage')
-        })
-      })
-    },
-    updateLastPage ({ commit }) {
-      commit('updateLastPage')
-    },
-    fetchProfile ({ getters, commit }) {
-      firebase.firestore().collection(`users/${getters.uid}/profile`).get().then(snapshot => {
-        if (snapshot.docs.length !== 0) {
-          snapshot.forEach(doc => commit('addProfile', { id: doc.id, profile: doc.data() }))
-        } else {
-          const default_profile = {
-            name: 'ユーザー',
-            profile_image: '../../default_user_icon.png',
-            comment: 'Write something you want to appeal.',
-            user_id: getters.uid
-          }
-          firebase.firestore().collection(`users/${getters.uid}/profile`).add(default_profile).then(doc => commit('addProfile', { id: doc.id, profile: default_profile }))
-        }
-      })
-    },
-    updateMusic ({ getters, commit }, {id, music}) {
-      if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update(music).then(() => {
-        commit('updateMusic', { id, music })
-        })
-      }
-    },
-    updateAlbum ({ getters, commit }, {id, album}) {
-      if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/albums`).doc(id).update(album).then(() => {
-        commit('updateMusic', { id, album })
-        })
-      }
-    },
-    updateCommentView ({ commit }, {id, music}) {
-      commit('updateComment', { id, music })
-    },
-    updateCommentImage ({ getters, commit }, {id, image_url}) {
-      firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).set({profile_image: image_url}, {merge: true}).then(() => {
-        commit('updateCommentImage', { id, image_url})
-      })
-    },
-    updateCommentUser ({ getters, commit }, {id, user_name}) {
-      firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).set({profile_name: user_name}, {merge: true}).then(() => {
-        commit('updateCommentUser', { id, user_name })
-      })
-    },
-    updateMusicInAll ({ commit }, {id, music}) {
-      commit('updateMusicInAll', { id, music })
-    },
-    addMusicInAll ({ commit }, music) {
-      commit('addMusicInAll', music)
-    },
-    updateProfile ({ getters, commit }, {id, profile}) {
-      if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/profile`).doc(id).update(profile).then(() => {
-          commit('updateProfile', profile)
-        })
-      }
-    },
-    deleteMusic ({ getters, commit }, {id}) {
-      if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).delete().then(() => {
-        commit('deleteMusic', { id })
-        commit('deleteCommentView', { id })
-        })
-      }
-    },
-    deleteAlbum ({ getters, commit }, {id}) {
-      if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/albums`).doc(id).delete().then(() => {
-        commit('deleteAlbum', { id })
-        })
-      }
-    },
-    deleteCommentInAll ({ commit }, {id}) {
-      commit('deleteCommentInAll', {id})
-    },
-    deleteComment ({ getters, commit }, {id}) {
-      if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).update(
-          {
-            comment: firebase.firestore.FieldValue.delete(),
-            date: false
-          }
-        ).then(() => {
-          commit('deleteComment', { id })
-          commit('deleteCommentView', { id })
-        })
-      }
-    },
-    setMusicTemp ({commit}, music) {
-      commit('setMusicTemp', music)
-    },
-    setAlbumTemp ({commit}, album) {
-      commit('setAlbumTemp', album)
-    },
-    switchPlayerBar ({commit}) {
-      commit('switchPlayerBar')
-    },
-    switchBarContent ({commit}, music) {
-      commit('switchBarContent', music)
-    },
-    switchPlayState ({commit}) {
-      commit('switchPlayState')
-    },
-    switchCommentState ({commit}) {
-      commit('switchCommentState')
-    },
-    setMusicActive ({commit}, music) {
-      commit('setMusicActive', music)
-    },
-    putFilteredAlbum ({commit}, album) {
-      commit('putFilteredAlbum', album)
     }
   },
   getters: {
-    userName: state => state.login_user ? state.login_user.displayName : '',
-    photoURL: state => state.login_user ? state.login_user.photoURL : 'default_user_icon.png',
+    photo_url: state => state.login_user ? state.login_user.photoURL : 'default_user_icon.png',
+    
     uid: state => state.login_user ? state.login_user.uid : null,
+    
     album: state => state.album,
+    
     albums: state => state.albums,
+    
     music_tmp: state => state.music_tmp.album_id,
-    all_album: state => state.all_album,
+    
+    everyones_commented_tracks: state => state.everyones_commented_tracks,
+
     headers: state => {
-      return {'Authorization': state.auth_token}
+      return {'Authorization': state.firebase_auth_token}
     }
   }
 })

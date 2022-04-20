@@ -1,8 +1,15 @@
 <template>
-  <v-card width="700" :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]" min-height="100">
+  <v-card
+    width="700"
+    :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]"
+    min-height="100"
+  >
     <v-card-title class="subtitle-1 py-3" v-if="this.$route.path.includes('followee')">{{ profile.name }}さんがフォロー</v-card-title>
+
     <v-card-title class="subtitle-1 py-3" v-else>{{ profile.name }}さんのフォロワー</v-card-title>
+
     <v-divider></v-divider>
+
     <div
       v-for="(user, index) in users"
       :key="index"
@@ -13,6 +20,7 @@
             <v-img :src="user.profile_image" aspect-ratio="1" class="hover"></v-img>
           </v-avatar>
         </div>
+
         <div class="flex-grow">
           <p class="ml-2 mb-2">{{ user.name }}</p>
           <v-card color="grey darken-4" class="ma-2">
@@ -29,6 +37,7 @@
           </v-card>
         </div>
       </div>
+      
       <v-divider></v-divider>
     </div>
   </v-card>

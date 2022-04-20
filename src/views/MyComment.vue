@@ -1,9 +1,14 @@
 <template>
-  <v-card width="700" :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]" min-height="100">
+  <v-card
+    width="700"
+    :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]"
+    min-height="100"
+  >
     <v-row>
       <v-col class="d-none d-sm-flex">
         <v-card-title class="subtitle-1 py-3">{{ $store.state.profile.name }}さんの感想</v-card-title>
       </v-col>
+
       <v-col>
         <v-card-title class="pa-0 px-4">
           <v-text-field
@@ -29,7 +34,9 @@
         </v-card-title>
       </v-col>
     </v-row>
+
     <v-divider></v-divider>
+
     <div
       v-for="(music, index) in filtered_album"
       :key="index"
@@ -40,13 +47,14 @@
             <v-img :src="profileImage" aspect-ratio="1"></v-img>
           </v-avatar>
         </div>
+
         <div class="flex-grow">
           <p class="ml-2 mb-2">{{ $store.state.profile.name }}</p>
           <v-card color="grey darken-4" class="ma-2">
             <div class="flex">
               <v-img
                 :class="[{'d-none': $vuetify.breakpoint.xs}]"
-                :src="music.image_url ? music.image_url : 'album.png'"
+                :src="music.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? music.image_url : '../../album.png'"
                 aspect-ratio="1"
                 max-width="60"
                 min-width="60"
@@ -54,22 +62,30 @@
                 class="mt-3 mb-2 ml-4"
               >
               </v-img>
+
               <div>
                 <v-card-title class="subtitle-1 pt-2">{{ music.title }}</v-card-title>
                 <v-card-subtitle class="py-0">{{ music.artist }}</v-card-subtitle>
               </div>
+
               <v-spacer></v-spacer>
+
               <v-card-title class="mr-2">
-                <v-btn icon @click="play(music)" v-if="music.audio_url.match(/audios%2F(.+)\?/)[1] !== 'undefined'">
+                <v-btn
+                  icon
+                  @click="play(music)" v-if="music.audio_url.match(/audios%2F(.+)\?/)[1] !== 'undefined'"
+                >
                   <v-icon large>mdi-play-circle-outline</v-icon>
                 </v-btn>
               </v-card-title>
+
               <v-card-title class="pa-0 mr-6" v-if="music.spotify_url">
                 <v-btn icon @click="openSpotify(music.spotify_url)">
                   <v-img src="../../public/spotify_icon.png" max-width="29"></v-img>
                 </v-btn>
               </v-card-title>
             </div>
+
             <v-card-text class="pb-0 pt-0 mt-n2">
               <v-textarea
                 class="mt-0"
@@ -82,6 +98,7 @@
               >
               </v-textarea>
             </v-card-text>
+
             <div class="flex mr-10 mt-1 pb-1">
               <v-spacer></v-spacer>
               <div>
@@ -110,12 +127,14 @@ export default {
   },
   created () {
     this.album = this.$store.state.album
-    this.filtered_album = this.$store.state.commented_album
+    this.filtered_album = this.$store.state.commented_tracks
     this.liked_comments = this.$store.state.liked_comments
+
     if (this.$route.params.keyword !== undefined) {
       this.keyword = this.$route.params.keyword
       this.filterAlbum()
     }
+
     this.putFilteredAlbum(this.filtered_album)
   },
   watch: {
@@ -128,13 +147,16 @@ export default {
   methods: {
     filterAlbum () {
       const album = []
-      for (const i in this.$store.state.commented_album) {
-        const music = this.$store.state.commented_album[i]
+
+      for (const i in this.$store.state.commented_tracks) {
+        const music = this.$store.state.commented_tracks[i]
+
         if (music.title.indexOf(this.keyword) !== -1 ||
             music.artist.indexOf(this.keyword) !== -1) {
             album.push(music)
         }
       }
+
       this.filtered_album = album
       this.putFilteredAlbum(this.filtered_album)
     },
@@ -146,7 +168,7 @@ export default {
       this.blur()
     },
     play (music) {
-      this.switchBarContent(music)
+      this.switchPlayerBarContent(music)
       this.switchPlayerBar()
     },
     openSpotify (url) {
@@ -154,11 +176,12 @@ export default {
     },
     updateComment (index) {
       const filteredMusic = this.filtered_album[index]
+
       this.updateMusic({id: filteredMusic.id, music: filteredMusic})
       this.updateCommentView({id: filteredMusic.id, music: filteredMusic})
-      this.updateMusicInAll({id: filteredMusic.id, music: filteredMusic})
+      this.updateMusicInEveryones({id: filteredMusic.id, music: filteredMusic})
     },
-    ...mapActions(['putFilteredAlbum','updateMusic','switchBarContent', 'switchPlayerBar', 'updateMusicInAll', 'updateCommentView'])
+    ...mapActions(['putFilteredAlbum','updateMusic','switchPlayerBarContent', 'switchPlayerBar', 'updateMusicInEveryones', 'updateCommentView'])
   },
   computed: {
     likes: function () {

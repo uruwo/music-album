@@ -1,6 +1,7 @@
 <template>
   <v-card>
     <v-card-title class="subtitle-1 pb-0">自己紹介</v-card-title>
+
     <v-card-text class="pb-0">
       <v-textarea
         background-color="grey darken-4"
@@ -10,8 +11,10 @@
         clear-icon="mdi-close-circle">
         </v-textarea>
     </v-card-text>
+
     <v-card-actions>
       <v-spacer></v-spacer>
+
       <v-btn
         color="blue darken-1"
         text
@@ -19,6 +22,7 @@
       >
         キャンセル
       </v-btn>
+
       <v-btn
         color="blue darken-1"
         text
@@ -31,8 +35,8 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
+
 export default {
   data () {
     return {
@@ -47,14 +51,14 @@ export default {
   methods: {
     cancel () {
       this.profile.comment = this.comment
-      this.switchDialogProfile()
+      this.switchProfileDialog()
     },
     saveComment () {
       this.$set(this.profile, 'user_id', this.uid)
       this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
-      this.switchDialogProfile()
+      this.switchProfileDialog()
     },
-    ...mapActions(['switchDialogProfile', 'updateProfile'])
+    ...mapActions(['switchProfileDialog', 'updateProfile'])
   },
   computed: {
     ...mapGetters(['uid'])

@@ -4,6 +4,7 @@
       <AppBar></AppBar>
       <SideNav></SideNav>
     </header>
+
     <v-content>
       <SongForm></SongForm>
       <UpdateForm></UpdateForm>
@@ -12,10 +13,12 @@
       <ProfileComment></ProfileComment>
       <PlayerBar v-if="$store.state.login_user"></PlayerBar>
       <CommentField></CommentField>
+
       <v-container>
         <router-view></router-view>
       </v-container>
     </v-content>
+
     <footer>
     </footer>
   </v-app>
@@ -33,7 +36,6 @@ import ProfileComment from './components/ProfileComment.vue'
 import AlbumForm from './components/AlbumForm.vue'
 import UpdateAlbum from './components/UpdateAlbum.vue'
 import { mapActions } from 'vuex'
-import { mapGetters } from 'vuex'
 
 export default {
   name: 'App',
@@ -53,10 +55,10 @@ export default {
       if (user) {
         const auth_token = await user.getIdToken()
         this.setLoginUser({user: user, token:auth_token})
-        this.fetchAlbum()
+        this.fetchMusic()
         this.fetchAlbums()
         this.fetchProfile()
-        this.fetchAllAlbum()
+        this.fetchEveryonesCommentedTracks()
         this.fetchFavoriteComments()
         this.fetchLikedComments()
         this.fetchFollowee()
@@ -85,10 +87,7 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['setLoginUser','deleteLoginUser','fetchAlbum','fetchProfile', 'fetchAllAlbum', 'fetchFavoriteComments', 'fetchLikedComments', 'fetchFollowee', 'fetchFollower', 'fetchAlbums', 'fetchPlaylist'])
-  },
-  computed: {
-    ...mapGetters(['photoURL'])
+    ...mapActions(['setLoginUser','deleteLoginUser','fetchMusic','fetchProfile', 'fetchEveryonesCommentedTracks', 'fetchFavoriteComments', 'fetchLikedComments', 'fetchFollowee', 'fetchFollower', 'fetchAlbums', 'fetchPlaylist'])
   }
 };
 </script>

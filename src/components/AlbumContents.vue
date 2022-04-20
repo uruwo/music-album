@@ -2,6 +2,7 @@
   <v-container :class="[{'px-10': $vuetify.breakpoint.mdAndUp}]">
     <v-row>
       <v-spacer v-if="album_id"></v-spacer>
+
       <v-col cols="9" sm="5" v-if="!album_id">
         <v-text-field
         v-model="keyword"
@@ -9,19 +10,20 @@
         type="text"
         :class="[{'mt-2': $vuetify.breakpoint.xs}, {'mt-16': $vuetify.breakpoint.smAndUp}]"
         @blur="filterAlbum"
-        ref="blurThis"
+        ref="blur_this"
         @keyup.enter.exact="blur"
         >
-        <template v-slot:append>
-        <v-btn icon plain :ripple="false" @click="clearKeyword" v-if="keyword">
-          <v-icon color="grey darken-1">mdi-close-circle</v-icon>
-        </v-btn>
-        <v-btn icon plain :ripple="false" @click="filterAlbum">
-          <v-icon color="grey darken-1">mdi-magnify</v-icon>
-        </v-btn>
-        </template>
+          <template v-slot:append>
+            <v-btn icon plain :ripple="false" @click="clearKeyword" v-if="keyword">
+              <v-icon color="grey darken-1">mdi-close-circle</v-icon>
+            </v-btn>
+            <v-btn icon plain :ripple="false" @click="filterAlbum">
+              <v-icon color="grey darken-1">mdi-magnify</v-icon>
+            </v-btn>
+          </template>
         </v-text-field>
       </v-col>
+
       <v-col :class="[{'mt-2': $vuetify.breakpoint.xs}, {'mt-16': $vuetify.breakpoint.smAndUp}, 'text-center']" v-else>
         <v-chip
           outlined
@@ -35,13 +37,13 @@
           {{ album_title }}
         </v-chip>
       </v-col>
+
       <v-spacer></v-spacer>
     </v-row>
+
     <v-row>
-      <v-col @click="switchDialog" class="child-flex pa-2" cols="6" sm="3" md="2">
+      <v-col @click="switchCreateMusicDialog" class="child-flex pa-2" cols="6" sm="3" md="2">
         <v-img
-          @mouseover="hover_creater = true"
-          @mouseleave="hover_creater = false"
           class="hover"
           :src="'../../song-images/create-song.jpg'"
           aspect-ratio="1"
@@ -49,7 +51,8 @@
         </v-img>
         <p></p>
       </v-col>
-      <v-col class="child-flex pa-2" cols="6" sm="3" md="2" v-if="$store.state.loading">
+
+      <v-col class="child-flex pa-2" cols="6" sm="3" md="2" v-if="$store.state.new_music_is_loading">
         <v-img
           aspect-ratio="1"
         >
@@ -69,8 +72,9 @@
           </template>
         </v-img>
       </v-col>
+
       <v-col
-        v-for="(music, index) in filteredAlbum"
+        v-for="(music, index) in filtered_album"
         :key="index"
         class=" child-flex pa-2"
         cols="6" sm="3" md="2"
@@ -82,8 +86,8 @@
           class="hover"
           @mouseover="mouseHover(index)"
           @mouseleave="mouseLeave"
-          @click="setMusicActive(music); switchCommentState()"
-          @click.right.prevent="switchDialogUpdate(); setMusicTemp(music)"
+          @click="setMusicActive(music); switchCommentDialog()"
+          @click.right.prevent="switchUpdateMusicDialog(); setMusicTemp(music)"
         >
           <template>
             <v-row
@@ -91,12 +95,23 @@
               align="center"
               justify="center"
             >
-              <v-btn icon @click.stop="play(music)" v-if="hoverFlag && index === hoverIndex && music.audio_url.match(/audios%2F(.+)\?/)[1] !== 'undefined'">
-                <v-icon x-large @mouseover="mouseHover(index)" @mouseleave="mouseLeave">mdi-play-circle-outline</v-icon>
+              <v-btn
+                icon
+                @click.stop="play(music)"
+                v-if="is_hover && index === hover_index && music.audio_url.match(/audios%2F(.+)\?/)[1] !== 'undefined'"
+              >
+                <v-icon
+                  x-large
+                  @mouseover="mouseHover(index)"
+                  @mouseleave="mouseLeave"
+                >
+                  mdi-play-circle-outline
+                </v-icon>
               </v-btn>
             </v-row>
           </template>
         </v-img>
+
         <p class="text-caption ma-0 mt-1">{{ music.title }}</p>
         <p class="text-caption ma-0">{{ music.artist }}</p>
       </v-col>
@@ -110,9 +125,10 @@ export default {
   data() {
     return {
       keyword: '',
-      hoverFlag: false,
+      is_hover: false,
+      hover_index: null,
       album: [],
-      filteredAlbum: [],
+      filtered_album: [],
       audio: new Audio(),
       hover_creater: false,
       album_title: '',
@@ -120,6 +136,7 @@ export default {
     }
   },
   created () {
+    //指定されたアルバムの情報（アルバム名・アルバム内の曲）を取得
     if (this.$route.params.album_id) {
       this.album_id = this.$route.params.album_id
       this.album = this.$store.state.album.filter(music => music.album_id.includes(this.album_id))
@@ -127,18 +144,19 @@ export default {
     } else {
       this.album = this.$store.state.album
     }
-      this.filteredAlbum = this.album
-      this.putFilteredAlbum(this.album)
+
+    this.filtered_album = this.album
+    this.putFilteredAlbum(this.album)
   },
   watch: {
     keyword: function (newVal) {
       if (!newVal) {
-        this.filteredAlbum = this.album
-        this.putFilteredAlbum(this.filteredAlbum)
+        this.filtered_album = this.album
+        this.putFilteredAlbum(this.filtered_album)
       }
     },
     myAlbum () {
-      this.stopLoading()
+      this.stopLoadingNewMusic()
       if (this.album_id) {
         this.reloadAlbum()
       }
@@ -149,7 +167,7 @@ export default {
       }
     },
     myAlbums () {
-      this.stopLoadingAlbum()
+      this.stopLoadingNewAlbum()
       if (this.album_id) {
         this.reloadAlbums()
       }
@@ -169,7 +187,7 @@ export default {
   methods: {
     reloadAlbum () {
       this.album = this.$store.state.album.filter(music => music.album_id.includes(this.album_id))
-      this.filteredAlbum = this.album
+      this.filtered_album = this.album
       this.putFilteredAlbum(this.album)
     },
     reloadAlbums () {
@@ -180,7 +198,7 @@ export default {
       this.blur()
     },
     blur () {
-      this.$refs.blurThis.blur()
+      this.$refs.blur_this.blur()
     },
     filterAlbum () {
       const album = []
@@ -191,26 +209,27 @@ export default {
             album.push(music)
         }
       }
-      this.filteredAlbum = album
-      this.putFilteredAlbum(this.filteredAlbum)
+
+      this.filtered_album = album
+      this.putFilteredAlbum(this.filtered_album)
     },
     mouseHover (index) {
       setTimeout(() => {
-        this.hoverFlag = true
-        this.hoverIndex = index
+        this.is_hover = true
+        this.hover_index = index
       }, 100)
     },
     mouseLeave () {
       setTimeout(() => {
-        this.hoverFlag = false
-        this.hoverIndex = null
+        this.is_hover = false
+        this.hover_index = null
       }, 100)
     },
     play (music) {
-      this.switchBarContent(music)
+      this.switchPlayerBarContent(music)
       this.switchPlayerBar()
     },
-    ...mapActions(['switchDialog','switchDialogUpdate','setMusicTemp','switchPlayerBar','switchBarContent','switchCommentState','setMusicActive','putFilteredAlbum', 'stopLoading', 'stopLoadingAlbum'])
+    ...mapActions(['switchCreateMusicDialog','switchUpdateMusicDialog','setMusicTemp','switchPlayerBar','switchPlayerBarContent','switchCommentDialog','setMusicActive','putFilteredAlbum', 'stopLoadingNewMusic', 'stopLoadingNewAlbum'])
   }
 }
 </script>

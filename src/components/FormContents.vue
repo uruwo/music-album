@@ -3,6 +3,7 @@
     <v-card-title>
       <span class="text-h5">楽曲編集</span>
     </v-card-title>
+
     <v-card-text>
       <v-container>
         <v-form ref="form">
@@ -16,6 +17,7 @@
                 persistent-hint
               ></v-text-field>
             </v-col>
+
             <v-col cols="12">
               <v-text-field
                 label="アーティスト名"
@@ -25,12 +27,31 @@
                 persistent-hint
               ></v-text-field>
             </v-col>
+
             <v-col cols="12" sm="6">
-              <v-file-input accept="audio/*" label="楽曲を選択" :value="file_audio" @change="inputAudioFile" v-if="show" small-chips prepend-icon="mdi-file-music-outline"></v-file-input>
+              <v-file-input
+                accept="audio/*"
+                label="楽曲を選択"
+                :value="file_audio"
+                @change="inputAudioFile"
+                v-if="show"
+                small-chips
+                prepend-icon="mdi-file-music-outline"
+              ></v-file-input>
             </v-col>
+
             <v-col cols="12" sm="6">
-              <v-file-input accept="image/*" label="画像を選択" :value="file_image" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline"></v-file-input>
+              <v-file-input
+                accept="image/*"
+                label="画像を選択"
+                :value="file_image"
+                @change="inputImageFile"
+                v-if="show"
+                small-chips
+                prepend-icon="mdi-file-image-outline"
+              ></v-file-input>
             </v-col>
+
             <v-col cols="6" sm="8" class="pt-0">
               <v-select
                 v-model="album_id"
@@ -44,15 +65,18 @@
                 prepend-icon="mdi-plus-box-multiple">
               </v-select>
             </v-col>
+
             <v-col cols="6" sm="4" class="mt-2" v-if="!$route.params.album_id">
-              <v-btn color="#555" @click="switchAlbumDialog()">アルバムを作成</v-btn>
+              <v-btn color="#555" @click="switchCreateAlbumDialog()">アルバムを作成</v-btn>
             </v-col>
           </v-row>
         </v-form>
       </v-container>
     </v-card-text>
+
     <v-card-actions>
       <v-spacer></v-spacer>
+
       <v-btn
         color="blue darken-1"
         text
@@ -60,6 +84,7 @@
       >
         キャンセル
       </v-btn>
+
       <v-btn
         color="blue darken-1"
         text
@@ -67,6 +92,7 @@
       >
         作成
       </v-btn>
+
       <v-btn
         color="red darken-1"
         text
@@ -83,6 +109,7 @@ import firebase from 'firebase'
 import "firebase/storage"
 import { mapActions } from 'vuex'
 import { mapGetters } from 'vuex'
+
   export default {
     data () {
       return {
@@ -98,9 +125,11 @@ import { mapGetters } from 'vuex'
       this.albums = this.$store.state.albums
       this.music = this.$store.state.music_tmp
       this.album_id = this.music.album_id
+
       const image_name = decodeURI(this.music.image_url.match(/images%2F(.+)\?/)[1])
-      const audio_name = decodeURI(this.music.audio_url.match(/audios%2F(.+)\?/)[1])
       fetch(this.music.image_url).then(response => response.blob()).then(blob => new File([blob], image_name)).then(file => this.file_image = file)
+
+      const audio_name = decodeURI(this.music.audio_url.match(/audios%2F(.+)\?/)[1])
       fetch(this.music.audio_url).then(response => response.blob()).then(blob => new File([blob], audio_name)).then(file => this.file_audio = file)
     },
     computed: {
@@ -122,27 +151,42 @@ import { mapGetters } from 'vuex'
       deleteConfirm (id) {
         if (confirm('この楽曲を削除してよろしいですか?')) {
           this.deleteMusic({id})
-          this.deleteCommentInAll({id})
+          this.deleteMusicInEveryones({id})
           this.deleteLikedComment(id)
-          this.switchDialogUpdate()
+          this.switchUpdateMusicDialog()
         }
       },
       cancel () {
         if (!this.$refs.form.validate()) {
           return
         }
-        this.switchDialogUpdate()
+        this.switchUpdateMusicDialog()
       },
       async fileUpdate () {
         if (!this.$refs.form.validate()) {
           return
         }
-        this.switchDialogUpdate()
+
+        this.switchUpdateMusicDialog()
+
         this.$set(this.music, 'album_id', this.album_id)
-        const storageImage = firebase.storage().ref(`users/${this.uid}/images/` + this.file_image.name)
-        const storageAudio = firebase.storage().ref(`users/${this.uid}/audios/` + this.file_audio.name)
+
         const that = this
+
+        const storageImage = firebase.storage().ref(`users/${this.uid}/images/` + this.file_image.name)
         await storageImage.getDownloadURL().then(onResolveImage, onRejectImage)
+
+        const storageAudio = firebase.storage().ref(`users/${this.uid}/audios/` + this.file_audio.name)
+        await storageAudio.getDownloadURL().then(onResolveAudio, onRejectAudio)
+
+        this.updateMusic({id: this.$store.state.music_tmp.id, music: this.music})
+        
+        this.music = {}
+        this.show = false
+        this.$nextTick(function () {
+          this.show = true
+        })
+
         function onResolveImage(url) {
           that.$set(that.music, 'image_url', url)
         }
@@ -155,7 +199,7 @@ import { mapGetters } from 'vuex'
             that.$set(that.music, 'image_url', url)
           })
         }
-        await storageAudio.getDownloadURL().then(onResolveAudio, onRejectAudio)
+
         function onResolveAudio(url) {
           that.$set(that.music, 'audio_url', url)
         }
@@ -165,14 +209,8 @@ import { mapGetters } from 'vuex'
             that.$set(that.music, 'audio_url', url)
           })
         }
-        this.updateMusic({id: this.$store.state.music_tmp.id, music: this.music})
-        this.music = {}
-        this.show = false
-        this.$nextTick(function () {
-          this.show = true
-        })
       },
-      ...mapActions(['switchDialogUpdate','updateMusic','deleteMusic', 'deleteCommentInAll', 'deleteLikedComment', 'switchAlbumDialog'])
+      ...mapActions(['switchUpdateMusicDialog','updateMusic','deleteMusic', 'deleteMusicInEveryones', 'deleteLikedComment', 'switchCreateAlbumDialog'])
     }
   }
 </script>

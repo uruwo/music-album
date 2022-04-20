@@ -8,22 +8,24 @@
         type="text"
         :class="[{'mt-2': $vuetify.breakpoint.xs}, {'mt-16': $vuetify.breakpoint.smAndUp}]"
         @blur="filterAlbums"
-        ref="blurThis"
+        ref="blur_this"
         @keyup.enter.exact="blur"
         >
-        <template v-slot:append>
-        <v-btn icon plain :ripple="false" @click="clearKeyword" v-if="keyword">
-          <v-icon color="grey darken-1">mdi-close-circle</v-icon>
-        </v-btn>
-        <v-btn icon plain :ripple="false" @click="filterAlbums">
-          <v-icon color="grey darken-1">mdi-magnify</v-icon>
-        </v-btn>
-        </template>
+          <template v-slot:append>
+            <v-btn icon plain :ripple="false" @click="clearKeyword" v-if="keyword">
+              <v-icon color="grey darken-1">mdi-close-circle</v-icon>
+            </v-btn>
+            
+            <v-btn icon plain :ripple="false" @click="filterAlbums">
+              <v-icon color="grey darken-1">mdi-magnify</v-icon>
+            </v-btn>
+          </template>
         </v-text-field>
       </v-col>
     </v-row>
+
     <v-row>
-      <v-col @click="switchAlbumDialog" class="child-flex pa-2" cols="6" sm="3" md="2">
+      <v-col @click="switchCreateAlbumDialog" class="child-flex pa-2" cols="6" sm="3" md="2">
         <v-img
           class="hover"
           :src="create"
@@ -32,7 +34,8 @@
         </v-img>
         <p></p>
       </v-col>
-      <v-col class="child-flex pa-2" cols="6" sm="3" md="2" v-if="$store.state.loading_album">
+
+      <v-col class="child-flex pa-2" cols="6" sm="3" md="2" v-if="$store.state.new_album_is_loading">
         <v-img
           aspect-ratio="1"
         >
@@ -52,8 +55,9 @@
           </template>
         </v-img>
       </v-col>
+
       <v-col
-        v-for="(album, index) in filteredAlbums"
+        v-for="(album, index) in filtered_albums"
         :key="index"
         class=" child-flex pa-2"
         cols="6" sm="3" md="2"
@@ -66,9 +70,10 @@
           :src="album.image_url.match(/images%2F(.+)\?/)[1] !== 'undefined' ? album.image_url: 'undefined.jpeg'"
           aspect-ratio="1"
           @click="$router.push({name: 'Album', params: {album_id: album.id}})"
-          @click.right.prevent="switchAlbumUpdate(); setAlbumTemp(album)"
+          @click.right.prevent="switchUpdateAlbumDialog(); setAlbumTemp(album)"
         >
         </v-img>
+
         <p class="text-caption ma-0 mt-1">{{ album.title }}</p>
       </v-col>
     </v-row>
@@ -77,29 +82,30 @@
 
 <script>
 import { mapActions } from 'vuex'
+
 export default {
   data() {
     return {
       keyword: '',
       create: 'song-images/create-song.jpg',
       albums: [],
-      filteredAlbums: [],
+      filtered_albums: [],
       hover_index: null,
       hover_creater: false
     }
   },
   created () {
     this.albums = this.$store.state.albums
-    this.filteredAlbums = this.albums
+    this.filtered_albums = this.albums
   },
   watch: {
     keyword: function (newVal) {
       if (!newVal) {
-        this.filteredAlbum = this.album
+        this.filtered_albums = this.albums
       }
     },
     myAlbums () {
-      this.stopLoadingAlbum()
+      this.stopLoadingNewAlbum()
     }
   },
   computed: {
@@ -119,7 +125,7 @@ export default {
       this.blur()
     },
     blur () {
-      this.$refs.blurThis.blur()
+      this.$refs.blur_this.blur()
     },
     filterAlbums () {
       const albums = []
@@ -129,9 +135,9 @@ export default {
             albums.push(album)
         }
       }
-      this.filteredAlbums = albums
+      this.filtered_albums = albums
     },
-    ...mapActions(['switchAlbumDialog','switchAlbumUpdate','setAlbumTemp', 'stopLoadingAlbum'])
+    ...mapActions(['switchCreateAlbumDialog','switchUpdateAlbumDialog','setAlbumTemp', 'stopLoadingNewAlbum'])
   }
 }
 </script>

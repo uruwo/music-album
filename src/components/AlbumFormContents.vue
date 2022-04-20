@@ -8,7 +8,14 @@
         <v-form ref="form">
           <v-row>
             <v-col cols="12" sm="6">
-              <v-file-input accept="image/*" label="画像を選択" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline" v-model="file_image"></v-file-input>
+              <v-file-input
+                accept="image/*"
+                label="画像を選択"
+                @change="inputImageFile"
+                v-if="show" small-chips
+                prepend-icon="mdi-file-image-outline"
+                v-model="file_image"
+              ></v-file-input>
             </v-col>
             <v-col cols="12" sm="6">
               <v-text-field
@@ -28,7 +35,7 @@
       <v-btn
         color="blue darken-1"
         text
-        @click="switchAlbumDialog(); scrollTop()"
+        @click="switchCreateAlbumDialog(); scrollTop()"
       >
         キャンセル
       </v-btn>
@@ -70,18 +77,33 @@ import { mapGetters } from 'vuex'
         if (!this.$refs.form.validate()) {
           return
         }
+
         if (this.file_image === null) {
           this.file_image = ''
         }
-        this.switchAlbumDialog()
-        this.startLoadingAlbum()
+
+        this.switchCreateAlbumDialog()
+
+        this.startLoadingNewAlbum()
+
         this.$set(this.album, 'created_date', Date.now())
-        const storageImage = firebase.storage().ref(`users/${this.uid}/images/` + this.file_image.name)
+
         const that = this
+        const storageImage = firebase.storage().ref(`users/${this.uid}/images/` + this.file_image.name)
         await storageImage.getDownloadURL().then(onResolveImage, onRejectImage)
+
+        this.addAlbum(this.album)
+
+        this.album = {}
+        this.show = false
+        this.$nextTick(function () {
+          this.show = true
+        })
+
         function onResolveImage(url) {
           that.$set(that.album, 'image_url', url)
         }
+
         async function onRejectImage () {
           const metadata = {
             cacheControl: 'public,max-age=604800'
@@ -91,14 +113,8 @@ import { mapGetters } from 'vuex'
             that.$set(that.album, 'image_url', url)
           })
         }
-        this.addAlbum(this.album)
-        this.album = {}
-        this.show = false
-        this.$nextTick(function () {
-          this.show = true
-        })
       },
-      ...mapActions(['switchAlbumDialog','addAlbum', 'startLoadingAlbum'])
+      ...mapActions(['switchCreateAlbumDialog','addAlbum', 'startLoadingNewAlbum'])
     },
     computed: {
       ...mapGetters(['uid'])
