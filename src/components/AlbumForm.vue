@@ -1,11 +1,11 @@
 <template>
   <v-row justify="center">
     <v-dialog
-      v-model="$store.state.dialog_album"
+      v-model="$store.state.create_album_dialog"
       persistent
       max-width="600px"
     >
-      <AlbumFormContents :key="$store.state.album_key"></AlbumFormContents>
+      <AlbumFormContents :key="$store.state.album_dialog_key"></AlbumFormContents>
     </v-dialog>
   </v-row>
 </template>

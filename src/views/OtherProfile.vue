@@ -6,9 +6,11 @@
           <v-list-item-title class="text-center mb-2">
             {{ profile.name }}
           </v-list-item-title>
+
           <v-list-item-title class="mb-2">
             <v-img width="128" :src="profile.profile_image" aspect-ratio="1" class="mx-auto"></v-img>
           </v-list-item-title>
+
           <v-list-item-title class="text-center">
             <v-btn v-if="!my_followee.includes($route.params.user_id)" @click="follow($route.params.user_id)">
               フォローする
@@ -19,6 +21,7 @@
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+
       <div :class="{'v-list-xs': $vuetify.breakpoint.xs }">
         <v-list dense class="py-0">
           <v-list-item class="title-color">
@@ -26,20 +29,25 @@
               <v-list-item-title>鑑賞データ</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
+
           <v-list-item @click="$router.push({name: 'OthersArtists', params: {user_id: $route.params.user_id}})">
             <v-list-item-content>
               <v-list-item-title>アーティスト</v-list-item-title>
             </v-list-item-content>
             <p class="text-body-2 my-2" >{{ artists_album.length }}人</p>
           </v-list-item>
+
           <v-divider></v-divider>
+
           <v-list-item @click="$router.push({name: 'OthersTitles', params: {user_id: $route.params.user_id}})">
             <v-list-item-content>
               <v-list-item-title>曲</v-list-item-title>
             </v-list-item-content>
             <p class="text-body-2 my-2" >{{ titles_album.length }}曲</p>
           </v-list-item>
+
           <v-divider></v-divider>
+
           <v-list-item @click="$router.push({name: 'OthersComment', params: {user_id: $route.params.user_id}})">
             <v-list-item-content>
               <v-list-item-title>感想</v-list-item-title>
@@ -48,35 +56,43 @@
           </v-list-item>
           <v-divider :class="{'d-none': $vuetify.breakpoint.smAndUp}"></v-divider>
         </v-list>
+
         <v-list dense class="py-0">
           <v-list-item class="title-color">
             <v-list-item-content>
               <v-list-item-title>プロフィール</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
+
           <v-list-item @click="$router.push({name: 'OthersFollowee', params: {user_id: $route.params.user_id}})">
             <v-list-item-content>
               <v-list-item-title>フォロー</v-list-item-title>
             </v-list-item-content>
             <p class="text-body-2 my-2" >{{ followee.length }}人</p>
           </v-list-item>
+
           <v-divider></v-divider>
+
           <v-list-item @click="$router.push({name: 'OthersFollower', params: {user_id: $route.params.user_id}})">
             <v-list-item-content>
               <v-list-item-title>フォロワー</v-list-item-title>
             </v-list-item-content>
             <p class="text-body-2 my-2">{{ follower.length }}人</p>
           </v-list-item>
+
           <v-divider></v-divider>
+
           <v-list-item @click="$router.push({name: 'OthersFavoriteComment', params: {user_id: $route.params.user_id}})">
             <v-list-item-content>
               <v-list-item-title>いいねした感想</v-list-item-title>
             </v-list-item-content>
             <p class="text-body-2 my-2">{{ favorite_comment.length }}編</p>
           </v-list-item>
+
           <v-divider></v-divider>
         </v-list>
       </div>
+
       <v-list dense class="py-0">
         <v-list-item>
           <v-list-item-title>自己紹介</v-list-item-title>
@@ -84,14 +100,14 @@
         <p class="font-size px-4">{{ profile.comment }}</p>
       </v-list>
     </v-card>
+
     <router-view :profile="profile" :follower="follower" :followee="followee" :album="album" :favorite_comment="favorite_comment" :artists_album="artists_album" :titles_album="titles_album" :comments="comments"></router-view>
   </div>
 </template>
 
 <script>
 import firebase from 'firebase'
-import { mapActions } from 'vuex'
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import axios from 'axios'
 
 export default {
@@ -112,9 +128,11 @@ export default {
   beforeRouteUpdate (to, from , next) {
     const to_user = to.path.substring(to.path.lastIndexOf('/') + 1)
     const from_user = from.path.substring(from.path.lastIndexOf('/') + 1)
+
     if (to.name === 'OthersComment' && to_user !== from_user) {
       this.fetchData(to.params.user_id)
     }
+
     next()
   },
   created () {
@@ -149,18 +167,21 @@ export default {
           JSON.parse(response.data.body).forEach(item => this.followee.push(item.followee))
         }
       )
+
       axios.get(this.$store.state.api_follow + '/follower', {params: { user_id: user_id }, headers: this.headers}).then(
         response => {
           this.follower = []
           JSON.parse(response.data.body).forEach(item =>this.follower.push(item.follower))
         }
       )
+
       axios.get(this.$store.state.api_like, {params: { user_id: user_id }, headers: this.headers}).then(
         response => {
           this.favorite_comment = []
           JSON.parse(response.data.body).forEach(item => this.favorite_comment.push(item.music_id))
         }
       )
+
       this.my_followee = this.$store.state.my_followee
     },
     ...mapActions(['addFollowee', 'deleteFollowee'])
@@ -184,6 +205,7 @@ export default {
             album.push(music)
         }
       }
+      
       return album.filter(music => music.comment).sort((a,b) => {
         let titleA = a.title.toUpperCase()
         let titleB = b.title.toUpperCase()

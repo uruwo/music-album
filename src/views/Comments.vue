@@ -1,11 +1,17 @@
 <template>
   <div :class="[{'media': $vuetify.breakpoint.xs}, 'container']">
     <MyStatus></MyStatus>
-    <v-card width="700" :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]" min-height="100">
+
+    <v-card
+      width="700"
+      :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]"
+      min-height="100"
+    >
       <v-row>
         <v-col class="d-none d-sm-flex">
           <v-card-title class="subtitle-1 py-3">みんなの感想</v-card-title>
         </v-col>
+
         <v-col>
           <v-card-title class="pa-0 px-4">
             <v-text-field
@@ -22,6 +28,7 @@
               <v-btn icon plain :ripple="false" @click="clearKeyword" v-if="keyword">
                 <v-icon color="grey darken-1">mdi-close-circle</v-icon>
               </v-btn>
+
               <v-btn icon plain :ripple="false" @click="firstFilterFetch">
                 <v-icon color="grey darken-1">mdi-magnify</v-icon>
               </v-btn>
@@ -30,9 +37,11 @@
           </v-card-title>
         </v-col>
       </v-row>
+
       <v-divider></v-divider>
+
       <div
-        v-for="(music, index) in all_album"
+        v-for="(music, index) in everyones_commented_tracks"
         :key="index"
       >
         <div class="flex mt-2 ml-2">
@@ -41,6 +50,7 @@
               <v-img :src="music.profile_image" aspect-ratio="1" class="hover"></v-img>
             </v-avatar>
           </div>
+
           <div class="flex-grow">
             <p class="ml-2 mb-2">{{ music.profile_name }}</p>
             <v-card color="grey darken-4" class="ma-2">
@@ -60,36 +70,56 @@
                       align="center"
                       justify="center"
                     >
-                      <v-btn icon @click.stop="play_preview(music, index)" v-if="music.preview_audio && index !== is_play">
+                      <v-btn
+                        icon
+                        @click.stop="play_preview(music, index)"
+                        v-if="music.preview_audio && index !== is_play"
+                      >
                         <v-icon large class="preview">mdi-play-circle-outline</v-icon>
                       </v-btn>
-                      <v-btn icon @click.stop="pause_preview()" v-if="index === is_play">
+
+                      <v-btn
+                        icon
+                        @click.stop="pause_preview()"
+                        v-if="index === is_play"
+                      >
                         <v-icon large color="blue">mdi-stop-circle-outline</v-icon>
                       </v-btn>
                     </v-row>
                   </template>
                 </v-img>
+
                 <div>
                   <v-card-title class="subtitle-1 pt-2">{{ music.title }}</v-card-title>
                   <v-card-subtitle class="pt-0 pb-2">{{ music.artist }}</v-card-subtitle>
                 </div>
+
                 <v-spacer></v-spacer>
+
                 <v-card-title class="pa-0 mr-6">
                   <v-btn icon v-if="music.user_id === uid" class="d-none">
                   </v-btn>
-                  <v-btn icon @click="addLike({music_id: music.id, creater_id: music.user_id})" v-else-if="!favorite_comment.includes(music.id)">
+
+                  <v-btn
+                    icon
+                    @click="addLike({music_id: music.id, creater_id: music.user_id})"
+                    v-else-if="!favorite_comment.includes(music.id)"
+                  >
                     <v-icon>mdi-thumb-up-outline</v-icon>
                   </v-btn>
+
                   <v-btn icon v-else @click="deleteLike(music.id)">
                     <v-icon color="blue">mdi-thumb-up</v-icon>
                   </v-btn>
                 </v-card-title>
+
                 <v-card-title class="pa-0 mr-6" v-if="music.spotify_url">
                   <v-btn icon @click="openSpotify(music.spotify_url)">
                     <v-img src="spotify_icon.png" max-width="29"></v-img>
                   </v-btn>
                 </v-card-title>
               </div>
+
               <v-card-text class="pb-0 pt-0 mt-n2">
                 <v-textarea
                   class="mt-0"
@@ -104,9 +134,12 @@
             </v-card>
           </div>
         </div>
+
         <v-divider></v-divider>
       </div>
+
       <v-card min-height="2000px" v-if="!$store.state.last_page"></v-card>
+      
       <infinite-loading spinner="spiral" @infinite="infiniteHandler" :identifier="infinite_id">
         <template slot="no-more">No more message</template>
         <template slot="no-results">No more message</template>
@@ -129,7 +162,7 @@ export default {
   },
   data () {
     return {
-      all_album: [],
+      everyones_commented_tracks: [],
       favorite_comment: [],
       keyword: '',
       infinite_id: 0,
@@ -139,7 +172,7 @@ export default {
     }
   },
   created () {
-    this.all_album = this.$store.state.all_album
+    this.everyones_commented_tracks = this.$store.state.everyones_commented_tracks
     this.putFilteredAlbum(this.$store.state.album)
     this.favorite_comment = this.$store.state.favorite_comment
   },
@@ -151,7 +184,7 @@ export default {
   watch: {
     keyword: function (newVal) {
       if (!newVal) {
-        this.all_album = this.$store.state.all_album
+        this.everyones_commented_tracks = this.$store.state.everyones_commented_tracks
         this.page = 0
         this.infinite_id += 1
       }
@@ -165,7 +198,7 @@ export default {
     firstFilterFetch () {
       this.blur()
       this.page = 0
-      this.all_album = []
+      this.everyones_commented_tracks = []
       this.$algolia_index.search(this.keyword, {
         page: this.page,
         filters: `public=1 AND NOT date=0`
@@ -173,7 +206,7 @@ export default {
         if (snapshot.hits.length !== 0) {
           this.page++
           snapshot.hits.forEach(doc => {
-            this.all_album.push(doc)
+            this.everyones_commented_tracks.push(doc)
           })
         }
       })
@@ -185,7 +218,7 @@ export default {
       this.$refs.blurThis.blur()
     },
     play (music) {
-      this.switchBarContent(music)
+      this.switchPlayerBarContent(music)
       this.switchPlayerBar()
     },
     play_preview (music, index) {
@@ -221,7 +254,7 @@ export default {
       }).then(snapshot => {
         snapshot.hits.forEach(doc => {
           const music = doc
-          this.all_album.push(music)
+          this.everyones_commented_tracks.push(music)
         })
         if (snapshot.hits.length === 5) {
           setTimeout(() => {
@@ -242,7 +275,7 @@ export default {
         if (snapshot.hits.length !== 0) {
           snapshot.hits.forEach(doc => {
             const music = doc
-            this.all_album.push(music)
+            this.everyones_commented_tracks.push(music)
           })
           if (snapshot.hits.length === 5) {
             setTimeout(() => {
@@ -258,7 +291,7 @@ export default {
         }
       })
     },
-    ...mapActions(['fetchAllProfile', 'switchBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike', 'updateLastPage'])
+    ...mapActions(['fetchAllProfile', 'switchPlayerBarContent', 'switchPlayerBar', 'putFilteredAlbum', 'addLike', 'deleteLike', 'updateLastPage'])
   },
   computed: {
     ...mapGetters(['uid'])

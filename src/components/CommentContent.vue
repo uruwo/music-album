@@ -1,15 +1,24 @@
 <template>
   <v-card>
     <div class="header">
-      <div>
+      <div class="pl-2">
         <v-card-title class="subtitle-1">{{ music.title }}</v-card-title>
         <v-card-subtitle class="py-0">{{ music.artist }}</v-card-subtitle>
       </div>
+
       <v-spacer></v-spacer>
+
       <div>
-      <v-switch inset class="pr-6 pt-4" label="公開" v-model="music.public" hide-details color="#1976D2"></v-switch>
+      <v-switch
+        inset
+        class="pr-6 pt-4"
+        label="公開"
+        v-model="music.public"
+        hide-details color="#1976D2"
+      ></v-switch>
       </div>
     </div>
+
     <v-card-text class="pb-0">
       <v-form ref="form">
         <v-textarea
@@ -24,6 +33,7 @@
           rows="10"></v-textarea>
       </v-form>
     </v-card-text>
+
     <v-card-actions>
       <v-btn
         v-if="$vuetify.breakpoint.xs"
@@ -33,14 +43,17 @@
       >
         曲削除
       </v-btn>
+
       <v-spacer></v-spacer>
+
       <v-btn
         color="blue darken-1"
         text
-        @click="switchCommentState"
+        @click="switchCommentDialog"
       >
         キャンセル
       </v-btn>
+
       <v-btn
         color="blue darken-1"
         text
@@ -48,10 +61,11 @@
       >
         保存
       </v-btn>
+
       <v-btn
         color="red darken-1"
         text
-        @click="switchCommentState(); deleteMusicComment()"
+        @click="switchCommentDialog(); deleteMusicComment()"
       >
         削除
       </v-btn>
@@ -62,6 +76,7 @@
 <script>
 import { mapActions } from 'vuex'
 import { mapGetters } from 'vuex'
+
 export default {
   data () {
     return {
@@ -81,7 +96,7 @@ export default {
         delete this.music.comment
         this.music.date = false
         this.deleteComment({id: this.music.id})
-        this.deleteCommentInAll({id: this.music.id})
+        this.deleteMusicInEveryones({id: this.music.id})
         this.deleteLikedComment(this.music.id)
       }
     },
@@ -89,36 +104,42 @@ export default {
       if (!this.$refs.form.validate()) {
         return
       }
-      this.switchCommentState()
+
+      this.switchCommentDialog()
+
       if (!this.music.profile_name) {
         this.$set(this.music, 'profile_name', this.$store.state.profile.name)
         this.$set(this.music, 'profile_image', this.$store.state.profile.profile_image)
       }
+
       if (!this.music.date) {
         this.$set(this.music, 'date', Date.now())
       }
+
       if (!this.music.public) {
-        this.deleteCommentInAll({id: this.music.id})
+        this.deleteMusicInEveryones({id: this.music.id})
       }
+      
       this.updateMusic({id: this.music.id, music: this.music})
       this.updateCommentView({id: this.music.id, music: this.music})
+
       if (this.music.public) {
         if (!this.comment || !this.public) {
-          this.addMusicInAll(this.music)
+          this.addTmpMusicToEveryones(this.music)
         } else {
-          this.updateMusicInAll({id: this.music.id, music: this.music})
+          this.updateMusicInEveryones({id: this.music.id, music: this.music})
         }
       }
     },
     deleteConfirm (id) {
       if (confirm('この楽曲を削除してよろしいですか?')) {
         this.deleteMusic({id})
-        this.deleteCommentInAll({id})
+        this.deleteMusicInEveryones({id})
         this.deleteLikedComment(id)
-        this.switchCommentState()
+        this.switchCommentDialog()
       }
     },
-    ...mapActions(['switchCommentState','updateMusic', 'deleteComment','updateMusicInAll', 'deleteCommentInAll', 'deleteLikedComment', 'updateCommentView', 'deleteMusic', 'addMusicInAll'])
+    ...mapActions(['switchCommentDialog','updateMusic', 'deleteComment','updateMusicInEveryones', 'deleteMusicInEveryones', 'deleteLikedComment', 'updateCommentView', 'deleteMusic', 'addTmpMusicToEveryones'])
   },
   computed: {
     ...mapGetters(['uid'])

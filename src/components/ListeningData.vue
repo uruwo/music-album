@@ -1,8 +1,22 @@
 <template>
-  <v-card width="700" :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]" min-height="100">
+  <v-card
+    width="700"
+    :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]"
+    min-height="100"
+  >
+    <v-card-title
+      class="subtitle-1 py-3"
+      v-if="$route.path.includes('artists')"
+    >
+      {{ profile.name }}さんが聴いたアーティスト
+    </v-card-title>
 
-    <v-card-title class="subtitle-1 py-3" v-if="$route.path.includes('artists')">{{ profile.name }}さんが聴いたアーティスト</v-card-title>
-    <v-card-title class="subtitle-1 py-3" v-else>{{ profile.name }}さんが聴いた曲</v-card-title>
+    <v-card-title
+      class="subtitle-1 py-3"
+      v-else
+    >
+      {{ profile.name }}さんが聴いた曲
+    </v-card-title>
 
     <v-divider></v-divider>
 
@@ -10,18 +24,32 @@
       v-for="(music, index) in album"
       :key="index"
     >
-      <v-card v-if="$route.path.includes('artists')" :color="commented_artists.includes(music.artist) ? 'grey darken-3' : 'grey darken-4'" class="ma-2" :class="{hover: commented_artists.includes(music.artist)}">
+      <v-card
+        v-if="$route.path.includes('artists')"
+        :color="commented_artists.includes(music.artist) ? 'grey darken-3' : 'grey darken-4'"
+        class="ma-2"
+        :class="{hover: commented_artists.includes(music.artist)}"
+      >
         <v-card-title
           :class="[{'disabled': !commented_artists.includes(music.artist)},'subtitle-1 py-3']"
           @click="$route.path.includes('other_profile') ? $router.push({name: 'OthersComment', params: {user_id: $route.params.user_id, keyword: music.artist}}) : $router.push({name: 'MyComment', params: {keyword: music.artist}})"
-        >{{ music.artist }}</v-card-title>
+        >
+          {{ music.artist }}
+        </v-card-title>
       </v-card>
 
-      <v-card v-if="$route.path.includes('titles')" :color="commented_titles.includes(music.title) ? 'grey darken-3' : 'grey darken-4'" class="ma-2" :class="{hover: commented_titles.includes(music.title)}">
+      <v-card
+        v-if="$route.path.includes('titles')"
+        :color="commented_titles.includes(music.title) ? 'grey darken-3' : 'grey darken-4'"
+        class="ma-2"
+        :class="{hover: commented_titles.includes(music.title)}"
+      >
         <v-card-title
           :class="[{'disabled': !commented_titles.includes(music.title)},'subtitle-1 py-3']"
           @click="$route.path.includes('other_profile') ? $router.push({name: 'OthersComment', params: {user_id: $route.params.user_id, keyword: music.title}}) : $router.push({name: 'MyComment', params: {keyword: music.title}})"
-        >{{ music.title }}</v-card-title>
+        >
+          {{ music.title }}
+        </v-card-title>
       </v-card>
     </div>
   </v-card>

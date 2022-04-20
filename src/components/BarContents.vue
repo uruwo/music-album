@@ -17,25 +17,32 @@
             class="slider"
           ></v-slider>
         </v-list-item-content>
+
         <v-list-item-icon :class="[{ 'd-none': $vuetify.breakpoint.smAndUp }, 'mr-2']">
-          <v-btn icon @click="setMusicActive(music); switchCommentState()">
+          <v-btn icon @click="setMusicActive(music); switchCommentDialog()">
             <v-icon>mdi-message-text</v-icon>
           </v-btn>
         </v-list-item-icon>
+
         <v-spacer></v-spacer>
+
         <v-list-item-avatar tile size="45" class="ma-0 mx-4 d-none d-sm-flex">
           <v-img :src="music.image_url"></v-img>
         </v-list-item-avatar>
+
         <v-list-item-content :class="[{ 'theme-xs': $vuetify.breakpoint.xs }, { 'theme-sm': $vuetify.breakpoint.sm }]">
           <v-list-item-title>{{ music.title }}</v-list-item-title>
           <v-list-item-subtitle>{{ music.artist }}</v-list-item-subtitle>
         </v-list-item-content>
+
         <v-spacer></v-spacer>
+
         <v-list-item-icon :class="[{ 'mr-8': $vuetify.breakpoint.mdAndUp }, { 'd-none': $vuetify.breakpoint.xs}]">
-          <v-btn icon @click="setMusicActive(music); switchCommentState()">
+          <v-btn icon @click="setMusicActive(music); switchCommentDialog()">
             <v-icon>mdi-message-text</v-icon>
           </v-btn>
         </v-list-item-icon>
+
         <v-list-item-icon>
           <v-btn icon @click="rewind">
             <v-icon>mdi-rewind</v-icon>
@@ -43,8 +50,8 @@
         </v-list-item-icon>
 
         <v-list-item-icon :class="{ 'mx-5': $vuetify.breakpoint.mdAndUp }">
-          <v-btn icon @click="isPlay ? stop(): play()">
-            <v-icon x-large v-if="isPlay">mdi-pause</v-icon>
+          <v-btn icon @click="is_play ? stop(): play()">
+            <v-icon x-large v-if="is_play">mdi-pause</v-icon>
             <v-icon x-large v-else>mdi-play</v-icon>
           </v-btn>
         </v-list-item-icon>
@@ -57,8 +64,6 @@
             <v-icon>mdi-fast-forward</v-icon>
           </v-btn>
         </v-list-item-icon>
-
-
       </v-list-item>
     </v-list>
   </v-card>
@@ -72,9 +77,9 @@ export default {
       music: {},
       album: [],
       audio: new Audio,
-      isPlay: false,
+      is_play: false,
       duration: 0,
-      currentTime: 0,
+      current_time: 0,
       volume: 50
     }
   },
@@ -85,25 +90,29 @@ export default {
   async mounted () {
     this.audio.src = this.music.audio_url
     this.audio.load()
+
     this.audio.addEventListener('loadedmetadata', () => {
       this.duration = this.audio.duration
     })
+
     this.audio.addEventListener('timeupdate', () => {
-    this.currentTime = this.audio.currentTime
-    this.audio.volume = this.volume / 100
+      this.current_time = this.audio.currentTime
+      this.audio.volume = this.volume / 100
     })
+
     this.audio.addEventListener('ended', () => {
       this.next()
     })
+
     await this.play()
   },
   computed: {
     progress: {
       get() {
-        return (this.currentTime / this.duration) * 100
+        return (this.current_time / this.duration) * 100
       },
-      set(newValue) {
-        return newValue
+      set(new_value) {
+        return new_value
       }
     },
   },
@@ -113,35 +122,38 @@ export default {
   methods: {
     play () {
       this.audio.play()
-      this.isPlay = true
+      this.is_play = true
     },
     stop () {
       this.audio.pause()
-      this.isPlay = false
+      this.is_play = false
     },
     rewind () {
       const index = this.album.findIndex(music => music.id == this.music.id)
+
       if (this.audio.currentTime > 2) {
         this.audio.currentTime = 0
       } else if (index == 0) {
-        this.switchBarContent(this.album[this.album.length-1])
+        this.switchPlayerBarContent(this.album[this.album.length-1])
       } else {
-        this.switchBarContent(this.album[index-1])
+        this.switchPlayerBarContent(this.album[index-1])
       }
     },
     next () {
       const index = this.album.findIndex(music => music.id == this.music.id)
+
       if (index == this.album.length - 1) {
-        this.switchBarContent(this.album[0])
+        this.switchPlayerBarContent(this.album[0])
       } else {
-        this.switchBarContent(this.album[index + 1])
+        this.switchPlayerBarContent(this.album[index + 1])
       }
+      
       this.switchPlayerBar()
     },
     onChange (event) {
       this.audio.currentTime = (event / 100) * this.duration
     },
-    ...mapActions(['switchCommentState','switchPlayerBar','switchBarContent','setMusicActive'])
+    ...mapActions(['switchCommentDialog','switchPlayerBar','switchPlayerBarContent','setMusicActive'])
   }
 }
 </script>

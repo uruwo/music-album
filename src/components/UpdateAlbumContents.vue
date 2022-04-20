@@ -3,13 +3,23 @@
     <v-card-title>
       <span class="text-h5">アルバム編集</span>
     </v-card-title>
+
     <v-card-text>
       <v-container>
         <v-form ref="form">
           <v-row>
             <v-col cols="12" sm="6">
-              <v-file-input accept="image/*" label="画像を選択" :value="file_image" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline"></v-file-input>
+              <v-file-input
+                accept="image/*"
+                label="画像を選択"
+                :value="file_image"
+                @change="inputImageFile"
+                v-if="show"
+                small-chips
+                prepend-icon="mdi-file-image-outline"
+              ></v-file-input>
             </v-col>
+
             <v-col cols="12" sm="6">
               <v-text-field
                 label="アルバム名"
@@ -23,8 +33,10 @@
         </v-form>
       </v-container>
     </v-card-text>
+
     <v-card-actions>
       <v-spacer></v-spacer>
+
       <v-btn
         color="blue darken-1"
         text
@@ -32,6 +44,7 @@
       >
         キャンセル
       </v-btn>
+
       <v-btn
         color="blue darken-1"
         text
@@ -39,6 +52,7 @@
       >
         作成
       </v-btn>
+
       <v-btn
         color="red darken-1"
         text
@@ -53,8 +67,8 @@
 <script>
 import firebase from 'firebase'
 import "firebase/storage"
-import { mapActions } from 'vuex'
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
+
   export default {
     data () {
       return {
@@ -65,6 +79,7 @@ import { mapGetters } from 'vuex'
     },
     created () {
       this.album = this.$store.state.album_tmp
+
       const image_name = decodeURI(this.album.image_url.match(/images%2F(.+)\?/)[1])
       fetch(this.file_image).then(response => response.blob()).then(blob => new File([blob], image_name)).then(file => this.file_image = file)
     },
@@ -78,23 +93,34 @@ import { mapGetters } from 'vuex'
       deleteConfirm (id) {
         if (confirm('このアルバムを削除してよろしいですか?')) {
           this.deleteAlbum({id})
-          this.switchAlbumUpdate()
+          this.switchUpdateAlbumDialog()
         }
       },
       cancel () {
         if (!this.$refs.form.validate()) {
           return
         }
-        this.switchAlbumUpdate()
+        this.switchUpdateAlbumDialog()
       },
       async fileUpdate () {
         if (!this.$refs.form.validate()) {
           return
         }
-        this.switchAlbumUpdate()
-        const storageImage = firebase.storage().ref(`users/${this.uid}/images/` + this.file_image.name)
+
+        this.switchUpdateAlbumDialog()
+
         const that = this
+        const storageImage = firebase.storage().ref(`users/${this.uid}/images/` + this.file_image.name)
         await storageImage.getDownloadURL().then(onResolveImage, onRejectImage)
+
+        this.updateAlbum({id: this.$store.state.album_tmp.id, album: this.album})
+
+        this.album = {}
+        this.show = false
+        this.$nextTick(function () {
+          this.show = true
+        })
+        
         function onResolveImage(url) {
           that.$set(that.album, 'image_url', url)
         }
@@ -107,14 +133,8 @@ import { mapGetters } from 'vuex'
             that.$set(that.album, 'image_url', url)
           })
         }
-        this.updateAlbum({id: this.$store.state.album_tmp.id, album: this.album})
-        this.album = {}
-        this.show = false
-        this.$nextTick(function () {
-          this.show = true
-        })
       },
-      ...mapActions(['switchAlbumUpdate','updateAlbum','deleteAlbum'])
+      ...mapActions(['switchUpdateAlbumDialog','updateAlbum','deleteAlbum'])
     }
   }
 </script>

@@ -9,7 +9,7 @@
      :key="$store.state.player_bar"
      scrollable
      >
-      <BarContents :key="$store.state.key"></BarContents>
+      <BarContents :key="$store.state.player_bar_content_key"></BarContents>
     </v-bottom-sheet>
   </div>
 </template>

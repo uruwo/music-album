@@ -1,9 +1,14 @@
 <template>
-  <v-card width="700" :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]" min-height="100">
+  <v-card
+    width="700"
+    :class="[{'ml-4': $vuetify.breakpoint.smAndUp}, {'mt-4': $vuetify.breakpoint.xs}]"
+    min-height="100"
+  >
     <v-row>
       <v-col class="d-none d-sm-flex">
         <v-card-title class="subtitle-1 py-3">{{ profile.name }}さんの感想</v-card-title>
       </v-col>
+
       <v-col>
         <v-card-title class="pa-0 px-4">
           <v-text-field
@@ -13,7 +18,7 @@
           dense
           placeholder="曲名・アーティスト名"
           type="text"
-          ref='blurThis'
+          ref='blur_this'
           >
           <template v-slot:append>
           <v-btn icon plain :ripple="false" @click="clearKeyword" v-if="keyword">
@@ -25,7 +30,9 @@
         </v-card-title>
       </v-col>
     </v-row>
+
     <v-divider></v-divider>
+
     <div
       v-for="(music, index) in filteredAlbum"
       :key="index"
@@ -36,6 +43,7 @@
             <v-img :src="music.profile_image" aspect-ratio="1"></v-img>
           </v-avatar>
         </div>
+
         <div class="flex-grow">
           <p class="ml-2 mb-2">{{ music.profile_name }}</p>
           <v-card color="grey darken-4" class="ma-2">
@@ -58,31 +66,42 @@
                     <v-btn icon @click.stop="play_preview(music, index)" v-if="music.preview_audio && index !== is_play">
                       <v-icon large class="preview">mdi-play-circle-outline</v-icon>
                     </v-btn>
+
                     <v-btn icon @click.stop="pause_preview()" v-if="index === is_play">
                       <v-icon large color="blue">mdi-stop-circle-outline</v-icon>
                     </v-btn>
                   </v-row>
                 </template>
               </v-img>
+
               <div>
                 <v-card-title class="subtitle-1 pt-2">{{ music.title }}</v-card-title>
                 <v-card-subtitle class="py-0">{{ music.artist }}</v-card-subtitle>
               </div>
+
               <v-spacer></v-spacer>
+
               <v-card-title class="mr-2">
-                <v-btn icon @click="addLike({music_id: music.id, creater_id: music.user_id})" v-if="!$store.state.favorite_comment.includes(music.id)">
+                <v-btn
+                  icon
+                  @click="addLike({music_id: music.id, creater_id: music.user_id})"
+                  v-if="!$store.state.favorite_comment.includes(music.id)"
+                >
                   <v-icon>mdi-thumb-up-outline</v-icon>
                 </v-btn>
+
                 <v-btn icon v-else @click="deleteLike(music.id)">
                   <v-icon color="blue">mdi-thumb-up</v-icon>
                 </v-btn>
               </v-card-title>
+
               <v-card-title class="pa-0 mr-6" v-if="music.spotify_url">
                 <v-btn icon @click="openSpotify(music.spotify_url)">
                   <v-img src="../../public/spotify_icon.png" max-width="29"></v-img>
                 </v-btn>
               </v-card-title>
             </div>
+
             <v-card-text class="pb-0 pt-0 mt-n2">
               <v-textarea
                 class="mt-0"
@@ -132,6 +151,7 @@ export default {
             album.push(music)
         }
       }
+
       return album.filter(music => music.comment && music.public).sort((a,b) => {
         let titleA = a.title.toUpperCase()
         let titleB = b.title.toUpperCase()
@@ -151,7 +171,7 @@ export default {
       this.blur()
     },
     blur () {
-      this.$refs.blurThis.blur()
+      this.$refs.blur_this.blur()
     },
     play_preview (music, index) {
       this.is_play = index

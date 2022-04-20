@@ -3,6 +3,7 @@
     <v-card-title>
       <span class="text-h5">楽曲追加</span>
     </v-card-title>
+
     <v-card-text>
       <v-container>
         <v-form ref="form">
@@ -16,6 +17,7 @@
                 persistent-hint
               ></v-text-field>
             </v-col>
+
             <v-col cols="12">
               <v-text-field
                 label="アーティスト名"
@@ -25,12 +27,31 @@
                 persistent-hint
               ></v-text-field>
             </v-col>
+
             <v-col cols="12" sm="6">
-              <v-file-input accept="audio/*" label="楽曲を選択" :value="file_audio" @change="inputAudioFile" v-if="show" small-chips prepend-icon="mdi-file-music-outline"></v-file-input>
+              <v-file-input
+                accept="audio/*"
+                label="楽曲を選択"
+                :value="file_audio"
+                @change="inputAudioFile"
+                v-if="show"
+                small-chips
+                prepend-icon="mdi-file-music-outline"
+              ></v-file-input>
             </v-col>
+
             <v-col cols="12" sm="6">
-              <v-file-input accept="image/*" label="画像を選択" :value="file_image" @change="inputImageFile" v-if="show" small-chips prepend-icon="mdi-file-image-outline"></v-file-input>
+              <v-file-input
+                accept="image/*"
+                label="画像を選択"
+                :value="file_image"
+                @change="inputImageFile"
+                v-if="show"
+                small-chips
+                prepend-icon="mdi-file-image-outline"
+              ></v-file-input>
             </v-col>
+
             <v-col cols="6" sm="8" class="pt-0" v-if="$vuetify.breakpoint.smAndUp">
               <v-select
                 v-model="album_id"
@@ -44,15 +65,18 @@
                 prepend-icon="mdi-plus-box-multiple">
               </v-select>
             </v-col>
+
             <v-col cols="6" sm="4" class="mt-2" v-if="$vuetify.breakpoint.smAndUp">
-              <v-btn color="#555" @click="switchAlbumDialog()">アルバムを作成</v-btn>
+              <v-btn color="#555" @click="switchCreateAlbumDialog()">アルバムを作成</v-btn>
             </v-col>
           </v-row>
         </v-form>
       </v-container>
     </v-card-text>
+
     <v-card-actions>
       <v-spacer></v-spacer>
+
       <v-btn
         color="blue darken-1"
         text
@@ -60,6 +84,7 @@
       >
         キャンセル
       </v-btn>
+
       <v-btn
         color="blue darken-1"
         text
@@ -91,9 +116,11 @@ import { mapGetters } from 'vuex'
     created () {
       this.albums = this.$store.state.albums
       this.music = this.$store.state.music_tmp
+
       const image_name = this.getUniqueStr() + '.jpeg'
-      const audio_name = this.music.audio_url ? this.getUniqueStr() + '.mp3' : 'undefined'
       fetch(this.music.image_url).then(response => response.blob()).then(blob => new File([blob], image_name)).then(file => this.file_image = file)
+
+      const audio_name = this.music.audio_url ? this.getUniqueStr() + '.mp3' : 'undefined'
       fetch(this.music.audio_url).then(response => response.blob()).then(blob => new File([blob], audio_name)).then(file => this.file_audio = file)
     },
     computed: {
@@ -107,7 +134,7 @@ import { mapGetters } from 'vuex'
         this.file_audio = event
       },
       cancel () {
-        this.switchDialog()
+        this.switchCreateMusicDialog()
       },
       getUniqueStr(myStrong){
         var strong = 1000;
@@ -118,17 +145,33 @@ import { mapGetters } from 'vuex'
         if (!this.$refs.form.validate()) {
           return
         }
-        this.switchDialog()
-        this.startLoading()
+
+        this.switchCreateMusicDialog()
+
+        this.startLoadingNewMusic()
+
         this.$set(this.music, 'user_id', this.uid)
         this.$set(this.music, 'created_date', Date.now())
         this.$set(this.music, 'date', false)
         this.$set(this.music, 'public', true)
         this.$set(this.music, 'album_id', this.album_id)
-        const storageImage = firebase.storage().ref(`users/${this.uid}/images/` + this.file_image.name)
-        const storageAudio = firebase.storage().ref(`users/${this.uid}/audios/` + this.file_audio.name)
+
         const that = this
+
+        const storageImage = firebase.storage().ref(`users/${this.uid}/images/` + this.file_image.name)
         await storageImage.getDownloadURL().then(onResolveImage, onRejectImage)
+
+        const storageAudio = firebase.storage().ref(`users/${this.uid}/audios/` + this.file_audio.name)
+        await storageAudio.getDownloadURL().then(onResolveAudio, onRejectAudio)
+
+        this.addMusic(this.music)
+        
+        this.music = {}
+        this.show = false
+        this.$nextTick(function () {
+          this.show = true
+        })
+
         function onResolveImage(url) {
           that.$set(that.music, 'image_url', url)
         }
@@ -141,7 +184,7 @@ import { mapGetters } from 'vuex'
             that.$set(that.music, 'image_url', url)
           })
         }
-        await storageAudio.getDownloadURL().then(onResolveAudio, onRejectAudio)
+
         function onResolveAudio(url) {
           that.$set(that.music, 'audio_url', url)
         }
@@ -151,14 +194,8 @@ import { mapGetters } from 'vuex'
             that.$set(that.music, 'audio_url', url)
           })
         }
-        this.addMusic(this.music)
-        this.music = {}
-        this.show = false
-        this.$nextTick(function () {
-          this.show = true
-        })
       },
-      ...mapActions(['switchDialog', 'addMusic', 'switchAlbumDialog', 'startLoading'])
+      ...mapActions(['switchCreateMusicDialog', 'addMusic', 'switchCreateAlbumDialog', 'startLoadingNewMusic'])
     }
   }
 </script>

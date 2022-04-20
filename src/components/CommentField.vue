@@ -1,13 +1,13 @@
 <template>
   <v-row justify="center">
     <v-dialog
-      v-model="$store.state.comment"
+      v-model="$store.state.comment_dialog"
       max-width="500px"
       persistent
       hide-overlay
       no-click-animation
       scrollable
-      :key="$store.state.comment_key"
+      :key="$store.state.comment_dialog_key"
     >
       <CommentContent></CommentContent>
     </v-dialog>

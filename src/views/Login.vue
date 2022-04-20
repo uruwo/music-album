@@ -6,6 +6,7 @@
         <p>ご利用の方はログインしてください</p>
       </v-col>
     </v-row>
+
     <v-row>
       <v-col align="center" justify="center">
         <v-btn
@@ -23,6 +24,7 @@
         </v-btn>
       </v-col>
     </v-row>
+
     <v-row>
       <v-col align="center" justify="center">
         <v-btn
@@ -40,6 +42,7 @@
         </v-btn>
       </v-col>
     </v-row>
+    
     <v-row class="mt-10">
       <v-col align="center" justify="center">
         <p class="attention">※ゲストアカウントでログインした場合、ログアウト時に全データが削除されます</p>
