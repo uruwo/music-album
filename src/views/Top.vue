@@ -22,7 +22,7 @@
                     :class="[$vuetify.breakpoint.smAndDown ? 'text-h5': 'text-h4']"
                     class="font-weight-bold"
                   >
-                    音楽の「記録・比較・共有」アプリ
+                    音楽の記録
                   </span>
 
                   <br>
@@ -83,19 +83,21 @@
           class="mx-auto sub-title font-weight-light mb-8"
           max-width="720"
         >
-          アルバムのように、お気に入りの画像やコメントと共に<br>音楽を記録することができるサービスです。
+          アルバムのようにお気に入りの画像やコメントと共に音楽を記録し、
+          <br>コメントを共有することができるサービスです。
+          <br>（一部の楽曲はプレビュー音源を同時に共有できます）
         </v-responsive>
         <v-responsive
           class="mx-auto sub-title font-weight-light mb-8"
           max-width="720"
         >
-          「感想を見ながら音楽を聴く」「他の人の感想と比較する」「音楽に画像をつける」等々、<br>能動的に音楽を楽しむことができます。
+          「音楽を聴いた印象を記録する」「他のユーザーの感想を参考にしながら音楽を聴く」等々、<br>能動的に音楽を楽しむことができます。
         </v-responsive>
         <v-responsive
           class="mx-auto sub-title font-weight-light mb-8"
           max-width="720"
         >
-          いつもなんとなく音楽を聴いている方や、演奏者ごとの違いを知りたい方、<br>好きな音楽への想いを形にしたい方などにおすすめです。
+          他の人のおすすめの音楽を知りたい方<br>好きな音楽への想いを形にしたい方などにおすすめです。
         </v-responsive>
         <v-responsive
           class="mx-auto mb-12"
@@ -163,7 +165,7 @@ export default {
         {
           src: 'comments.png',
           title: '感想を共有',
-          text: '感想は全ユーザーで共有されます。好きな感想をストックしたり、お気に入りのユーザーをフォローすることができます。\n他の人の感想が新たな音楽との出会いにつながるかもしれません。',
+          text: '感想とプレビュー音源を共有することができます。好きな感想をストックしたり、お気に入りのユーザーをフォローすることも可能です。\n他の人の感想が新たな音楽との出会いにつながるかもしれません。',
         },
         {
           src: 'comment.png',
