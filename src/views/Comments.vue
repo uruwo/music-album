@@ -1,6 +1,6 @@
 <template>
   <div :class="[{'media': $vuetify.breakpoint.xs}, 'container']">
-    <MyStatus></MyStatus>
+    <MyStatus v-if="$vuetify.breakpoint.smAndUp"></MyStatus>
 
     <v-card
       width="700"
@@ -56,7 +56,6 @@
             <v-card color="grey darken-4" class="ma-2">
               <div class="flex">
                 <v-img
-                  :class="[{'d-none': $vuetify.breakpoint.xs}]"
                   :src="music.preview_image ? music.preview_image : 'album.png'"
                   aspect-ratio="1"
                   class="mt-3 mb-2 ml-4"
@@ -96,7 +95,7 @@
 
                 <v-spacer></v-spacer>
 
-                <v-card-title class="pa-0 mr-6">
+                <v-card-title class="pa-0 mr-6" v-if="$vuetify.breakpoint.smAndUp">
                   <v-btn icon v-if="music.user_id === uid" class="d-none">
                   </v-btn>
 
@@ -113,7 +112,7 @@
                   </v-btn>
                 </v-card-title>
 
-                <v-card-title class="pa-0 mr-6" v-if="music.spotify_url">
+                <v-card-title class="pa-0 mr-6" v-if="music.spotify_url && $vuetify.breakpoint.smAndUp">
                   <v-btn icon @click="openSpotify(music.spotify_url)">
                     <v-img src="spotify_icon.png" max-width="29"></v-img>
                   </v-btn>
@@ -123,14 +122,50 @@
               <v-card-text class="pb-0 pt-0 mt-n2">
                 <v-textarea
                   class="mt-0"
+                  :class="[{'pb-3': $vuetify.breakpoint.smAndUp}]"
                   background-color="#1E1E1E"
                   v-model="music.comment"
                   loading="false"
                   readonly
                   auto-grow
+                  hide-details=""
                 >
                 </v-textarea>
               </v-card-text>
+
+              <div class="flex py-1" v-if="$vuetify.breakpoint.xs">
+                <v-spacer></v-spacer>
+
+                <v-btn icon v-if="music.user_id === uid" class="d-none">
+                </v-btn>
+
+                <v-btn
+                  icon
+                  v-else-if="!favorite_comment.includes(music.id)"
+                  @click="addLike({music_id: music.id, creater_id: music.user_id})"
+                  class="mr-4"
+                >
+                  <v-icon size="24">mdi-thumb-up-outline</v-icon>
+                </v-btn>
+
+                <v-btn
+                  icon
+                  v-else
+                  @click="deleteLike(music.id)"
+                  class="mr-4"
+                >
+                  <v-icon size="24" color="blue">mdi-thumb-up</v-icon>
+                </v-btn>
+
+                <v-btn
+                  icon
+                  @click="openSpotify(music.spotify_url)"
+                  class="mr-6"
+                  v-if="music.spotify_url"
+                >
+                  <v-img src="spotify_icon.png" max-width="24"></v-img>
+                </v-btn>
+              </div>
             </v-card>
           </div>
         </div>
