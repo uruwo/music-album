@@ -3,14 +3,16 @@ import Vuex from 'vuex'
 import firebase from 'firebase'
 import axios from 'axios'
 import algoliasearch from 'algoliasearch'
+import login from './modules/login.js'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: {
-    login_user: null,
-    firebase_auth_token: '',
+  modules: {
+    login
+  },
 
+  state: {
     album: [],
     filtered_album: [],
     albums: [],
@@ -58,14 +60,6 @@ export default new Vuex.Store({
     spotify_playlist: []
   },
   mutations: {
-    async setLoginUser (state, {user, token}) {
-      state.login_user = user
-      state.firebase_auth_token = token
-    },
-    deleteLoginUser (state) {
-      state.login_user = null
-    },
-
     addMusic (state, {id, music}) {
       music.id = id
       state.album.unshift(music)
@@ -270,41 +264,6 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    login () {
-      const google_auth_provider = new firebase.auth.GoogleAuthProvider()
-      firebase.auth().signInWithRedirect(google_auth_provider)
-    },
-
-    async logout ({state, getters}) {
-      if (state.login_user.isAnonymous) {
-        const uid = getters.uid
-
-        axios.delete(state.api_follow + '/user', {data: {user_id: uid}, headers: getters.headers})
-
-        await firebase.firestore().collection(`users/${uid}/profile`).get().then(snapshot => snapshot.forEach(doc => {
-          firebase.firestore().collection(`users/${uid}/profile`).doc(doc.id).delete()
-        }))
-
-        await firebase.firestore().collection(`users/${uid}/album`).get().then(snapshot => snapshot.forEach(doc => {
-          firebase.firestore().collection(`users/${uid}/album`).doc(doc.id).delete()
-        }))
-
-        await firebase.firestore().collection(`users/${uid}/albums`).get().then(snapshot => snapshot.forEach(doc => {
-          firebase.firestore().collection(`users/${uid}/albums`).doc(doc.id).delete()
-        }))
-      }
-
-      firebase.auth().signOut()
-    },
-
-    setLoginUser ({ commit }, {user, token}) {
-      commit('setLoginUser', {user: user, token: token})
-    },
-    deleteLoginUser ({commit}) {
-      commit('deleteLoginUser')
-    },
-
-    
     addMusic ({ getters, commit }, music) {
       if (getters.uid) {
         firebase.firestore().collection(`users/${getters.uid}/album`).add(music).then(doc => {
@@ -601,9 +560,9 @@ export default new Vuex.Store({
     }
   },
   getters: {
-    photo_url: state => state.login_user ? state.login_user.photoURL : 'default_user_icon.png',
+    photo_url: rootState => rootState.login.login_user ? rootState.login.login_user.photoURL : 'default_user_icon.png',
     
-    uid: state => state.login_user ? state.login_user.uid : null,
+    uid: rootState => rootState.login.login_user ? rootState.login.login_user.uid : null,
     
     album: state => state.album,
     
@@ -613,8 +572,8 @@ export default new Vuex.Store({
     
     everyones_commented_tracks: state => state.everyones_commented_tracks,
 
-    headers: state => {
-      return {'Authorization': state.firebase_auth_token}
+    headers: rootState => {
+      return {'Authorization': rootState.login.firebase_auth_token}
     }
   }
 })

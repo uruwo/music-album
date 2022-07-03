@@ -11,7 +11,7 @@
       <AlbumForm></AlbumForm>
       <UpdateAlbum></UpdateAlbum>
       <ProfileComment></ProfileComment>
-      <PlayerBar v-if="$store.state.login_user"></PlayerBar>
+      <PlayerBar v-if="$store.state.login.login_user"></PlayerBar>
       <CommentField></CommentField>
 
       <v-container>
