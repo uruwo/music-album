@@ -4,12 +4,14 @@ import firebase from 'firebase'
 import axios from 'axios'
 import algoliasearch from 'algoliasearch'
 import login from './modules/login.js'
+import dialog from './modules/dialog.js'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
-    login
+    login,
+    dialog
   },
 
   state: {
@@ -27,19 +29,19 @@ export default new Vuex.Store({
 
     drawer: false,
 
-    create_music_dialog: false,
-    update_music_dialog: false,
-    music_dialog_key: 0,
+    // create_music_dialog: false,
+    // update_music_dialog: false,
+    // music_dialog_key: 0,
     
-    create_album_dialog: false,
-    update_album_dialog: false,
-    album_dialog_key: 0,
+    // create_album_dialog: false,
+    // update_album_dialog: false,
+    // album_dialog_key: 0,
     
-    comment_dialog: false,
-    comment_dialog_key: 0,
+    // comment_dialog: false,
+    // comment_dialog_key: 0,
     
-    update_profile_dialog: false,
-    profile_dialog_key: 0,
+    // update_profile_dialog: false,
+    // profile_dialog_key: 0,
     
     player_bar: false,
     player_bar_content_key: 0,
@@ -177,33 +179,33 @@ export default new Vuex.Store({
       state.drawer = !state.drawer
     },
 
-    switchCreateMusicDialog (state) {
-      state.create_music_dialog = !state.create_music_dialog
-      state.music_dialog_key++
-    },
-    switchUpdateMusicDialog (state) {
-      state.update_music_dialog = !state.update_music_dialog
-      state.music_dialog_key++
-    },
+    // switchCreateMusicDialog (state) {
+    //   state.create_music_dialog = !state.create_music_dialog
+    //   state.music_dialog_key++
+    // },
+    // switchUpdateMusicDialog (state) {
+    //   state.update_music_dialog = !state.update_music_dialog
+    //   state.music_dialog_key++
+    // },
 
-    switchCreateAlbumDialog (state) {
-      state.create_album_dialog = !state.create_album_dialog
-      state.album_dialog_key++
-    },
-    switchUpdateAlbumDialog (state) {
-      state.update_album_dialog = !state.update_album_dialog
-      state.album_dialog_key++
-    },
+    // switchCreateAlbumDialog (state) {
+    //   state.create_album_dialog = !state.create_album_dialog
+    //   state.album_dialog_key++
+    // },
+    // switchUpdateAlbumDialog (state) {
+    //   state.update_album_dialog = !state.update_album_dialog
+    //   state.album_dialog_key++
+    // },
     
-    switchCommentDialog (state) {
-      state.comment_dialog = !state.comment_dialog
-      state.comment_dialog_key++
-    },
+    // switchCommentDialog (state) {
+    //   state.comment_dialog = !state.comment_dialog
+    //   state.comment_dialog_key++
+    // },
     
-    switchProfileDialog (state) {
-      state.update_profile_dialog = !state.update_profile_dialog
-      state.profile_dialog_key++
-    },
+    // switchProfileDialog (state) {
+    //   state.update_profile_dialog = !state.update_profile_dialog
+    //   state.profile_dialog_key++
+    // },
     
     switchPlayerBar (state) {
       state.player_bar = true
@@ -413,27 +415,27 @@ export default new Vuex.Store({
       commit('toggleSideMenu')
     },
 
-    switchCreateMusicDialog ({commit}) {
-      commit('switchCreateMusicDialog')
-    },
-    switchUpdateMusicDialog ({commit}) {
-      commit('switchUpdateMusicDialog')
-    },
+    // switchCreateMusicDialog ({commit}) {
+    //   commit('switchCreateMusicDialog')
+    // },
+    // switchUpdateMusicDialog ({commit}) {
+    //   commit('switchUpdateMusicDialog')
+    // },
 
-    switchCreateAlbumDialog ({commit}) {
-      commit('switchCreateAlbumDialog')
-    },
-    switchUpdateAlbumDialog ({commit}) {
-      commit('switchUpdateAlbumDialog')
-    },
+    // switchCreateAlbumDialog ({commit}) {
+    //   commit('switchCreateAlbumDialog')
+    // },
+    // switchUpdateAlbumDialog ({commit}) {
+    //   commit('switchUpdateAlbumDialog')
+    // },
 
-    switchCommentDialog ({commit}) {
-      commit('switchCommentDialog')
-    },
+    // switchCommentDialog ({commit}) {
+    //   commit('switchCommentDialog')
+    // },
 
-    switchProfileDialog ({commit}) {
-      commit('switchProfileDialog')
-    },
+    // switchProfileDialog ({commit}) {
+    //   commit('switchProfileDialog')
+    // },
     
     switchPlayerBar ({commit}) {
       commit('switchPlayerBar')
