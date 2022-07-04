@@ -151,7 +151,7 @@ export default {
   ],
   created () {
     if (!this.$route.params.user_id) {
-      this.fetchFavoriteComments(this.$store.state.favorite_comment)
+      this.fetchFavoriteComments(this.$store.state.like.favorite_comment)
     } else {
       this.fetchFavoriteComments(this.favorite_comment)
     }

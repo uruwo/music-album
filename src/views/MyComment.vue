@@ -128,7 +128,7 @@ export default {
   created () {
     this.album = this.$store.state.album
     this.filtered_album = this.$store.state.commented_tracks
-    this.liked_comments = this.$store.state.liked_comments
+    this.liked_comments = this.$store.state.like.liked_comments
 
     if (this.$route.params.keyword !== undefined) {
       this.keyword = this.$route.params.keyword

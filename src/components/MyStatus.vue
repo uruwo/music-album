@@ -102,7 +102,7 @@
           <v-list-item-content>
             <v-list-item-title>いいねした感想</v-list-item-title>
           </v-list-item-content>
-          <p class="text-body-2 my-2">{{ $store.state.favorite_comment.length }}編</p>
+          <p class="text-body-2 my-2">{{ $store.state.like.favorite_comment.length }}編</p>
         </v-list-item>
 
         <v-divider></v-divider>

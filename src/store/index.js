@@ -6,6 +6,7 @@ import algoliasearch from 'algoliasearch'
 import login from './modules/login.js'
 import dialog from './modules/dialog.js'
 import follow from './modules/follow.js'
+import like from './modules/like.js'
 
 Vue.use(Vuex)
 
@@ -13,7 +14,8 @@ export default new Vuex.Store({
   modules: {
     login,
     dialog,
-    follow
+    follow,
+    like
   },
 
   state: {
@@ -33,10 +35,6 @@ export default new Vuex.Store({
     
     player_bar: false,
     player_bar_content_key: 0,
-
-    favorite_comment: [],
-    liked_comments: [],
-    api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment',
     
     new_music_is_loading: false,
     new_album_is_loading: false,
@@ -169,21 +167,6 @@ export default new Vuex.Store({
     switchPlayerBarContent (state, music) {
       state.music_active = music
       state.player_bar_content_key++
-    },
-    
-    addLike (state, music_id) {
-      state.favorite_comment.push(music_id)
-    },
-    deleteLike (state, music_id) {
-      const index = state.favorite_comment.findIndex(id => id === music_id)
-      state.favorite_comment.splice(index, 1)
-    },
-    addLikedComment (state, music_id) {
-      state.liked_comments.push(music_id)
-    },
-    deleteLikedComment (state, music_id) {
-      const array = state.liked_comments.filter(comment => comment !== music_id)
-      state.liked_comments = array
     },
 
     startLoadingNewMusic (state) {
@@ -365,37 +348,6 @@ export default new Vuex.Store({
     },
     switchPlayerBarContent ({commit}, music) {
       commit('switchPlayerBarContent', music)
-    },
-
-    addLike ({ state, getters, commit }, {music_id, creater_id}) {
-      axios.post(state.api_like, { fan_id: getters.uid, music_id: music_id, creater_id: creater_id }, {headers: getters.headers})
-      
-      commit('addLike', music_id)
-    },
-    deleteLike ({ state, getters, commit }, music_id) {
-      axios.delete(state.api_like, {data: { user_id: getters.uid, music_id: music_id }, headers: getters.headers})
-      
-      commit('deleteLike', music_id)
-    },
-    fetchFavoriteComments ({ state, getters, commit }) {
-      axios.get(state.api_like, {params: { user_id: getters.uid }, headers: getters.headers}).then(
-        response => {
-          JSON.parse(response.data.body).forEach(item => commit('addLike', item.music_id))
-        }
-      )
-    },
-    fetchLikedComments ({ state, getters, commit }) {
-      axios.get(state.api_like + '/own-comment', {params: {
-      user_id: getters.uid}, headers: getters.headers}).then(
-        response => {
-          JSON.parse(response.data.body).forEach(item => commit('addLikedComment', item.music_id))
-        }
-      )
-    },
-    deleteLikedComment ({ state, getters, commit }, id) {
-      axios.delete(state.api_like + '/own-comment', {data: {music_id: id}, headers: getters.headers})
-
-      commit('deleteLikedComment', id)
     },
     
     startLoadingNewMusic ({ commit }) {
