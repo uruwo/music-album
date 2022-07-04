@@ -136,8 +136,8 @@ export default {
   },
   created () {
     this.album = this.$store.state.album
-    this.followee = this.$store.state.my_followee
-    this.follower = this.$store.state.my_follower
+    this.followee = this.$store.state.follow.my_followee
+    this.follower = this.$store.state.follow.my_follower
   },
   directives: {
     focus: {

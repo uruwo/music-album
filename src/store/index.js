@@ -5,13 +5,15 @@ import axios from 'axios'
 import algoliasearch from 'algoliasearch'
 import login from './modules/login.js'
 import dialog from './modules/dialog.js'
+import follow from './modules/follow.js'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
     login,
-    dialog
+    dialog,
+    follow
   },
 
   state: {
@@ -35,10 +37,6 @@ export default new Vuex.Store({
     favorite_comment: [],
     liked_comments: [],
     api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment',
-    
-    my_followee: [],
-    my_follower: [],
-    api_follow: 'https://fr93ff6r0j.execute-api.ap-northeast-1.amazonaws.com/follow-function',
     
     new_music_is_loading: false,
     new_album_is_loading: false,
@@ -186,17 +184,6 @@ export default new Vuex.Store({
     deleteLikedComment (state, music_id) {
       const array = state.liked_comments.filter(comment => comment !== music_id)
       state.liked_comments = array
-    },
-
-    addFollowee (state, user_id) {
-      state.my_followee.push(user_id)
-    },
-    deleteFollowee (state, user_id) {
-      const index = state.my_followee.findIndex(id => id === user_id)
-      state.my_followee.splice(index, 1)
-    },
-    addFollower (state, user_id) {
-      state.my_follower.push(user_id)
     },
 
     startLoadingNewMusic (state) {
@@ -410,31 +397,6 @@ export default new Vuex.Store({
 
       commit('deleteLikedComment', id)
     },
-
-    
-    addFollowee ({ state, getters, commit }, user_id) {
-      axios.post(state.api_follow, {follower_id: getters.uid, followee_id: user_id}, {headers: getters.headers})
-      commit('addFollowee', user_id)
-    },
-    deleteFollowee ({ state, getters, commit }, user_id) {
-      axios.delete(state.api_follow, {data: {follower_id: getters.uid, followee_id: user_id}, headers: getters.headers})
-      commit('deleteFollowee', user_id)
-    },
-    fetchFollowee ({ state, getters, commit }) {
-      axios.get(state.api_follow + '/followee', {params: { user_id: getters.uid }, headers: getters.headers}).then(
-        response => {
-          JSON.parse(response.data.body).forEach(item => commit('addFollowee', item.followee))
-        }
-      )
-    },
-    fetchFollower ({ state, getters, commit }) {
-      axios.get(state.api_follow + '/follower', {params: { user_id: getters.uid }, headers: getters.headers}).then(
-        response => {
-          JSON.parse(response.data.body).forEach(item => commit('addFollower', item.follower))
-        }
-      )
-    },
-
     
     startLoadingNewMusic ({ commit }) {
       commit('startLoadingNewMusic')

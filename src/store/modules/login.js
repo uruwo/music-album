@@ -21,11 +21,11 @@ export default {
             firebase.auth().signInWithRedirect(google_auth_provider)
         },
       
-        async logout ({state, rootGetters}) {
+        async logout ({state, rootState, rootGetters}) {
             if (state.login_user.isAnonymous) {
                 const uid = rootGetters.uid
         
-                axios.delete(state.api_follow + '/user', {data: {user_id: uid}, headers: rootGetters.headers})
+                axios.delete(rootState.follow.api_follow + '/user', {data: {user_id: uid}, headers: rootGetters.headers})
         
                 await firebase.firestore().collection(`users/${uid}/profile`).get().then(snapshot => snapshot.forEach(doc => {
                     firebase.firestore().collection(`users/${uid}/profile`).doc(doc.id).delete()

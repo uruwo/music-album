@@ -161,14 +161,14 @@ export default {
 
       firebase.firestore().collection(`users/${user_id}/profile`).get().then(snapshot => snapshot.forEach(doc => this.profile = doc.data()))
       
-      axios.get(this.$store.state.api_follow + '/followee', {params: { user_id: user_id }, headers: this.headers}).then(
+      axios.get(this.$store.state.follow.api_follow + '/followee', {params: { user_id: user_id }, headers: this.headers}).then(
         response => {
           this.followee = []
           JSON.parse(response.data.body).forEach(item => this.followee.push(item.followee))
         }
       )
 
-      axios.get(this.$store.state.api_follow + '/follower', {params: { user_id: user_id }, headers: this.headers}).then(
+      axios.get(this.$store.state.follow.api_follow + '/follower', {params: { user_id: user_id }, headers: this.headers}).then(
         response => {
           this.follower = []
           JSON.parse(response.data.body).forEach(item =>this.follower.push(item.follower))
@@ -182,7 +182,7 @@ export default {
         }
       )
 
-      this.my_followee = this.$store.state.my_followee
+      this.my_followee = this.$store.state.follow.my_followee
     },
     ...mapActions(['addFollowee', 'deleteFollowee'])
   },
