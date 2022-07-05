@@ -45,8 +45,8 @@ export default {
     }
   },
   created () {
-    this.profile = this.$store.state.profile
-    this.comment = this.$store.state.profile.comment
+    this.profile = this.$store.state.profile.profile
+    this.comment = this.$store.state.profile.profile.comment
   },
   methods: {
     cancel () {
@@ -55,7 +55,7 @@ export default {
     },
     saveComment () {
       this.$set(this.profile, 'user_id', this.uid)
-      this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
+      this.updateProfile({id: this.$store.state.profile.profile.id, profile: this.profile})
       this.switchProfileDialog()
     },
     ...mapActions(['switchProfileDialog', 'updateProfile'])

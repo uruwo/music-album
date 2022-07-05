@@ -209,7 +209,7 @@ export default {
   created () {
     this.everyones_commented_tracks = this.$store.state.everyones_commented_tracks
     this.putFilteredAlbum(this.$store.state.album)
-    this.favorite_comment = this.$store.state.favorite_comment
+    this.favorite_comment = this.$store.state.like.favorite_comment
   },
   mounted () {
     this.audio.addEventListener('ended', () => {

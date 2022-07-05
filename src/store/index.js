@@ -1,11 +1,13 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import firebase from 'firebase'
-import axios from 'axios'
 import algoliasearch from 'algoliasearch'
 import login from './modules/login.js'
 import dialog from './modules/dialog.js'
 import follow from './modules/follow.js'
+import like from './modules/like.js'
+import profile from './modules/profile.js'
+import spotify from './modules/spotify.js'
 
 Vue.use(Vuex)
 
@@ -13,7 +15,10 @@ export default new Vuex.Store({
   modules: {
     login,
     dialog,
-    follow
+    follow,
+    like,
+    profile,
+    spotify
   },
 
   state: {
@@ -23,8 +28,6 @@ export default new Vuex.Store({
     commented_tracks: [],
     everyones_commented_tracks: [],
 
-    profile: {},
-
     music_tmp: {},
     album_tmp: {},
     music_active: {},
@@ -33,17 +36,11 @@ export default new Vuex.Store({
     
     player_bar: false,
     player_bar_content_key: 0,
-
-    favorite_comment: [],
-    liked_comments: [],
-    api_like: 'https://vxg2x6u5ck.execute-api.ap-northeast-1.amazonaws.com/favorite-comment',
     
     new_music_is_loading: false,
     new_album_is_loading: false,
     
-    last_page: null,
-    
-    spotify_playlist: []
+    last_page: null
   },
   mutations: {
     addMusic (state, {id, music}) {
@@ -132,14 +129,7 @@ export default new Vuex.Store({
       const index = state.album.findIndex( music => music.id === id)
       delete state.album[index].comment
     },
-    
-    addProfile (state, {id, profile}) {
-      profile.id = id
-      state.profile = profile
-    },
-    updateProfile (state, profile) {
-      state.profile = profile
-    },
+
     updateCommentImage (state, {id, image_url}) {
       const index = state.everyones_commented_tracks.findIndex(music => music.id === id)
       state.everyones_commented_tracks[index].profile_image = image_url
@@ -170,21 +160,6 @@ export default new Vuex.Store({
       state.music_active = music
       state.player_bar_content_key++
     },
-    
-    addLike (state, music_id) {
-      state.favorite_comment.push(music_id)
-    },
-    deleteLike (state, music_id) {
-      const index = state.favorite_comment.findIndex(id => id === music_id)
-      state.favorite_comment.splice(index, 1)
-    },
-    addLikedComment (state, music_id) {
-      state.liked_comments.push(music_id)
-    },
-    deleteLikedComment (state, music_id) {
-      const array = state.liked_comments.filter(comment => comment !== music_id)
-      state.liked_comments = array
-    },
 
     startLoadingNewMusic (state) {
       state.new_music_is_loading = true
@@ -204,11 +179,7 @@ export default new Vuex.Store({
     },
     updateLastPage (state) {
       state.last_page++
-    },
-    
-    fetchPlaylist (state, music) {
-      state.spotify_playlist.push(music)
-    },
+    }
   },
   actions: {
     addMusic ({ getters, commit }, music) {
@@ -313,28 +284,6 @@ export default new Vuex.Store({
       commit('addTmpMusicToEveryones', music)
     },
     
-    fetchProfile ({ getters, commit }) {
-      firebase.firestore().collection(`users/${getters.uid}/profile`).get().then(snapshot => {
-        if (snapshot.docs.length !== 0) {
-          snapshot.forEach(doc => commit('addProfile', { id: doc.id, profile: doc.data() }))
-        } else {
-          const default_profile = {
-            name: 'ユーザー',
-            profile_image: '../../default_user_icon.png',
-            comment: 'Write something you want to appeal.',
-            user_id: getters.uid
-          }
-          firebase.firestore().collection(`users/${getters.uid}/profile`).add(default_profile).then(doc => commit('addProfile', { id: doc.id, profile: default_profile }))
-        }
-      })
-    },
-    updateProfile ({ getters, commit }, {id, profile}) {
-      if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/profile`).doc(id).update(profile).then(() => {
-          commit('updateProfile', profile)
-        })
-      }
-    },
     updateCommentImage ({ getters, commit }, {id, image_url}) {
       firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).set({profile_image: image_url}, {merge: true}).then(() => {
         commit('updateCommentImage', { id, image_url})
@@ -366,37 +315,6 @@ export default new Vuex.Store({
     switchPlayerBarContent ({commit}, music) {
       commit('switchPlayerBarContent', music)
     },
-
-    addLike ({ state, getters, commit }, {music_id, creater_id}) {
-      axios.post(state.api_like, { fan_id: getters.uid, music_id: music_id, creater_id: creater_id }, {headers: getters.headers})
-      
-      commit('addLike', music_id)
-    },
-    deleteLike ({ state, getters, commit }, music_id) {
-      axios.delete(state.api_like, {data: { user_id: getters.uid, music_id: music_id }, headers: getters.headers})
-      
-      commit('deleteLike', music_id)
-    },
-    fetchFavoriteComments ({ state, getters, commit }) {
-      axios.get(state.api_like, {params: { user_id: getters.uid }, headers: getters.headers}).then(
-        response => {
-          JSON.parse(response.data.body).forEach(item => commit('addLike', item.music_id))
-        }
-      )
-    },
-    fetchLikedComments ({ state, getters, commit }) {
-      axios.get(state.api_like + '/own-comment', {params: {
-      user_id: getters.uid}, headers: getters.headers}).then(
-        response => {
-          JSON.parse(response.data.body).forEach(item => commit('addLikedComment', item.music_id))
-        }
-      )
-    },
-    deleteLikedComment ({ state, getters, commit }, id) {
-      axios.delete(state.api_like + '/own-comment', {data: {music_id: id}, headers: getters.headers})
-
-      commit('deleteLikedComment', id)
-    },
     
     startLoadingNewMusic ({ commit }) {
       commit('startLoadingNewMusic')
@@ -413,50 +331,6 @@ export default new Vuex.Store({
 
     updateLastPage ({ commit }) {
       commit('updateLastPage')
-    },
-    
-    fetchPlaylist ({ commit, getters }) {
-      const request = require('request')
-      
-      const authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        headers: {
-          'Authorization': 'Basic ' + process.env.VUE_APP_SPOTIFY_ENCODED_SECRET
-        },
-        form: {
-          grant_type: 'refresh_token',
-          refresh_token: process.env.VUE_APP_SPOTIFY_REFLESH_TOKEN
-        },
-        json: true
-      }
-      
-      request.post(authOptions, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-          const access_token = body.access_token
-          const spotify = require('spotify-web-api-js')
-          const spotify_api = new spotify()
-    
-          spotify_api.setAccessToken(access_token)
-    
-          spotify_api.getPlaylistTracks('4duES3gDWrtRqL8GvvxCWw').then(data => {
-            const items = data.items
-            items.forEach(item => {
-              const music = {
-                title: item.track.name,
-                artist: item.track.artists[0].name,
-                image_url: item.track.album.images[0].url,
-                preview_audio: item.track.preview_url,
-                preview_image: item.track.album.images[0].url,
-                audio_url: item.track.preview_url,
-                spotify_url: item.track.external_urls.spotify
-              }
-              commit('fetchPlaylist', music)
-            })
-          })
-
-          axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: getters.uid, access_token: access_token}, {headers: getters.headers})
-        }
-      })
     }
   },
   getters: {

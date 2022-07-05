@@ -108,8 +108,8 @@ export default {
       this.switchCommentDialog()
 
       if (!this.music.profile_name) {
-        this.$set(this.music, 'profile_name', this.$store.state.profile.name)
-        this.$set(this.music, 'profile_image', this.$store.state.profile.profile_image)
+        this.$set(this.music, 'profile_name', this.$store.state.profile.profile.name)
+        this.$set(this.music, 'profile_image', this.$store.state.profile.profile.profile_image)
       }
 
       if (!this.music.date) {

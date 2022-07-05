@@ -3,7 +3,7 @@
     <v-list-item>
       <v-list-item-content class="py-2">
         <v-list-item-title v-if="!edit" class="text-center mb-2 ml-4">
-          {{ $store.state.profile.name }}
+          {{ $store.state.profile.profile.name }}
           <v-icon small @click="doEdit">mdi-pencil</v-icon>
         </v-list-item-title>
 
@@ -102,7 +102,7 @@
           <v-list-item-content>
             <v-list-item-title>いいねした感想</v-list-item-title>
           </v-list-item-content>
-          <p class="text-body-2 my-2">{{ $store.state.favorite_comment.length }}編</p>
+          <p class="text-body-2 my-2">{{ $store.state.like.favorite_comment.length }}編</p>
         </v-list-item>
 
         <v-divider></v-divider>
@@ -115,7 +115,7 @@
         <v-icon small @click="switchProfileDialog">mdi-pencil</v-icon>
       </v-list-item>
     </v-list>
-    <p class="font-size px-4">{{ $store.state.profile.comment }}</p>
+    <p class="font-size px-4">{{ $store.state.profile.profile.comment }}</p>
   </v-card>
 </template>
 
@@ -151,7 +151,7 @@ export default {
       this.$refs.blur_this.blur()
     },
     setProfile () {
-      this.profile = this.$store.state.profile
+      this.profile = this.$store.state.profile.profile
     },
     doEdit () {
       this.edit = true
@@ -160,7 +160,7 @@ export default {
     changeName () {
       this.$set(this.profile, 'user_id', this.uid)
 
-      this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
+      this.updateProfile({id: this.$store.state.profile.profile.id, profile: this.profile})
 
       this.$store.state.commented_tracks.forEach(music => this.updateCommentUserName({id: music.id, user_name: this.profile.name}))
 
@@ -177,7 +177,7 @@ export default {
 
       this.$store.state.album.forEach(music => this.updateCommentImage({id: music.id, image_url: this.profile.profile_image}))
 
-      this.updateProfile({id: this.$store.state.profile.id, profile: this.profile})
+      this.updateProfile({id: this.$store.state.profile.profile.id, profile: this.profile})
 
       function onResolve(url) {
         that.$set(that.profile, 'profile_image', url)
@@ -205,8 +205,8 @@ export default {
       return (this.album.filter(music => music.comment)).length
     },
     profileImage: function () {
-      if (this.$store.state.profile.profile_image) {
-        return this.$store.state.profile.profile_image
+      if (this.$store.state.profile.profile.profile_image) {
+        return this.$store.state.profile.profile.profile_image
       } else {
         return '../../default_user_icon.png'
       }

@@ -148,7 +148,7 @@ export default {
     }
   },
   created () {
-    this.music_list = this.$store.state.spotify_playlist
+    this.music_list = this.$store.state.spotify.spotify_playlist
   },
   mounted () {
     this.audio.addEventListener('ended', () => {
@@ -161,7 +161,7 @@ export default {
   watch: {
     keyword: function (newVal) {
       if (!newVal) {
-        this.music_list = this.$store.state.spotify_playlist
+        this.music_list = this.$store.state.spotify.spotify_playlist
       }
     },
     myAlbum () {
