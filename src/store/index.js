@@ -1,13 +1,13 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import firebase from 'firebase'
-import axios from 'axios'
 import algoliasearch from 'algoliasearch'
 import login from './modules/login.js'
 import dialog from './modules/dialog.js'
 import follow from './modules/follow.js'
 import like from './modules/like.js'
 import profile from './modules/profile.js'
+import spotify from './modules/spotify.js'
 
 Vue.use(Vuex)
 
@@ -17,7 +17,8 @@ export default new Vuex.Store({
     dialog,
     follow,
     like,
-    profile
+    profile,
+    spotify
   },
 
   state: {
@@ -39,9 +40,7 @@ export default new Vuex.Store({
     new_music_is_loading: false,
     new_album_is_loading: false,
     
-    last_page: null,
-    
-    spotify_playlist: []
+    last_page: null
   },
   mutations: {
     addMusic (state, {id, music}) {
@@ -180,11 +179,7 @@ export default new Vuex.Store({
     },
     updateLastPage (state) {
       state.last_page++
-    },
-    
-    fetchPlaylist (state, music) {
-      state.spotify_playlist.push(music)
-    },
+    }
   },
   actions: {
     addMusic ({ getters, commit }, music) {
@@ -336,50 +331,6 @@ export default new Vuex.Store({
 
     updateLastPage ({ commit }) {
       commit('updateLastPage')
-    },
-    
-    fetchPlaylist ({ commit, getters }) {
-      const request = require('request')
-      
-      const authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        headers: {
-          'Authorization': 'Basic ' + process.env.VUE_APP_SPOTIFY_ENCODED_SECRET
-        },
-        form: {
-          grant_type: 'refresh_token',
-          refresh_token: process.env.VUE_APP_SPOTIFY_REFLESH_TOKEN
-        },
-        json: true
-      }
-      
-      request.post(authOptions, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-          const access_token = body.access_token
-          const spotify = require('spotify-web-api-js')
-          const spotify_api = new spotify()
-    
-          spotify_api.setAccessToken(access_token)
-    
-          spotify_api.getPlaylistTracks('4duES3gDWrtRqL8GvvxCWw').then(data => {
-            const items = data.items
-            items.forEach(item => {
-              const music = {
-                title: item.track.name,
-                artist: item.track.artists[0].name,
-                image_url: item.track.album.images[0].url,
-                preview_audio: item.track.preview_url,
-                preview_image: item.track.album.images[0].url,
-                audio_url: item.track.preview_url,
-                spotify_url: item.track.external_urls.spotify
-              }
-              commit('fetchPlaylist', music)
-            })
-          })
-
-          axios.post('https://fy393u9qvd.execute-api.ap-northeast-1.amazonaws.com/access-token', {user_id: getters.uid, access_token: access_token}, {headers: getters.headers})
-        }
-      })
     }
   },
   getters: {
