@@ -6,7 +6,7 @@
   >
     <v-row>
       <v-col class="d-none d-sm-flex">
-        <v-card-title class="subtitle-1 py-3">{{ $store.state.profile.name }}さんの感想</v-card-title>
+        <v-card-title class="subtitle-1 py-3">{{ $store.state.profile.profile.name }}さんの感想</v-card-title>
       </v-col>
 
       <v-col>
@@ -49,7 +49,7 @@
         </div>
 
         <div class="flex-grow">
-          <p class="ml-2 mb-2">{{ $store.state.profile.name }}</p>
+          <p class="ml-2 mb-2">{{ $store.state.profile.profile.name }}</p>
           <v-card color="grey darken-4" class="ma-2">
             <div class="flex">
               <v-img
@@ -190,8 +190,8 @@ export default {
       }
     },
     profileImage: function () {
-      if (this.$store.state.profile.profile_image) {
-        return this.$store.state.profile.profile_image
+      if (this.$store.state.profile.profile.profile_image) {
+        return this.$store.state.profile.profile.profile_image
       } else {
         return '../../default_user_icon.png'
       }

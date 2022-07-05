@@ -5,7 +5,7 @@
     <router-view
       :follower="follower"
       :followee="followee"
-      :profile="$store.state.profile"
+      :profile="$store.state.profile.profile"
       :artists_album="artists_album"
       :titles_album="titles_album"
       :comments="comments"

@@ -7,6 +7,7 @@ import login from './modules/login.js'
 import dialog from './modules/dialog.js'
 import follow from './modules/follow.js'
 import like from './modules/like.js'
+import profile from './modules/profile.js'
 
 Vue.use(Vuex)
 
@@ -15,7 +16,8 @@ export default new Vuex.Store({
     login,
     dialog,
     follow,
-    like
+    like,
+    profile
   },
 
   state: {
@@ -24,8 +26,6 @@ export default new Vuex.Store({
     albums: [],
     commented_tracks: [],
     everyones_commented_tracks: [],
-
-    profile: {},
 
     music_tmp: {},
     album_tmp: {},
@@ -130,14 +130,7 @@ export default new Vuex.Store({
       const index = state.album.findIndex( music => music.id === id)
       delete state.album[index].comment
     },
-    
-    addProfile (state, {id, profile}) {
-      profile.id = id
-      state.profile = profile
-    },
-    updateProfile (state, profile) {
-      state.profile = profile
-    },
+
     updateCommentImage (state, {id, image_url}) {
       const index = state.everyones_commented_tracks.findIndex(music => music.id === id)
       state.everyones_commented_tracks[index].profile_image = image_url
@@ -296,28 +289,6 @@ export default new Vuex.Store({
       commit('addTmpMusicToEveryones', music)
     },
     
-    fetchProfile ({ getters, commit }) {
-      firebase.firestore().collection(`users/${getters.uid}/profile`).get().then(snapshot => {
-        if (snapshot.docs.length !== 0) {
-          snapshot.forEach(doc => commit('addProfile', { id: doc.id, profile: doc.data() }))
-        } else {
-          const default_profile = {
-            name: 'ユーザー',
-            profile_image: '../../default_user_icon.png',
-            comment: 'Write something you want to appeal.',
-            user_id: getters.uid
-          }
-          firebase.firestore().collection(`users/${getters.uid}/profile`).add(default_profile).then(doc => commit('addProfile', { id: doc.id, profile: default_profile }))
-        }
-      })
-    },
-    updateProfile ({ getters, commit }, {id, profile}) {
-      if (getters.uid) {
-        firebase.firestore().collection(`users/${getters.uid}/profile`).doc(id).update(profile).then(() => {
-          commit('updateProfile', profile)
-        })
-      }
-    },
     updateCommentImage ({ getters, commit }, {id, image_url}) {
       firebase.firestore().collection(`users/${getters.uid}/album`).doc(id).set({profile_image: image_url}, {merge: true}).then(() => {
         commit('updateCommentImage', { id, image_url})
