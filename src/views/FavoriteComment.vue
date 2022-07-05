@@ -96,7 +96,7 @@
                 <v-btn
                   icon
                   @click="addLike({music_id: music.id, creater_id: music.user_id})"
-                  v-else-if="!$store.state.favorite_comment.includes(music.id)"
+                  v-else-if="!$store.state.like.favorite_comment.includes(music.id)"
                 >
                   <v-icon>mdi-thumb-up-outline</v-icon>
                 </v-btn>
