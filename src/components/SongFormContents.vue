@@ -12,7 +12,7 @@
               <v-file-input 
                 accept="audio/*" 
                 label="楽曲を選択" 
-                @change="inputAudioFile" 
+                @change="getAudioFileTags" 
                 v-if="show" 
                 small-chips 
                 prepend-icon="mdi-file-music-outline" 
@@ -132,7 +132,7 @@ import { mapGetters } from 'vuex'
       inputImageFile (event) {
         this.file_image = event
       },
-      async inputAudioFile (event) {
+      async getAudioFileTags (event) {
         if (!event || (!event.name.includes('.m4a') && !event.name.includes('.mp3'))) {
           return
         }
@@ -173,7 +173,10 @@ import { mapGetters } from 'vuex'
         this.$set(this.music, 'title', audio_info.title)
         this.$set(this.music, 'artist', audio_info.artist)
 
-        fetch('data:image/jpeg;base64,' + audio_info.image).then(response => response.blob()).then(blob => new File([blob], audio_info.album + '.jpeg')).then(file => this.file_image = file)
+        fetch('data:image/jpeg;base64,' + audio_info.image)
+        .then(response => response.blob())
+        .then(blob => new File([blob], audio_info.album + '.jpeg'))
+        .then(file => this.file_image = file)
       },
       async fileUpload () {
         if (!this.$refs.form.validate()) {
