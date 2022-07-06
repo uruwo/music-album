@@ -216,6 +216,9 @@ export default {
       this.is_play = null
     })
   },
+  beforeDestroy () {
+    this.audio.pause()
+  },
   watch: {
     keyword: function (newVal) {
       if (!newVal) {
