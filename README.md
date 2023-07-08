@@ -1,5 +1,5 @@
 # Music Album
-You can checkout the app on https://music-album.com!
+~~You can checkout the app on https://music-album.com!~~
 
 https://user-images.githubusercontent.com/84354821/161472932-3c68e127-fd61-4086-9920-1cb86f6d01d5.mp4
 
@@ -15,7 +15,7 @@ Follow this guide to set up your environment etc.
 ### Downloading and installing steps
 1. Clone this repository
 ```
-git clone https://github.com/ruo0o0/music-album.git
+git clone https://github.com/uruwo/music-album.git
 ```
 2. Go into the repository
 ```
